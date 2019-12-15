@@ -4,7 +4,8 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
+using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using CefSharp;
@@ -14,7 +15,7 @@ using CefSharp.Handler;
 using AeroEpubViewer.Epub;
 namespace AeroEpubViewer
 {
-    public partial class EpubViewer : Form
+    public class EpubViewer : Form
     {
         ChromiumWebBrowser chromium;
 
@@ -26,7 +27,7 @@ namespace AeroEpubViewer
             chromium.Dock = DockStyle.Fill;
             chromium.IsBrowserInitializedChanged += OnLoad;
 
-            chromium.LoadingStateChanged += SendUrlListWhenLoad;
+            chromium.LoadingStateChanged += SendDataWhenLoad;
 
             InitializeComponent();
             this.Text = string.Format("AeroEpubViewer - {0}", Program.epub.title);
@@ -36,17 +37,47 @@ namespace AeroEpubViewer
             chromium.ShowDevTools();
         }
 
-        void SendUrlListWhenLoad(Object sender, LoadingStateChangedEventArgs e)
+        void SendDataWhenLoad(Object sender, LoadingStateChangedEventArgs e)
         {
             if (e.IsLoading == true) return;
-                string jsCmd = "";
+            string jsCmd = "";
+            if (Program.epub.spine.pageProgressionDirection == "rtl")
+            {
+                chromium.ExecuteScriptAsync("direction = direction_rtl;");
+            }
             foreach (var i in Program.epub.spine)
             {
                 jsCmd += string.Format(",'{0}'", "aeroepub://book/" + i.ToString());
             }
             jsCmd = string.Format("Init([{0}])", jsCmd.Substring(1));
             chromium.ExecuteScriptAsync(jsCmd);
-            chromium.LoadingStateChanged -= SendUrlListWhenLoad;
+            if (Program.epub.spine.toc != null) 
+            {
+                string toc = (Program.epub.spine.toc.GetData() as TextEpubItemFile).text;
+               Match m= Regex.Match(toc, "<navMap>([\\s\\S]*?)</navMap>");
+                if (m.Success)
+                {
+                    chromium.ExecuteScriptAsync("LoadToc", m.Groups[1],Path.GetDirectoryName(Program.epub.spine.toc.href));
+                }
+                else 
+                {
+                    Log.log("[Error]at TOC loading:"+ Program.epub.spine.toc);
+                }
+            }
+
+            chromium.LoadingStateChanged -= SendDataWhenLoad;
+
+        }
+
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            // 
+            // EpubViewer
+            // 
+            this.ClientSize = new System.Drawing.Size(924, 474);
+            this.Name = "EpubViewer";
+            this.ResumeLayout(false);
 
         }
     }

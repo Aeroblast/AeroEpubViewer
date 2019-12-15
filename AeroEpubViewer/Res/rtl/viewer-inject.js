@@ -1,4 +1,4 @@
 ﻿window.onmousewheel = function(e)
 {
-    this.parent.document.Scroll(Math.sign(e.wheelDelta)*30);
+    this.parent.document.Scroll(Math.sign(e.wheelDelta)*40);
 }

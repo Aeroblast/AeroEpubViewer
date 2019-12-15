@@ -1,4 +1,6 @@
 .vs
 packages
 debug
+bin
+obj
 *.epub

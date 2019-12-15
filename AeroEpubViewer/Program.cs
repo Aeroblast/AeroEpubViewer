@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 using CefSharp;
 using CefSharp.Web;
 using CefSharp.WinForms;
@@ -29,15 +30,15 @@ namespace AeroEpubViewer
                 SchemeName = "aeroepub",
                 SchemeHandlerFactory = new AeroEpubSchemeHandlerFactory()
             });
-
+            settings.CachePath = Path.GetTempPath()+"AEVCache";
             Cef.Initialize(settings);
-            epub =new  EpubFile(args[0]);
-            Application.Run(new EpubViewer());
-      
-
-
-
-
+            if (args.Length > 0)
+                if (File.Exists(args[0])) 
+                {
+                    epub = new EpubFile(args[0]);
+                    Application.Run(new EpubViewer());
+                }
+            Util.DeleteDir(settings.CachePath);
         }
     }
 

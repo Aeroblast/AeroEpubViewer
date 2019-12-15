@@ -18,6 +18,7 @@
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -30,7 +31,6 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -90,7 +90,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AeroEpubSchemeHandlerFactory.cs" />
-    <Compile Include="EpubViewer.Designer.cs" />
     <Compile Include="EpubViewer.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -100,6 +99,9 @@
     <Compile Include="Utils\Log.cs" />
     <Compile Include="Utils\Util.cs" />
     <Compile Include="Utils\UtilXML.cs" />
+    <EmbeddedResource Include="EpubViewer.resx">
+      <DependentUpon>EpubViewer.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

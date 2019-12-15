@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
 [assembly: AssemblyTitle("AeroEpubViewer")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("https://github.com/Aeroblast/AeroEpubViewer")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Aeroblast")]
 [assembly: AssemblyProduct("AeroEpubViewer")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("")]
