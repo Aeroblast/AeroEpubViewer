@@ -1,0 +1,107 @@
+﻿<html>
+<head>
+    <title>Viewer/rtl</title>
+    <style>
+        iframe {
+        position:fixed;
+        height:90vh;
+        overflow:hidden;
+        top:0;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        var frameList = new Array();
+        var urlList;
+        function Init(_urlList)
+        {
+            urlList = _urlList;
+            let page = CreateFrame(0,0);
+            page.style.right ="0";
+            frameList.push(page);
+            
+            document.Scroll = Scroll;
+            CheckLoad();
+        }
+        function CreateFrame(urlIndex,pos,addSelfWidth=false)
+        {
+            let page = document.createElement("iframe");
+            //private use
+            page.pos = pos;
+            page.urlIndex = urlIndex;
+            if (urlIndex == 0) page.firstFrame = true; else page.firstFrame = false;
+            if (urlIndex == urlList.length - 1) page.lastFrame = true; else page.lastFrame = false;
+
+            page.scrolling = "no";
+            page.frameBorder = "0";
+            page.src = urlList[urlIndex];
+            page.onload = function ()
+            {
+                page.width = page.contentWindow.document.body.scrollWidth + "px";
+                page.style.right = page.pos+ "px";
+            }
+            document.body.appendChild(page);
+            if (addSelfWidth)
+            {
+                page.pos = pos - page.offsetWidth;
+                page.style.right = page.pos+ "px";
+            }
+            return page;
+        }
+        function Scroll(px)
+        {
+            if (frameList[0].firstFrame&&px>0)
+            {
+                if (frameList[0].pos + px > 0) { px =- frameList[0].pos;}
+            }
+            frameList.forEach((e) => {
+                e.pos += px;
+                e.style.right = e.pos + "px";
+            });
+            CheckLoad();
+        }
+        function CheckLoad()
+        {
+            var offScreenDestoryDistance = 50;
+            var preLoadDistance = 50;
+            let last = frameList[frameList.length - 1];
+
+            if (last.pos + last.offsetWidth < window.innerWidth + preLoadDistance)
+            {
+                if (!last.lastFrame)
+                {
+                    frameList.push(CreateFrame(last.urlIndex + 1, last.pos + last.offsetWidth));
+                    CheckLoad();
+                }
+            }
+            
+           if (last.pos >window.innerWidth+offScreenDestoryDistance)
+           {
+               last.parentNode.removeChild(last);
+               frameList.pop();
+               CheckLoad();
+            }
+            let first = frameList[0];
+            if (-first.pos < preLoadDistance)
+            {
+                if (!first.firstFrame)
+                {
+                    frameList.unshift(CreateFrame(first.urlIndex - 1, first.pos, true));
+                    CheckLoad();
+                }
+            }
+
+            if (first.pos + first.offsetWidth < offScreenDestoryDistance)
+            {
+                first.parentNode.removeChild(first);
+                frameList.shift();
+            }
+
+        }
+
+
+    </script>
+</body>
+
+</html>
