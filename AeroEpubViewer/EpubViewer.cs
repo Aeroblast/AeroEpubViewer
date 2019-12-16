@@ -17,20 +17,20 @@ namespace AeroEpubViewer
 {
     public class EpubViewer : Form
     {
-        ChromiumWebBrowser chromium;
+        public static ChromiumWebBrowser chromium;
 
         public EpubViewer()
         {
-            chromium = new ChromiumWebBrowser("aeroepub://viewer/rtl/viewer.html");
+            chromium = new ChromiumWebBrowser("aeroepub://viewer/viewer.html");
             chromium.BrowserSettings.WebSecurity = CefState.Disabled; ;
             this.Controls.Add(chromium);
             chromium.Dock = DockStyle.Fill;
             chromium.IsBrowserInitializedChanged += OnLoad;
-
             chromium.LoadingStateChanged += SendDataWhenLoad;
 
             InitializeComponent();
             this.Text = string.Format("AeroEpubViewer - {0}", Program.epub.title);
+            ResizeEnd += (e, arg) => { chromium.Reload(true); chromium.LoadingStateChanged += SendDataWhenLoad; };
         }
         private void OnLoad(Object sender, EventArgs e)
         {
@@ -72,10 +72,18 @@ namespace AeroEpubViewer
         private void InitializeComponent()
         {
             this.SuspendLayout();
-            // 
-            // EpubViewer
-            // 
-            this.ClientSize = new System.Drawing.Size(924, 474);
+            var size = new System.Drawing.Size();
+            if (Program.epub.spine.pageProgressionDirection == "rtl")
+            {
+                size.Width = Screen.PrimaryScreen.WorkingArea.Width * 4 / 5;
+                size.Height = Screen.PrimaryScreen.WorkingArea.Height * 4 / 5;
+            }
+            else
+            {
+                size.Height = Screen.PrimaryScreen.WorkingArea.Height * 4 / 5;
+                size.Width = size.Height * 4 / 5;
+            }
+            this.ClientSize = size;
             this.Name = "EpubViewer";
             this.ResumeLayout(false);
 

@@ -1,20 +1,71 @@
 ﻿<html>
 <head>
-    <title>Viewer/rtl</title>
+    <title>Viewer</title>
     <style>
+        body {
+            overflow: hidden;
+        }
+
         iframe {
             position: fixed;
             overflow: hidden;
+            z-index: 5;
+        }
+
+        #navSwitch {
+            position: fixed;
+            height: 10vh;
+            width: 10vw;
+            left: 0;
+            top: 0;
+            background: transparent;
+            z-index: 11;
         }
 
         #nav {
             position: fixed;
-            height: 95vh;
+            height: 0vh;
             left: 0;
             top: 0;
             z-index: 10;
-            background: white;
-            border: solid 1px;
+            background: transparent;
+            overflow: hidden;
+            padding-top: 10vh;
+            padding-left: 2vw;
+            padding-right: 2vw;
+        }
+
+            #nav::-webkit-scrollbar {
+                display: none;
+            }
+
+        @keyframes navDisplay {
+            from {
+                height: 0vh;
+                overflow: hidden;
+                background: transparent;
+            }
+
+            to {
+                height: 89vh;
+                overflow: scroll;
+                background: #ababab;
+            }
+        }
+
+        @keyframes navHide {
+
+            from {
+                height: 89vh;
+                overflow: scroll;
+                background: #ababab;
+            }
+
+            to {
+                height: 0vh;
+                overflow: hidden;
+                background: transparent;
+            }
         }
 
         navLabel {
@@ -31,7 +82,9 @@
     </style>
 </head>
 <body>
-    <div id="nav"></div>
+    <div id="navSwitch" onclick="NavSwitch()"></div>
+    <div id="nav" style=""></div>
+    <div id="mouseListener" style="position:relative;z-index:1;width:100vw;height:100vh;left:0;top:0;"></div>
     <script>
         var direction_rtl = new Object();
         direction_rtl.GetFrameLength = function (e) { return e.offsetWidth; }
@@ -44,7 +97,7 @@
         direction_default.GetWindowLength = function () { return window.innerHeight; }
         direction_default.AdjustFrameSize = function (f) { f.height = f.contentWindow.document.body.scrollHeight + "px"; }
         direction_default.SetPosStyle = function (e) { e.style.top = e.pos + "px"; }
-        direction_default.style = "iframe{width:90vw;right:0;}";
+        direction_default.style = "iframe{width:95vw;left:0;}";
 
         var direction = direction_default;
 
@@ -59,8 +112,8 @@
             style.innerHTML = direction.style;
             document.head.appendChild(style);
             urlList = _urlList;
-            window.onmousewheel = function (e) {
-                document.Scroll(Math.sign(e.wheelDelta) * 40);
+            document.getElementById("mouseListener").onmousewheel = function (e) {
+                document.Scroll(Math.sign(e.wheelDelta)*40);
             }
 
 
@@ -79,6 +132,7 @@
                 let content = p.getElementsByTagName("content")[0];
                 label.onclick = function () {
                     Link(path + "/" + content.getAttribute("src"));
+                    NavSwitch();
                 }
             });
         }
@@ -185,8 +239,21 @@
             }
         }
 
-
-
+        var nav = document.getElementById("nav");
+        var navOn = false;
+        function NavSwitch() {
+            if (navOn) {
+                navOn = false;
+                nav.style.animation = "navHide 0.5s ease 0s 1 ";
+                   
+            } else {
+                navOn = true;
+                nav.style.animation = "navDisplay 0.5s ease 0s 1";
+               
+            }
+             nav.style.animationFillMode = "forwards";
+            
+        }
 
     </script>
 </body>
