@@ -19,12 +19,7 @@ namespace AeroEpubViewer
     {
         public const string SchemeName = "aeroepub";
         Assembly assembly = Assembly.GetExecutingAssembly();
-        CssHack cssHack;
-        
-        static AeroEpubSchemeHandlerFactory()
-        {
 
-        }
 
         public IResourceHandler Create(IBrowser browser, IFrame frame, string schemeName, IRequest request)
         {

@@ -49,7 +49,7 @@
             to {
                 height: 89vh;
                 overflow: scroll;
-                background: #fffd93;
+                background: #ababab;
             }
         }
 
@@ -58,7 +58,7 @@
             from {
                 height: 89vh;
                 overflow: scroll;
-                background: #fffd93;
+                background: #ababab;
             }
 
             to {
@@ -97,7 +97,7 @@
         direction_default.GetWindowLength = function () { return window.innerHeight; }
         direction_default.AdjustFrameSize = function (f) { f.height = f.contentWindow.document.body.scrollHeight + "px"; }
         direction_default.SetPosStyle = function (e) { e.style.top = e.pos + "px"; }
-        direction_default.style = "iframe{width:90vw;right:0;}";
+        direction_default.style = "iframe{width:95vw;left:0;}";
 
         var direction = direction_default;
 
@@ -132,6 +132,7 @@
                 let content = p.getElementsByTagName("content")[0];
                 label.onclick = function () {
                     Link(path + "/" + content.getAttribute("src"));
+                    NavSwitch();
                 }
             });
         }

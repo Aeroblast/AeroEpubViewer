@@ -72,10 +72,18 @@ namespace AeroEpubViewer
         private void InitializeComponent()
         {
             this.SuspendLayout();
-            // 
-            // EpubViewer
-            // 
-            this.ClientSize = new System.Drawing.Size(924, 474);
+            var size = new System.Drawing.Size();
+            if (Program.epub.spine.pageProgressionDirection == "rtl")
+            {
+                size.Width = Screen.PrimaryScreen.WorkingArea.Width * 4 / 5;
+                size.Height = Screen.PrimaryScreen.WorkingArea.Height * 4 / 5;
+            }
+            else
+            {
+                size.Height = Screen.PrimaryScreen.WorkingArea.Height * 4 / 5;
+                size.Width = size.Height * 4 / 5;
+            }
+            this.ClientSize = size;
             this.Name = "EpubViewer";
             this.ResumeLayout(false);
 

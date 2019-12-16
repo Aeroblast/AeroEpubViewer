@@ -2,6 +2,11 @@
     max-height:100vh;
     max-width:100vw;
 }
+div > img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+}
 img {
     max-height: 100vh;
     max-width: 100vw;
