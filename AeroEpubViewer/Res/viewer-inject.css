@@ -15,4 +15,9 @@ img {
 body {
 padding-top:3vh;
 padding-bottom:3vh;
+font-family: 'default';
+}
+@font-face {
+    font-family: 'default';
+    src: local('MS Mincho'), local('GreenWeb-Regular');
 }

@@ -92,13 +92,28 @@
         direction_rtl.AdjustFrameSize = function (f) { f.width = f.contentWindow.document.body.scrollWidth + "px"; }
         direction_rtl.SetPosStyle = function (e) { e.style.right = e.pos + "px"; }
         direction_rtl.style = "iframe{height:90vh;top:0;}";
+        direction_rtl.KeyToDirection=function(k){
+            switch (k) {
+                case "ArrowLeft": return -1;
+                case "ArrowUp": return 1;
+                case "ArrowRight": return 1;
+                case "ArrowDown": return -1;
+            }
+            return 0;
+        }
         var direction_default = new Object();
         direction_default.GetFrameLength = function (e) { return e.offsetHeight; }
         direction_default.GetWindowLength = function () { return window.innerHeight; }
         direction_default.AdjustFrameSize = function (f) { f.height = f.contentWindow.document.body.scrollHeight + "px"; }
         direction_default.SetPosStyle = function (e) { e.style.top = e.pos + "px"; }
         direction_default.style = "iframe{width:95vw;left:0;}";
-
+        direction_default.KeyToDirection = function (k) {
+            switch (k) {
+                case "ArrowUp": return 1;
+                case "ArrowDown": return -1;
+            }
+            return 0;
+        }
         var direction = direction_default;
 
 
@@ -115,6 +130,11 @@
             document.getElementById("mouseListener").onmousewheel = function (e) {
                 document.Scroll(Math.sign(e.wheelDelta)*40);
             }
+            document.keydown = function (e) {
+                let d = direction.KeyToDirection(e.key);
+                Scroll(d * 30);
+            };
+            document.addEventListener("keydown", document.keydown);
 
 
             let page = CreateFrame(start, 0, CheckLoad);
