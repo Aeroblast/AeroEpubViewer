@@ -86,6 +86,11 @@ namespace AeroEpubViewer
             else return null;
         
         }
+        static Random random = new Random();
+        public static int RandomRange(int start = 0, int end = int.MaxValue)
+        {
+            return random.Next(start,end);
+        }
     }
 
 

@@ -19,6 +19,7 @@ namespace AeroEpubViewer
     {
         public const string SchemeName = "aeroepub";
         Assembly assembly = Assembly.GetExecutingAssembly();
+        CssHack cssHack;
         
         static AeroEpubSchemeHandlerFactory()
         {
@@ -41,13 +42,20 @@ namespace AeroEpubViewer
                             //To-do:注入样式，js
                             if (i.href.EndsWith("html")) 
                             {
-                                string cssInject = "<link href=\"aeroepub://viewer/rtl/viewer-inject.css\" rel=\"stylesheet\" type=\"text/css\"/>";
-                                string jsInject = "<script src=\"aeroepub://viewer/rtl/viewer-inject.js\"></script>";
+                                string cssInject = "<link href=\"aeroepub://viewer/viewer-inject.css?random={0}\" rel=\"stylesheet\" type=\"text/css\"/>";
+                                string jsInject = "<script src=\"aeroepub://viewer/viewer-inject.js?random={0}\"></script>";
+                                cssInject = string.Format(cssInject,Util.RandomRange());
+                                jsInject = string.Format(jsInject, Util.RandomRange());
                                 string content = (i.GetData() as TextEpubItemFile).text;
                                 content = content.Replace("</head>", cssInject + "\n</head>").Replace("</body>",jsInject+"\n</body>");
                                 return ResourceHandler.FromString(content);
-
-
+                            }
+                            if (i.href.EndsWith("css")) 
+                            {
+                                //html里的其实也应该处理……
+                                string content = (i.GetData() as TextEpubItemFile).text;
+                                content = CssHack.Hack(content,EpubViewer.chromium);
+                                return ResourceHandler.FromString(content,null,true,i.mediaType);
                             }
                             return ResourceHandler.FromByteArray(i.GetData().GetBytes(), i.mediaType);
                         }
@@ -58,6 +66,12 @@ namespace AeroEpubViewer
                     {
                         var filename = uri.AbsolutePath.Substring(1).Replace("/",".") ;
                         Stream fs = assembly.GetManifestResourceStream("AeroEpubViewer.Res."+filename);
+                        if (filename.EndsWith("css"))
+                        {
+                            string content =new StreamReader(fs).ReadToEnd();
+                            content = CssHack.Hack(content, EpubViewer.chromium);
+                            return ResourceHandler.FromString(content, null, true, "text/css");
+                        }
                         string mime=Util.GetMimeType(filename);
                         if(mime!=null)
                             return ResourceHandler.FromStream(fs,mime);

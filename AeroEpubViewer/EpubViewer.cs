@@ -17,20 +17,20 @@ namespace AeroEpubViewer
 {
     public class EpubViewer : Form
     {
-        ChromiumWebBrowser chromium;
+        public static ChromiumWebBrowser chromium;
 
         public EpubViewer()
         {
-            chromium = new ChromiumWebBrowser("aeroepub://viewer/rtl/viewer.html");
+            chromium = new ChromiumWebBrowser("aeroepub://viewer/viewer.html");
             chromium.BrowserSettings.WebSecurity = CefState.Disabled; ;
             this.Controls.Add(chromium);
             chromium.Dock = DockStyle.Fill;
             chromium.IsBrowserInitializedChanged += OnLoad;
-
             chromium.LoadingStateChanged += SendDataWhenLoad;
 
             InitializeComponent();
             this.Text = string.Format("AeroEpubViewer - {0}", Program.epub.title);
+            ResizeEnd += (e, arg) => { chromium.Reload(true); chromium.LoadingStateChanged += SendDataWhenLoad; };
         }
         private void OnLoad(Object sender, EventArgs e)
         {

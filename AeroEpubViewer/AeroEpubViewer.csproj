@@ -90,6 +90,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AeroEpubSchemeHandlerFactory.cs" />
+    <Compile Include="CssHack.cs" />
     <Compile Include="EpubViewer.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -139,11 +140,11 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Res\rtl\viewer.html" />
+    <EmbeddedResource Include="Res\viewer.html" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Res\rtl\viewer-inject.css" />
-    <EmbeddedResource Include="Res\rtl\viewer-inject.js" />
+    <EmbeddedResource Include="Res\viewer-inject.css" />
+    <EmbeddedResource Include="Res\viewer-inject.js" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
