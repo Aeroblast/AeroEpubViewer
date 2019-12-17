@@ -72,6 +72,20 @@ namespace AeroEpubViewer
                             return ResourceHandler.FromStream(fs,mime);
                         return ResourceHandler.FromStream(fs);
                     } //break;
+                case "app": 
+                    {
+                        string[]args=uri.AbsolutePath.Substring(1).Split('/');
+                        switch (args[0]) 
+                        {
+                            case "resize":
+                                ResizeManage.SetPara(args);
+                                return ResourceHandler.FromString("OK");
+                        
+                        }
+
+
+                    }
+                    break;
             
             
             }

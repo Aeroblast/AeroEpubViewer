@@ -27,17 +27,23 @@ namespace AeroEpubViewer
             chromium.Dock = DockStyle.Fill;
             chromium.IsBrowserInitializedChanged += OnLoad;
             chromium.LoadingStateChanged += SendDataWhenLoad;
-
+            ResizeEnd += (e, arg) => {
+                if (Size.Equals(ResizeManage.lastSize)) return;
+                chromium.Reload(true); chromium.LoadingStateChanged += SendDataWhenLoad;
+                ResizeManage.lastSize = Size;
+            };
             InitializeComponent();
             this.Text = string.Format("AeroEpubViewer - {0}", Program.epub.title);
-            ResizeEnd += (e, arg) => { chromium.Reload(true); chromium.LoadingStateChanged += SendDataWhenLoad; };
+            
         }
         private void OnLoad(Object sender, EventArgs e)
         {
             chromium.ShowDevTools();
         }
 
-        void SendDataWhenLoad(Object sender, LoadingStateChangedEventArgs e)
+   
+
+        public static void SendDataWhenLoad(Object sender, LoadingStateChangedEventArgs e)
         {
             if (e.IsLoading == true) return;
             string jsCmd = "";
@@ -49,7 +55,7 @@ namespace AeroEpubViewer
             {
                 jsCmd += string.Format(",'{0}'", "aeroepub://book/" + i.ToString());
             }
-            jsCmd = string.Format("Init([{0}])", jsCmd.Substring(1));
+            jsCmd = string.Format("Init([{0}],{1},{2})", jsCmd.Substring(1),ResizeManage.index,ResizeManage.percent);
             chromium.ExecuteScriptAsync(jsCmd);
             if (Program.epub.spine.toc != null) 
             {
@@ -64,9 +70,7 @@ namespace AeroEpubViewer
                     Log.log("[Error]at TOC loading:"+ Program.epub.spine.toc);
                 }
             }
-
             chromium.LoadingStateChanged -= SendDataWhenLoad;
-
         }
 
         private void InitializeComponent()
@@ -83,6 +87,7 @@ namespace AeroEpubViewer
                 size.Height = Screen.PrimaryScreen.WorkingArea.Height * 4 / 5;
                 size.Width = size.Height * 4 / 5;
             }
+            ResizeManage.lastSize = size;
             this.ClientSize = size;
             this.Name = "EpubViewer";
             this.ResumeLayout(false);

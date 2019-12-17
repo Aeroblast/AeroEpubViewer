@@ -92,7 +92,7 @@
         direction_rtl.AdjustFrameSize = function (f) { f.width = f.contentWindow.document.body.scrollWidth + "px"; }
         direction_rtl.SetPosStyle = function (e) { e.style.right = e.pos + "px"; }
         direction_rtl.style = "iframe{height:90vh;top:0;}";
-        direction_rtl.KeyToDirection=function(k){
+        direction_rtl.KeyToDirection = function (k) {
             switch (k) {
                 case "ArrowLeft": return -1;
                 case "ArrowUp": return 1;
@@ -115,29 +115,32 @@
             return 0;
         }
         var direction = direction_default;
-
-
-
-
-
         var frameList = new Array();
         var urlList;
-        function Init(_urlList, start = 0) {
+        function Init(_urlList, start = 0, posPercent = 0) {
+            console.log("Init start=" + start + " pos=" + posPercent + "%");
             var style = document.createElement('style');
             style.innerHTML = direction.style;
             document.head.appendChild(style);
             urlList = _urlList;
             document.getElementById("mouseListener").onmousewheel = function (e) {
-                document.Scroll(Math.sign(e.wheelDelta)*40);
+                document.Scroll(Math.sign(e.wheelDelta) * 40);
             }
             document.keydown = function (e) {
                 let d = direction.KeyToDirection(e.key);
                 Scroll(d * 30);
             };
             document.addEventListener("keydown", document.keydown);
+            var resize = function () {
+                window.removeEventListener("resize", resize)
+                var xhttp = new XMLHttpRequest();
+                xhttp.open("GET", "aeroepub://app/resize" + GetBookPos(), true);
+                xhttp.send();
+            };
+            window.addEventListener("resize", resize);
 
 
-            let page = CreateFrame(start, 0, CheckLoad);
+            let page = CreateFrame(start, posPercent, CheckLoad, false, true);
             frameList.push(page);
 
             document.Scroll = Scroll;
@@ -159,7 +162,7 @@
         function Link(url) {
             let fullurl = "aeroepub://" + ("book/" + url).replace("//", "/");
             let path = fullurl.split('#')[0];
-            console.log(fullurl);
+            console.log("Linkto:" + fullurl);
             for (var i = 0; i < urlList.length; i++) {
 
                 if (urlList[i] == path) { DirectToIndex(i); return; }
@@ -172,9 +175,9 @@
             Init(urlList, urlIndex);
 
         }
-        function CreateFrame(urlIndex, pos, check = null, addSelfLength = false) {
+        function CreateFrame(urlIndex, pos, check = null, addSelfLength = false, inPercent = false) {
             loading = true;
-            console.log("Create Frame " + urlList[urlIndex] + " pos:" + pos + " addSelf:" + addSelfLength);
+            console.log("Create Frame " + urlList[urlIndex] + " pos:" + pos + (inPercent ? "%" : "") + " addSelf:" + addSelfLength);
             let page = document.createElement("iframe");
             //private use
             page.pos = pos;
@@ -189,21 +192,32 @@
             direction.SetPosStyle(page);
             page.onload = function () {
                 direction.AdjustFrameSize(page);
+
                 if (addSelfLength) {
 
                     page.pos = pos - direction.GetFrameLength(page);
                     direction.SetPosStyle(page);
                 } else {
-                    page.pos = pos;
+                    if (inPercent) {
+                        page.pos = -parseInt(pos * direction.GetFrameLength(page) / 100);
+                        console.log(pos + "% -> " + page.pos + "px");
+
+                    } else {
+                        page.pos = pos;
+                    }
                     direction.SetPosStyle(page);
                 }
                 loading = false;
                 page.style.visibility = "visible";
-                console.log(frameList[0].pos);
                 if (check != null) check();
             }
             document.body.appendChild(page);
             return page;
+        }
+        var currentFrame = null;
+        function GetBookPos() {
+            if (currentFrame == null) return "/0";
+            return "/" + currentFrame.urlIndex + "/" + currentFrame.pos + "/" + (direction.GetFrameLength(currentFrame));
         }
         function Scroll(px) {
             if (frameList[0].firstFrame && px > 0) {
@@ -213,10 +227,13 @@
             if (last.lastFrame && px < 0) {
                 if (last.pos + direction.GetFrameLength(last) + px < direction.GetWindowLength()) { px = direction.GetWindowLength() - last.pos - direction.GetFrameLength(last); }
             }
+            currentFrame = frameList[0];
             frameList.forEach((e) => {
                 e.pos += px;
                 direction.SetPosStyle(e);
+                if (e.pos < 0 && e.pos + direction.GetFrameLength(e) > 0) { currentFrame = e; }
             });
+
             if (!loading) CheckLoad();
         }
         var loading = false;
@@ -265,14 +282,14 @@
             if (navOn) {
                 navOn = false;
                 nav.style.animation = "navHide 0.5s ease 0s 1 ";
-                   
+
             } else {
                 navOn = true;
                 nav.style.animation = "navDisplay 0.5s ease 0s 1";
-               
+
             }
-             nav.style.animationFillMode = "forwards";
-            
+            nav.style.animationFillMode = "forwards";
+
         }
 
     </script>
