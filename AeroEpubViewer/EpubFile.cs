@@ -20,12 +20,12 @@ namespace AeroEpubViewer.Epub
                 if (_OPF == null)
                 {
                     TextEpubItemFile i = GetFile<TextEpubItemFile>("META-INF/container.xml");
-                    if (i == null) { throw new EpubErrorException(); }
+                    if (i == null) { throw new EpubErrorException("Cannot find META-INF/container.xml"); }
                     Regex reg = new Regex("<rootfile .*?>");
                     XTag tag = XTag.FindTag("rootfile", i.text);
                     string opf_path = tag.GetAttribute("full-path");
                     _OPF = GetFile<TextEpubItemFile>(opf_path);
-                    if (_OPF == null) { throw new EpubErrorException(); }
+                    if (_OPF == null) { throw new EpubErrorException("Cannot find opf file"); }
                 }
                 return _OPF;
             }
@@ -35,10 +35,14 @@ namespace AeroEpubViewer.Epub
         public string title { get { if (_title == null) ReadMeta(); return _title; } }
         string _creator = null;
         public string creator { get { if (_title == null) ReadMeta(); return _creator; } }
+        string _language=null;
+        public string language { get { if (_language == null) ReadMeta(); return _language; } }
         public void ReadMeta()
         {
             XFragment f = XFragment.FindFragment("metadata", OPF.text);
             _creator = "";
+            _title = "";
+            _language = "";
 
             foreach (var e in f.root.childs)
             {
@@ -46,6 +50,7 @@ namespace AeroEpubViewer.Epub
                 {
                     case "dc:title": _title = e.innerXHTML; break;
                     case "dc:creator": _creator += e.innerXHTML + ","; break;
+                    case "dc:language":_language = e.innerXHTML.ToLower();break;
                 }
             }
             if (_creator.EndsWith(",")) _creator = _creator.Substring(0, _creator.Length - 1);
@@ -123,7 +128,7 @@ namespace AeroEpubViewer.Epub
         public EpubItemFile GetFile(string fullName)
         {
             foreach (var i in items) if (i.fullName == fullName) return i;
-            return null;
+            throw new EpubErrorException("Cannot find file by filename:"+fullName);
         }
         public T GetFile<T>(string fullName) where T : EpubItemFile
         {
@@ -132,11 +137,11 @@ namespace AeroEpubViewer.Epub
             if (r == null || r.GetType() != typeof(T)) return null;
             return (T)r;
         }
-        public ManifestItem GetItem(string fullName)
+        public ManifestItem GetItem(string href)
         {
 
-            foreach (var i in manifest) if (i.Value.href == fullName) return i.Value;
-            return null;
+            foreach (var i in manifest) if (i.Value.href == href) return i.Value;
+            throw new EpubErrorException("Cannot find item by href:"+href);
         }
         public void Save(string path, FileMode fileMode = FileMode.Create)
         {
@@ -172,8 +177,8 @@ namespace AeroEpubViewer.Epub
                             using (var stm = entry.Open())
                             using (StreamReader r = new StreamReader(stm))
                             {
-                                string s = r.ReadToEnd();
-                                if (s != "application/epub+zip") throw new EpubtypeException();
+                                string s = Util.Trim(r.ReadToEnd());
+                                if (s != "application/epub+zip") throw new EpubErrorException("The mimetype of epub should be 'application/epub+zip'. Current:"+s);
                                 var i = new MIMETypeItem();
                                 items.Insert(0, i);
                             }
@@ -210,7 +215,7 @@ namespace AeroEpubViewer.Epub
                                             var i = new EpubItemFile(entry.FullName, d);
                                             items.Add(i);
                                         }
-                                        else { throw new ItemTooLargeException(); }
+                                        else { throw new EpubErrorException("File size exceeds the limit."); }
                                     }
                                     break;
                             }
@@ -219,8 +224,8 @@ namespace AeroEpubViewer.Epub
                     }
                 }
             }
-            if (items.Count == 0) throw new EpubtypeException();
-            if (items[0].GetType() != typeof(MIMETypeItem)) throw new EpubtypeException();
+            if (items.Count == 0) throw new EpubErrorException("Cannot find files in epub");
+            if (items[0].GetType() != typeof(MIMETypeItem)) throw new EpubErrorException("Cannot find mimetype in epub");
         }
     }
     public class ManifestItem
@@ -237,7 +242,7 @@ namespace AeroEpubViewer.Epub
         }
         public EpubItemFile GetData() 
         {
-            return belongTo.GetFile(href);
+            return belongTo.GetFile(Uri.UnescapeDataString(href));
         }
     }
     public class Spine : IEnumerable
@@ -360,8 +365,9 @@ namespace AeroEpubViewer.Epub
             return Encoding.UTF8.GetBytes("mimetype");
         }
     }
-    public class ItemTooLargeException : System.Exception { }
-    public class EpubtypeException : System.Exception { }
-    public class EpubErrorException : System.Exception { }
+
+    public class EpubErrorException : System.Exception {
+        public EpubErrorException(string s) : base(s) { }
+    }
 
 }

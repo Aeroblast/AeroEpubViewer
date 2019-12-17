@@ -14,6 +14,7 @@ namespace AeroEpubViewer
     {
 
         public static EpubFile epub;
+        public static string cachePath = Path.GetTempPath() + "AEVCache";
         /// <summary>
         /// 应用程序的主入口点。
         /// </summary>
@@ -22,23 +23,26 @@ namespace AeroEpubViewer
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Cef.EnableHighDPISupport();
-            var settings = new CefSettings();
-
-            settings.RegisterScheme(new CefCustomScheme
-            {
-                SchemeName = "aeroepub",
-                SchemeHandlerFactory = new AeroEpubSchemeHandlerFactory()
-            });
-            settings.CachePath = Path.GetTempPath()+"AEVCache";
-            Cef.Initialize(settings);
+            
             if (args.Length > 0)
                 if (File.Exists(args[0])) 
                 {
                     epub = new EpubFile(args[0]);
+                    Cef.EnableHighDPISupport();
+                    var settings = new CefSettings();
+                    if(epub.language!="")
+                    settings.Locale = epub.language;
+
+                    settings.RegisterScheme(new CefCustomScheme
+                    {
+                        SchemeName = "aeroepub",
+                        SchemeHandlerFactory = new AeroEpubSchemeHandlerFactory()
+                    });
+                    settings.CachePath =cachePath ;
+                    Cef.Initialize(settings);
                     Application.Run(new EpubViewer());
                 }
-            Util.DeleteDir(settings.CachePath);
+            Util.DeleteDir(cachePath);
         }
     }
 

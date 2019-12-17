@@ -18,6 +18,6 @@ padding-bottom:3vh;
 font-family: 'default';
 }
 @font-face {
-    font-family: 'default';
-    src: local('MS Mincho'), local('GreenWeb-Regular');
+    font-family: 'font-ja';
+    src: local('MS Mincho');
 }
