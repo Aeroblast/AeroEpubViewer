@@ -17,6 +17,11 @@ body {
 padding-bottom:3vh;
 font-family: 'default';
 }
+aside {
+position:absolute;
+right:100vh;
+height:100vh;
+}
 @font-face {
     font-family: 'font-ja';
     src: local('MS Mincho');

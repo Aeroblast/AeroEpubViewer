@@ -16,12 +16,11 @@ namespace AeroEpubViewer
         public static string Hack(string html) 
         {
             int random = Util.RandomRange();
-            cssInject = string.Format(cssInject,random);
-            jsInject = string.Format(jsInject, random);
-            html=html.Replace("</head>", cssInject + "\n</head>").Replace("</body>", jsInject + "\n</body>");
             html = regLink.Replace(html, "$1?r="+random+"$2");
-            html = regHref.Replace(html,"$1 onclick=\"Href(this);return false;\"$2");
-
+            html = regHref.Replace(html, "$1 onclick=\"Href(this);event.stopPropagation();\"$2");
+            cssInject = string.Format(cssInject, random);
+            jsInject = string.Format(jsInject, random);
+            html = html.Replace("</head>", cssInject + "\n</head>").Replace("</body>", jsInject + "\n</body>");
             return html;
         }
     }

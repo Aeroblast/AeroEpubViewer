@@ -123,6 +123,13 @@
                 background: #808080;
                 cursor: pointer;
          }
+        .popupFootnote {
+        width:40vw;
+        position:fixed;
+        z-index:40;
+        border:solid 1px;
+        background:white;
+        }
     </style>
 </head>
 <body>
@@ -239,6 +246,7 @@
                 if (urlList[i] == path) { DirectToIndex(i); return; }
 
             }
+            console.log("Cannot link to "+url);
         }
         function DirectToIndex(urlIndex) {
             frameList.forEach(e => e.parentNode.removeChild(e));
@@ -395,6 +403,28 @@
             xhttp.open("GET", "aeroepub://app/bookfontsize/" + document.userSettings.bookFontSize, true);
             xhttp.send();
         }
+        var popupFootnote = null;
+        document.PopupFootnote = function (content, left, top, frame) {
+            if (popupFootnote != null) popupFootnote.parentNode.removeChild(popupFootnote);
+            popupFootnote = document.createElement("div");
+            popupFootnote.className = "popupFootnote";
+            console.log(frame);
+            popupFootnote.style.left = frame.offsetLeft + left + "px";
+            popupFootnote.style.top = frame.offsetTop + top+20 + "px";
+            popupFootnote.innerHTML = content;
+            document.body.appendChild(popupFootnote);
+        }
+        document.FrameMouseUp = function ()
+        {
+           
+            if (popupFootnote != null) {
+                popupFootnote.parentNode.removeChild(popupFootnote);
+                popupFootnote = null;
+                return;
+            }
+             MenuSwitch();
+        }
+
     </script>
 </body>
 

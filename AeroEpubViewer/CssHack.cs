@@ -18,6 +18,7 @@ namespace AeroEpubViewer
         static bool screenTested = false;
         public static string Hack(string css) 
         {
+            if (!screenTested) Log.log("[Error]Hacking CSS when Screen Untested.");
             if (Program.epub.spine.pageProgressionDirection == "rtl")
             {
                 Match m = reg_vw.Match(css);
