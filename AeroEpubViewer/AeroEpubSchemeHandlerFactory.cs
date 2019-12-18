@@ -37,19 +37,15 @@ namespace AeroEpubViewer
                             //To-do:注入样式，js
                             if (i.href.EndsWith("html")) 
                             {
-                                string cssInject = "<link href=\"aeroepub://viewer/viewer-inject.css?random={0}\" rel=\"stylesheet\" type=\"text/css\"/>";
-                                string jsInject = "<script src=\"aeroepub://viewer/viewer-inject.js?random={0}\"></script>";
-                                cssInject = string.Format(cssInject,Util.RandomRange());
-                                jsInject = string.Format(jsInject, Util.RandomRange());
                                 string content = (i.GetData() as TextEpubItemFile).text;
-                                content = content.Replace("</head>", cssInject + "\n</head>").Replace("</body>",jsInject+"\n</body>");
+                                content = HtmlHack.Hack(content);
                                 return ResourceHandler.FromString(content);
                             }
                             if (i.href.EndsWith("css")) 
                             {
                                 //html里的其实也应该处理……
                                 string content = (i.GetData() as TextEpubItemFile).text;
-                                content = CssHack.Hack(content,EpubViewer.chromium);
+                                content = CssHack.Hack(content);
                                 return ResourceHandler.FromString(content,null,true,i.mediaType);
                             }
                             return ResourceHandler.FromByteArray(i.GetData().GetBytes(), i.mediaType);
@@ -64,7 +60,7 @@ namespace AeroEpubViewer
                         if (filename.EndsWith("css"))
                         {
                             string content =new StreamReader(fs).ReadToEnd();
-                            content = CssHack.Hack(content, EpubViewer.chromium);
+                            content = CssHack.Hack(content);
                             return ResourceHandler.FromString(content, null, true, "text/css");
                         }
                         string mime=Util.GetMimeType(filename);
@@ -84,6 +80,9 @@ namespace AeroEpubViewer
                                 UserSettings.bookFontSize = int.Parse(args[1]);
                                 EpubViewer.chromium.LoadingStateChanged += EpubViewer.SendDataWhenLoad;
                                 EpubViewer.chromium.Reload(true);
+                                return ResourceHandler.FromString("OK");
+                            case "screentest":
+                                CssHack.SetScreenTest(args);
                                 return ResourceHandler.FromString("OK");
                         }
 

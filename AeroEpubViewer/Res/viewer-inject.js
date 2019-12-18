@@ -7,3 +7,10 @@ document.addEventListener("mouseup", this.parent.document.MenuSwitch);
 var fontSizeStyle = document.createElement("style");
 fontSizeStyle.innerHTML = "body{font-size:" + this.parent.document.userSettings.bookFontSize + "px}";
 document.head.appendChild(fontSizeStyle);
+
+function Href(e)
+{
+
+    this.parent.document.Link(e.href);
+
+}

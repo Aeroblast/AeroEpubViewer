@@ -126,6 +126,8 @@
     </style>
 </head>
 <body>
+    <div id="screenTest" style="width:100vw;height:100vh;visibility:hidden;z-index:-99"></div>
+    
     <div id="navSwitch" onclick="NavSwitch()"></div>
     <div id="menu">
 
@@ -141,6 +143,8 @@
     <div id="nav" style=""></div>
     <div id="mouseListener" style="position:relative;z-index:1;width:100vw;height:100vh;left:0;top:0;"></div>
     <script>
+        ScreenTest();
+        
         var direction_rtl = new Object();
         direction_rtl.GetFrameLength = function (e) { return e.offsetWidth; }
         direction_rtl.GetWindowLength = function () { return window.innerWidth; }
@@ -201,6 +205,7 @@
             frameList.push(page);
 
             document.Scroll = Scroll;
+            document.Link = Link;
 
         }
 
@@ -223,7 +228,10 @@
             document.getElementById("fontSizeInput").value = json.bookFontSize;
         }
         function Link(url) {
-            let fullurl = "aeroepub://" + ("book/" + url).replace("//", "/");
+            let fullurl = url;
+            if (url.indexOf("aeroepub") != 0)
+                 fullurl = "aeroepub://" + ("book/" + url).replace("//", "/");
+            
             let path = fullurl.split('#')[0];
             console.log("Linkto:" + fullurl);
             for (var i = 0; i < urlList.length; i++) {
@@ -318,7 +326,7 @@
                 }
             }
 
-            if (first.pos + direction.GetFrameLength(first) < offScreenDestoryDistance) {
+            if (first.pos + direction.GetFrameLength(first) < -offScreenDestoryDistance) {
                 first.parentNode.removeChild(first);
                 frameList.shift();
             }
@@ -337,6 +345,14 @@
                 frameList.pop();
                 CheckLoad();
             }
+        }
+        function ScreenTest()
+        {
+            let e = document.getElementById("screenTest");
+            let xhttp = null
+            xhttp = new XMLHttpRequest();
+            xhttp.open("GET", "aeroepub://app/screentest/" + e.offsetWidth + "/" + e.offsetHeight, true);
+            xhttp.send();
         }
         /// UI
         var nav = document.getElementById("nav");

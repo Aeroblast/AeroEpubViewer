@@ -13,7 +13,10 @@ namespace AeroEpubViewer
         //Regex reg_attr = new Regex("[a-zA-Z\\s].*?:[a-zA-Z\\s].*?");
         static Regex reg_vh = new Regex(":[\\s]*([0-9]+)vh");
         static Regex reg_vw = new Regex(":[\\s]*([0-9]+)vw");
-        public static string Hack(string css,Control window) 
+        static int logicalWidth=500;
+        static int logicalHeight=500;
+        static bool screenTested = false;
+        public static string Hack(string css) 
         {
             if (Program.epub.spine.pageProgressionDirection == "rtl")
             {
@@ -21,7 +24,7 @@ namespace AeroEpubViewer
                 while (m.Success)
                 {
                     int vw = int.Parse(m.Groups[1].Value);
-                    int px = window.Width * 4 / 5 * vw / 100;
+                    int px = logicalWidth* vw / 100;
                     var builder = new StringBuilder();
                     builder.Append(css.Substring(0, m.Index));
                     builder.Append(string.Format(": {0}px", px));
@@ -36,7 +39,7 @@ namespace AeroEpubViewer
                 while (m.Success)
                 {
                     int vh = int.Parse(m.Groups[1].Value);
-                    int px = window.Height * 4 / 5 * vh / 100;
+                    int px = logicalHeight* vh / 100;
                     var builder = new StringBuilder();
                     builder.Append(css.Substring(0, m.Index));
                     builder.Append(string.Format(": {0}px", px));
@@ -46,6 +49,13 @@ namespace AeroEpubViewer
                 }
             }
             return css;
+        }
+
+        public static void SetScreenTest(string []args) 
+        {
+            logicalWidth = int.Parse(args[1]);
+            logicalHeight = int.Parse(args[2]);
+            screenTested = true;
         }
     }
 }

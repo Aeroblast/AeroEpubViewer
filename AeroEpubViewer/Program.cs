@@ -28,7 +28,6 @@ namespace AeroEpubViewer
                 if (File.Exists(args[0])) 
                 {
                     epub = new EpubFile(args[0]);
-                    Cef.EnableHighDPISupport();
                     var settings = new CefSettings();
                     if(epub.language!="")
                     settings.Locale = epub.language;
@@ -40,6 +39,7 @@ namespace AeroEpubViewer
                     });
                     settings.CachePath =cachePath ;
                     Cef.Initialize(settings);
+                    Cef.EnableHighDPISupport();
                     Application.Run(new EpubViewer());
                 }
             Util.DeleteDir(cachePath);

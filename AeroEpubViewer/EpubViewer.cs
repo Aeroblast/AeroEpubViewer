@@ -27,6 +27,8 @@ namespace AeroEpubViewer
             chromium.Dock = DockStyle.Fill;
             chromium.IsBrowserInitializedChanged += OnLoad;
             chromium.LoadingStateChanged += SendDataWhenLoad;
+            
+
             ResizeEnd += (e, arg) => {
                 if (Size.Equals(ResizeManage.lastSize)) return;
                 chromium.Reload(true); chromium.LoadingStateChanged += SendDataWhenLoad;
@@ -88,10 +90,11 @@ namespace AeroEpubViewer
                 size.Height = Screen.PrimaryScreen.WorkingArea.Height * 4 / 5;
                 size.Width = size.Height * 4 / 5;
             }
-            ResizeManage.lastSize = size;
+            
             this.ClientSize = size;
             this.Name = "EpubViewer";
             this.ResumeLayout(false);
+            ResizeManage.lastSize = Size;
 
         }
     }
