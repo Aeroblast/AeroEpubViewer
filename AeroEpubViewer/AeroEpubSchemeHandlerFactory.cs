@@ -84,6 +84,9 @@ namespace AeroEpubViewer
                             case "screentest":
                                 CssHack.SetScreenTest(args);
                                 return ResourceHandler.FromString("OK");
+                            case "inspector":
+                                EpubViewer.chromium.ShowDevTools();
+                                return ResourceHandler.FromString("OK"); 
                         }
 
 

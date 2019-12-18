@@ -20,6 +20,7 @@
             top: 0;
             background: transparent;
             z-index: 11;
+            cursor:pointer;
         }
 
         #nav {
@@ -33,8 +34,9 @@
             padding-left: 2vw;
             padding-right: 2vw;
         }
-        #nav > navpoint:nth-child(1)>navLabel {
-            margin-top:10vh;
+
+            #nav > navpoint:nth-child(1) > navLabel {
+                margin-top: 10vh;
             }
 
         #menu {
@@ -52,7 +54,18 @@
                 height: 10vh;
                 display: inline-block;
                 text-align: center;
-                line-height: 10vh
+                line-height: 10vh;
+                border-right:solid 1px;
+                overflow:hidden;
+            }
+                #menu > div>div {
+                height: 6vh;
+                margin-top:2vh;
+                margin-right:2px;
+                display: inline-block;
+                text-align: center;
+                overflow:hidden;
+                line-height:6vh;
             }
 
         #nav::-webkit-scrollbar {
@@ -87,7 +100,8 @@
                 background: transparent;
             }
         }
-                @keyframes menuDisplay {
+
+        @keyframes menuDisplay {
             from {
                 height: 0vh;
                 background: transparent;
@@ -119,29 +133,32 @@
             left: 0;
         }
 
-        navLabel:hover {
+            navLabel:hover {
                 background: #808080;
                 cursor: pointer;
-         }
+            }
+
         .popupFootnote {
-        width:40vw;
-        position:fixed;
-        z-index:40;
-        border:solid 1px;
-        background:white;
+            width: 40vw;
+            position: fixed;
+            z-index: 40;
+            border: solid 1px;
+            background: white;
         }
     </style>
 </head>
 <body>
     <div id="screenTest" style="width:100vw;height:100vh;visibility:hidden;z-index:-99"></div>
-    
-    <div id="navSwitch" onclick="NavSwitch()"></div>
+
+    <div id="navSwitch" onclick="NavSwitch()" ></div>
     <div id="menu">
 
-        <div id="navSwitchDummy" style="width:10vw;border:none;background:transparent">TOC</div>
-        <div><input id="fontSizeInput" style="width:3em" type="number" />px</div>
-        <div onclick="ApplyFontSize(document.getElementById('fontSizeInput').value)" style="background:#f8f9d6">Apply Font Size</div>
-
+        <div id="navSwitchDummy" style="width:10vw;background:transparent;">TOC</div>
+        <div style="border-right:solid 1px;">
+            <div><input id="fontSizeInput" style="width:3em" type="number" />px</div>
+            <div onclick="ApplyFontSize(document.getElementById('fontSizeInput').value)" style="cursor:pointer;background:white;font-size:0.7em">字号生效</div>
+        </div>
+        <div><div style="cursor:pointer;" onclick="Inspector()">检查</div></div>
 
 
 
@@ -151,7 +168,7 @@
     <div id="mouseListener" style="position:relative;z-index:1;width:100vw;height:100vh;left:0;top:0;"></div>
     <script>
         ScreenTest();
-        
+
         var direction_rtl = new Object();
         direction_rtl.GetFrameLength = function (e) { return e.offsetWidth; }
         direction_rtl.GetWindowLength = function () { return window.innerWidth; }
@@ -229,16 +246,15 @@
                 }
             });
         }
-        function LoadUserSettings(json)
-        {
+        function LoadUserSettings(json) {
             document.userSettings = json;
             document.getElementById("fontSizeInput").value = json.bookFontSize;
         }
         function Link(url) {
             let fullurl = url;
             if (url.indexOf("aeroepub") != 0)
-                 fullurl = "aeroepub://" + ("book/" + url).replace("//", "/");
-            
+                fullurl = "aeroepub://" + ("book/" + url).replace("//", "/");
+
             let path = fullurl.split('#')[0];
             console.log("Linkto:" + fullurl);
             for (var i = 0; i < urlList.length; i++) {
@@ -246,7 +262,7 @@
                 if (urlList[i] == path) { DirectToIndex(i); return; }
 
             }
-            console.log("Cannot link to "+url);
+            console.log("Cannot link to " + url);
         }
         function DirectToIndex(urlIndex) {
             frameList.forEach(e => e.parentNode.removeChild(e));
@@ -354,8 +370,7 @@
                 CheckLoad();
             }
         }
-        function ScreenTest()
-        {
+        function ScreenTest() {
             let e = document.getElementById("screenTest");
             let xhttp = null
             xhttp = new XMLHttpRequest();
@@ -381,7 +396,7 @@
         var menuOn = false;
         var menu = document.getElementById("menu");
         function MenuSwitch() {
-                        if (menuOn) {
+            if (menuOn) {
                 menuOn = false;
                 menu.style.animation = "menuHide 0.5s ease 0s 1 ";
 
@@ -403,6 +418,13 @@
             xhttp.open("GET", "aeroepub://app/bookfontsize/" + document.userSettings.bookFontSize, true);
             xhttp.send();
         }
+        function Inspector()
+        {
+            let xhttp = null
+            xhttp = new XMLHttpRequest();
+            xhttp.open("GET", "aeroepub://app/inspector" + GetBookPos(), true);
+            xhttp.send();
+        }
         var popupFootnote = null;
         document.PopupFootnote = function (content, left, top, frame) {
             if (popupFootnote != null) popupFootnote.parentNode.removeChild(popupFootnote);
@@ -410,19 +432,18 @@
             popupFootnote.className = "popupFootnote";
             console.log(frame);
             popupFootnote.style.left = frame.offsetLeft + left + "px";
-            popupFootnote.style.top = frame.offsetTop + top+20 + "px";
+            popupFootnote.style.top = frame.offsetTop + top + 20 + "px";
             popupFootnote.innerHTML = content;
             document.body.appendChild(popupFootnote);
         }
-        document.FrameMouseUp = function ()
-        {
-           
+        document.FrameMouseUp = function () {
+
             if (popupFootnote != null) {
                 popupFootnote.parentNode.removeChild(popupFootnote);
                 popupFootnote = null;
                 return;
             }
-             MenuSwitch();
+            MenuSwitch();
         }
 
     </script>

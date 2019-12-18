@@ -40,7 +40,7 @@ namespace AeroEpubViewer
         }
         private void OnLoad(Object sender, EventArgs e)
         {
-            chromium.ShowDevTools();
+            //chromium.ShowDevTools();
         }
 
    
@@ -78,6 +78,7 @@ namespace AeroEpubViewer
 
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EpubViewer));
             this.SuspendLayout();
             var size = new System.Drawing.Size();
             if (Program.epub.spine.pageProgressionDirection == "rtl")
@@ -90,8 +91,11 @@ namespace AeroEpubViewer
                 size.Height = Screen.PrimaryScreen.WorkingArea.Height * 4 / 5;
                 size.Width = size.Height * 4 / 5;
             }
-            
+            // 
+            // EpubViewer
+            // 
             this.ClientSize = size;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "EpubViewer";
             this.ResumeLayout(false);
             ResizeManage.lastSize = Size;
