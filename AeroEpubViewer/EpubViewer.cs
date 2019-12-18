@@ -55,7 +55,8 @@ namespace AeroEpubViewer
             {
                 jsCmd += string.Format(",'{0}'", "aeroepub://book/" + i.ToString());
             }
-            jsCmd = string.Format("Init([{0}],{1},{2})", jsCmd.Substring(1),ResizeManage.index,ResizeManage.percent);
+            jsCmd = string.Format("Init([{0}],{1},{2});", jsCmd.Substring(1),ResizeManage.index,ResizeManage.percent);
+            jsCmd = string.Format("LoadUserSettings({0});",UserSettings.GetJson())+ jsCmd;
             chromium.ExecuteScriptAsync(jsCmd);
             if (Program.epub.spine.toc != null) 
             {

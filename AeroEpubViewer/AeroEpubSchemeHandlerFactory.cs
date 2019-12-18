@@ -77,10 +77,14 @@ namespace AeroEpubViewer
                         string[]args=uri.AbsolutePath.Substring(1).Split('/');
                         switch (args[0]) 
                         {
-                            case "resize":
+                            case "pos":
                                 ResizeManage.SetPara(args);
                                 return ResourceHandler.FromString("OK");
-                        
+                            case "bookfontsize":
+                                UserSettings.bookFontSize = int.Parse(args[1]);
+                                EpubViewer.chromium.LoadingStateChanged += EpubViewer.SendDataWhenLoad;
+                                EpubViewer.chromium.Reload(true);
+                                return ResourceHandler.FromString("OK");
                         }
 
 

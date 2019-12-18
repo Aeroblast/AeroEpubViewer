@@ -101,6 +101,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="EpubFile.cs" />
     <Compile Include="Resize.cs" />
+    <Compile Include="UserSettings.cs" />
     <Compile Include="Utils\Log.cs" />
     <Compile Include="Utils\Util.cs" />
     <Compile Include="Utils\UtilXML.cs" />

@@ -30,14 +30,34 @@
             z-index: 10;
             background: transparent;
             overflow: hidden;
-            padding-top: 10vh;
             padding-left: 2vw;
             padding-right: 2vw;
         }
-
-            #nav::-webkit-scrollbar {
-                display: none;
+        #nav > navpoint:nth-child(1)>navLabel {
+            margin-top:10vh;
             }
+
+        #menu {
+            position: fixed;
+            width: 100%;
+            height: 0vh;
+            left: 0;
+            top: 0;
+            z-index: 10;
+            background: #fafcc9;
+            overflow: hidden;
+        }
+
+            #menu > div {
+                height: 10vh;
+                display: inline-block;
+                text-align: center;
+                line-height: 10vh
+            }
+
+        #nav::-webkit-scrollbar {
+            display: none;
+        }
 
         @keyframes navDisplay {
             from {
@@ -67,6 +87,30 @@
                 background: transparent;
             }
         }
+                @keyframes menuDisplay {
+            from {
+                height: 0vh;
+                background: transparent;
+            }
+
+            to {
+                height: 10vh;
+                background: #fafcc9;
+            }
+        }
+
+        @keyframes menuHide {
+
+            from {
+                height: 10vh;
+                background: #fafcc9;
+            }
+
+            to {
+                height: 0vh;
+                background: transparent;
+            }
+        }
 
         navLabel {
             width: 100%;
@@ -75,14 +119,25 @@
             left: 0;
         }
 
-            navLabel:hover {
+        navLabel:hover {
                 background: #808080;
                 cursor: pointer;
-            }
+         }
     </style>
 </head>
 <body>
     <div id="navSwitch" onclick="NavSwitch()"></div>
+    <div id="menu">
+
+        <div id="navSwitchDummy" style="width:10vw;border:none;background:transparent">TOC</div>
+        <div><input id="fontSizeInput" style="width:3em" type="number" />px</div>
+        <div onclick="ApplyFontSize(document.getElementById('fontSizeInput').value)" style="background:#f8f9d6">Apply Font Size</div>
+
+
+
+
+
+    </div>
     <div id="nav" style=""></div>
     <div id="mouseListener" style="position:relative;z-index:1;width:100vw;height:100vh;left:0;top:0;"></div>
     <script>
@@ -117,8 +172,8 @@
         var direction = direction_default;
         var frameList = new Array();
         var urlList;
-        function Init(_urlList, start = 0, posPercent = 0) {
-            console.log("Init start=" + start + " pos=" + posPercent + "%");
+        function Init(_urlList, start = 0, posRate = 0) {
+            console.log("Init start=" + start + " pos=" + posRate + "");
             var style = document.createElement('style');
             style.innerHTML = direction.style;
             document.head.appendChild(style);
@@ -130,22 +185,25 @@
                 let d = direction.KeyToDirection(e.key);
                 Scroll(d * 30);
             };
+            //document.addEventListener("mouseup", MenuSwitch);
+            document.MenuSwitch = MenuSwitch;
             document.addEventListener("keydown", document.keydown);
-            var resize = function () {
-                window.removeEventListener("resize", resize)
+            var PrepareResize = function () {
+                window.removeEventListener("resize", PrepareResize)
                 var xhttp = new XMLHttpRequest();
-                xhttp.open("GET", "aeroepub://app/resize" + GetBookPos(), true);
+                xhttp.open("GET", "aeroepub://app/pos" + GetBookPos(), true);
                 xhttp.send();
             };
-            window.addEventListener("resize", resize);
+            window.addEventListener("resize", PrepareResize);
 
 
-            let page = CreateFrame(start, posPercent, CheckLoad, false, true);
+            let page = CreateFrame(start, posRate, CheckLoad, false, true);
             frameList.push(page);
 
             document.Scroll = Scroll;
 
         }
+
         function LoadToc(data, path) {
             let nav = document.getElementById("nav");
             nav.innerHTML = data;
@@ -158,6 +216,11 @@
                     NavSwitch();
                 }
             });
+        }
+        function LoadUserSettings(json)
+        {
+            document.userSettings = json;
+            document.getElementById("fontSizeInput").value = json.bookFontSize;
         }
         function Link(url) {
             let fullurl = "aeroepub://" + ("book/" + url).replace("//", "/");
@@ -175,9 +238,9 @@
             Init(urlList, urlIndex);
 
         }
-        function CreateFrame(urlIndex, pos, check = null, addSelfLength = false, inPercent = false) {
+        function CreateFrame(urlIndex, pos, check = null, addSelfLength = false, isPosRate = false) {
             loading = true;
-            console.log("Create Frame " + urlList[urlIndex] + " pos:" + pos + (inPercent ? "%" : "") + " addSelf:" + addSelfLength);
+            console.log("Create Frame " + urlList[urlIndex] + (isPosRate ? " posRate:" : " pos:") + pos + " addSelf:" + addSelfLength);
             let page = document.createElement("iframe");
             //private use
             page.pos = pos;
@@ -198,9 +261,9 @@
                     page.pos = pos - direction.GetFrameLength(page);
                     direction.SetPosStyle(page);
                 } else {
-                    if (inPercent) {
-                        page.pos = -parseInt(pos * direction.GetFrameLength(page) / 100);
-                        console.log(pos + "% -> " + page.pos + "px");
+                    if (isPosRate) {
+                        page.pos = -parseInt(pos * direction.GetFrameLength(page));
+                        console.log(pos + " -> " + page.pos + "px");
 
                     } else {
                         page.pos = pos;
@@ -275,7 +338,7 @@
                 CheckLoad();
             }
         }
-
+        /// UI
         var nav = document.getElementById("nav");
         var navOn = false;
         function NavSwitch() {
@@ -291,7 +354,31 @@
             nav.style.animationFillMode = "forwards";
 
         }
+        var menuOn = false;
+        var menu = document.getElementById("menu");
+        function MenuSwitch() {
+                        if (menuOn) {
+                menuOn = false;
+                menu.style.animation = "menuHide 0.5s ease 0s 1 ";
 
+            } else {
+                menuOn = true;
+                menu.style.animation = "menuDisplay 0.5s ease 0s 1";
+
+            }
+            menu.style.animationFillMode = "forwards";
+        }
+
+        function ApplyFontSize(a) {
+            document.userSettings.bookFontSize = parseInt(a);
+            let xhttp = null
+            xhttp = new XMLHttpRequest();
+            xhttp.open("GET", "aeroepub://app/pos" + GetBookPos(), true);
+            xhttp.send();
+            xhttp = new XMLHttpRequest();
+            xhttp.open("GET", "aeroepub://app/bookfontsize/" + document.userSettings.bookFontSize, true);
+            xhttp.send();
+        }
     </script>
 </body>
 
