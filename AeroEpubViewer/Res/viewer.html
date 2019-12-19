@@ -173,7 +173,7 @@
         var direction_rtl = new Object();
         direction_rtl.GetFrameLength = function (e) { return e.offsetWidth; }
         direction_rtl.GetWindowLength = function () { return window.innerWidth; }
-        direction_rtl.AdjustFrameSize = function (f) { f.width = f.contentWindow.document.body.scrollWidth + "px"; }
+        direction_rtl.AdjustFrameSize = function (f) { f.width = f.contentWindow.document.documentElement.scrollWidth + "px"; }
         direction_rtl.SetPosStyle = function (e) { e.style.right = e.pos + "px"; }
         direction_rtl.style = "iframe{height:90vh;top:0;}";
         direction_rtl.injectStyle = "body{height:100vh;min-width:66vh;}";
@@ -189,7 +189,7 @@
         var direction_default = new Object();
         direction_default.GetFrameLength = function (e) { return e.offsetHeight; }
         direction_default.GetWindowLength = function () { return window.innerHeight; }
-        direction_default.AdjustFrameSize = function (f) { f.height = f.contentWindow.document.body.scrollHeight + "px"; }
+        direction_default.AdjustFrameSize = function (f) { f.height = f.contentWindow.document.documentElement.scrollHeight + "px"; }
         direction_default.SetPosStyle = function (e) { e.style.top = e.pos + "px"; }
         direction_default.style = "iframe{width:95vw;left:2.5vw;min-height:90vh;}";
         direction_default.injectStyle = "body{width:100vw;padding-bottom:3vh;}";
