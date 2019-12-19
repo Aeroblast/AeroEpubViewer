@@ -327,12 +327,14 @@
                 if (last.pos + direction.GetFrameLength(last) + px < direction.GetWindowLength()) { px = direction.GetWindowLength() - last.pos - direction.GetFrameLength(last); }
             }
             currentFrame = frameList[0];
-            frameList.forEach((e) => {
-                e.pos += px;
+            let lastPos = px + frameList[0].pos;
+            for (let i = 0; i < frameList.length; i++) {
+                let e = frameList[i];
+                e.pos = lastPos;
                 direction.SetPosStyle(e);
                 if (e.pos < 0 && e.pos + direction.GetFrameLength(e) > 0) { currentFrame = e; }
-            });
-
+                lastPos = e.pos + direction.GetFrameLength(e);
+            }
             if (!loading) CheckLoad();
         }
         var loading = false;
