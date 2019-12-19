@@ -7,7 +7,9 @@ document.body.onclick=this.parent.document.FrameMouseUp;
 var fontSizeStyle = document.createElement("style");
 fontSizeStyle.innerHTML = "body{font-size:" + this.parent.document.userSettings.bookFontSize + "px}";
 document.head.appendChild(fontSizeStyle);
-
+var style = document.createElement("style");
+style.innerHTML = this.parent.document.direction.injectStyle;
+document.head.appendChild(style);
 function Href(e)
 {
     if (e.getAttribute("epub:type") == "noteref")

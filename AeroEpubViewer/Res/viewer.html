@@ -20,7 +20,7 @@
             top: 0;
             background: transparent;
             z-index: 11;
-            cursor:pointer;
+            cursor: pointer;
         }
 
         #nav {
@@ -55,18 +55,19 @@
                 display: inline-block;
                 text-align: center;
                 line-height: 10vh;
-                border-right:solid 1px;
-                overflow:hidden;
+                border-right: solid 1px;
+                overflow: hidden;
             }
-                #menu > div>div {
-                height: 6vh;
-                margin-top:2vh;
-                margin-right:2px;
-                display: inline-block;
-                text-align: center;
-                overflow:hidden;
-                line-height:6vh;
-            }
+
+                #menu > div > div {
+                    height: 6vh;
+                    margin-top: 2vh;
+                    margin-right: 2px;
+                    display: inline-block;
+                    text-align: center;
+                    overflow: hidden;
+                    line-height: 6vh;
+                }
 
         #nav::-webkit-scrollbar {
             display: none;
@@ -150,7 +151,7 @@
 <body>
     <div id="screenTest" style="width:100vw;height:100vh;visibility:hidden;z-index:-99"></div>
 
-    <div id="navSwitch" onclick="NavSwitch()" ></div>
+    <div id="navSwitch" onclick="NavSwitch()"></div>
     <div id="menu">
 
         <div id="navSwitchDummy" style="width:10vw;background:transparent;">TOC</div>
@@ -165,7 +166,7 @@
 
     </div>
     <div id="nav" style=""></div>
-    <div id="mouseListener" style="position:relative;z-index:1;width:100vw;height:100vh;left:0;top:0;"></div>
+    <div id="mouseListener" style="position:fixed;z-index:1;width:100vw;height:100vh;left:0;top:0;"></div>
     <script>
         ScreenTest();
 
@@ -175,6 +176,7 @@
         direction_rtl.AdjustFrameSize = function (f) { f.width = f.contentWindow.document.body.scrollWidth + "px"; }
         direction_rtl.SetPosStyle = function (e) { e.style.right = e.pos + "px"; }
         direction_rtl.style = "iframe{height:90vh;top:0;}";
+        direction_rtl.injectStyle = "body{height:100vh;min-width:66vh;}";
         direction_rtl.KeyToDirection = function (k) {
             switch (k) {
                 case "ArrowLeft": return -1;
@@ -189,7 +191,8 @@
         direction_default.GetWindowLength = function () { return window.innerHeight; }
         direction_default.AdjustFrameSize = function (f) { f.height = f.contentWindow.document.body.scrollHeight + "px"; }
         direction_default.SetPosStyle = function (e) { e.style.top = e.pos + "px"; }
-        direction_default.style = "iframe{width:95vw;left:2.5vw;}";
+        direction_default.style = "iframe{width:95vw;left:2.5vw;min-height:90vh;}";
+        direction_default.injectStyle = "body{width:100vw;padding-bottom:3vh;}";
         direction_default.KeyToDirection = function (k) {
             switch (k) {
                 case "ArrowUp": return 1;
@@ -201,6 +204,7 @@
         var frameList = new Array();
         var urlList;
         function Init(_urlList, start = 0, posRate = 0) {
+            document.direction = direction;
             console.log("Init start=" + start + " pos=" + posRate + "");
             var style = document.createElement('style');
             style.innerHTML = direction.style;
@@ -418,8 +422,7 @@
             xhttp.open("GET", "aeroepub://app/bookfontsize/" + document.userSettings.bookFontSize, true);
             xhttp.send();
         }
-        function Inspector()
-        {
+        function Inspector() {
             let xhttp = null
             xhttp = new XMLHttpRequest();
             xhttp.open("GET", "aeroepub://app/inspector" + GetBookPos(), true);
@@ -431,10 +434,23 @@
             popupFootnote = document.createElement("div");
             popupFootnote.className = "popupFootnote";
             console.log(frame);
-            popupFootnote.style.left = frame.offsetLeft + left + "px";
-            popupFootnote.style.top = frame.offsetTop + top + 20 + "px";
-            popupFootnote.innerHTML = content;
             document.body.appendChild(popupFootnote);
+            left = frame.offsetLeft + left
+            top = frame.offsetTop + top + 20;
+
+            popupFootnote.innerHTML = content;
+            if (left + popupFootnote.offsetWidth > window.innerWidth) {
+                left = window.innerWidth - popupFootnote.offsetWidth;
+            }
+            console.log(top);
+            if (top + popupFootnote.offsetHeight > window.innerHeight) {
+
+                top = window.innerHeight - popupFootnote.offsetHeight;
+
+            }
+            popupFootnote.style.left = left + "px";
+            popupFootnote.style.top = top + "px";
+
         }
         document.FrameMouseUp = function () {
 
