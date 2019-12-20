@@ -48,18 +48,23 @@ namespace AeroEpubViewer
         public static void SendDataWhenLoad(Object sender, LoadingStateChangedEventArgs e)
         {
             if (e.IsLoading == true) return;
-            string jsCmd = "";
             if (Program.epub.spine.pageProgressionDirection == "rtl")
             {
                 chromium.ExecuteScriptAsync("direction = direction_rtl;");
             }
-            foreach (var i in Program.epub.spine)
+            string userDataCmd = string.Format("LoadUserSettings({0});", UserSettings.GetJson());
+            string initCmd = "";
+            string lengthDataCmd = "";
+            foreach (SpineItem i in Program.epub.spine)
             {
-                jsCmd += string.Format(",'{0}'", "aeroepub://book/" + i.ToString());
+                initCmd += string.Format(",'{0}'", "aeroepub://book/" + i.ToString());
+                int l = (i.item.GetData() as TextEpubItemFile).text.Length;
+                lengthDataCmd += ","+l;
             }
-            jsCmd = string.Format("Init([{0}],{1},{2});", jsCmd.Substring(1),ResizeManage.index,ResizeManage.percent);
-            jsCmd = string.Format("LoadUserSettings({0});",UserSettings.GetJson())+ jsCmd;
-            chromium.ExecuteScriptAsync(jsCmd);
+            lengthDataCmd = "LoadScrollBar([" + lengthDataCmd.Substring(1) + "]);";
+            initCmd = string.Format("Init([{0}],{1},{2});", initCmd.Substring(1),ResizeManage.index,ResizeManage.percent);
+            chromium.ExecuteScriptAsync(userDataCmd + lengthDataCmd + initCmd  );
+
             if (Program.epub.spine.toc != null) 
             {
                 string toc = (Program.epub.spine.toc.GetData() as TextEpubItemFile).text;
