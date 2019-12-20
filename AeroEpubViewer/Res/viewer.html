@@ -177,6 +177,8 @@
         direction_rtl.SetPosStyle = function (e) { e.style.right = e.pos + "px"; }
         direction_rtl.style = "iframe{height:90vh;top:0;}";
         direction_rtl.injectStyle = "body{height:100vh;min-width:66vh;}";
+        direction_rtl.GetEffective = function (x, y) { return x; };
+        direction_rtl.GetDelta = function (d1, d2) { return d1 - d2; };
         direction_rtl.KeyToDirection = function (k) {
             switch (k) {
                 case "ArrowLeft": return -1;
@@ -193,6 +195,8 @@
         direction_default.SetPosStyle = function (e) { e.style.top = e.pos + "px"; }
         direction_default.style = "iframe{width:95vw;left:2.5vw;min-height:90vh;}";
         direction_default.injectStyle = "body{width:100vw;padding-bottom:3vh;}";
+        direction_default.GetEffective = function (x, y) { return y; };
+        direction_default.GetDelta = function (d1, d2) { return d2 - d1; };
         direction_default.KeyToDirection = function (k) {
             switch (k) {
                 case "ArrowUp": return 1;
@@ -463,6 +467,20 @@
             }
             MenuSwitch();
         }
+
+        var touchPos = -1;
+        document.OnFrameTouchStart = function (x, y) {
+            touchPos = direction.GetEffective(x, y);
+        };
+        document.OnFrameTouchMove = function (x, y) {
+            let d = direction.GetEffective(x, y);
+            let delta = direction.GetDelta(touchPos, d);
+            Scroll(delta);
+            touchPos = d;
+        };
+        document.OnFrameTouchEnd = function () {
+            touchPos = -1;
+        };
 
     </script>
 </body>
