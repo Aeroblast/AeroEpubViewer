@@ -52,7 +52,7 @@ namespace AeroEpubViewer
                                 content = CssHack.Hack(content);
                                 return ResourceHandler.FromString(content, null, true, i.mediaType);
                             }
-                            if (uri.Query.Contains( "warm"))
+                            if (uri.Query.Contains("warm"))
                             {
                                 if (!i.mediaType.Contains("image")) throw new Exception("Should be image.");
 
@@ -62,6 +62,10 @@ namespace AeroEpubViewer
 
                             }
                             return ResourceHandler.FromByteArray(i.GetData().GetBytes(), i.mediaType);
+                        }
+                        else
+                        {
+                            Log.log("[Error]Cannot get "+uri);
                         }
 
                     }

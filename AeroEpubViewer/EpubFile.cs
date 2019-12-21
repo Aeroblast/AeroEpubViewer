@@ -141,7 +141,7 @@ namespace AeroEpubViewer.Epub
         {
 
             foreach (var i in manifest) if (i.Value.href == href) return i.Value;
-            throw new EpubErrorException("Cannot find item by href:"+href);
+            return null;
         }
         public void Save(string path, FileMode fileMode = FileMode.Create)
         {
