@@ -25,11 +25,11 @@ namespace AeroEpubViewer
         {
             var uri = new Uri(request.Url);
             Log.log(request.Url);
-            switch (uri.Host) 
+            switch (uri.Host)
             {
-                case "book": 
+                case "book":
                     {
-                        if (uri.Query.Contains("footnote")) 
+                        if (uri.Query.Contains("footnote"))
                         {
                             return ResourceHandler.FromString("");
                         }
@@ -39,43 +39,52 @@ namespace AeroEpubViewer
                         if (i != null)
                         {
                             //To-do:注入样式，js
-                            if (i.href.EndsWith("html")) 
+                            if (i.href.EndsWith("html"))
                             {
                                 string content = (i.GetData() as TextEpubItemFile).text;
                                 content = HtmlHack.Hack(content);
                                 return ResourceHandler.FromString(content);
                             }
-                            if (i.href.EndsWith("css")) 
+                            if (i.href.EndsWith("css"))
                             {
                                 //html里的其实也应该处理……
                                 string content = (i.GetData() as TextEpubItemFile).text;
                                 content = CssHack.Hack(content);
-                                return ResourceHandler.FromString(content,null,true,i.mediaType);
+                                return ResourceHandler.FromString(content, null, true, i.mediaType);
+                            }
+                            if (uri.Query.Contains( "warm"))
+                            {
+                                if (!i.mediaType.Contains("image")) throw new Exception("Should be image.");
+
+                                var d = ImageHack.Warmer(i.GetData().GetBytes());
+                                return ResourceHandler.FromByteArray(d, "image/bmp");
+
+
                             }
                             return ResourceHandler.FromByteArray(i.GetData().GetBytes(), i.mediaType);
                         }
 
                     }
                     break;
-                case "viewer": 
+                case "viewer":
                     {
-                        var filename = uri.AbsolutePath.Substring(1).Replace("/",".") ;
-                        Stream fs = assembly.GetManifestResourceStream("AeroEpubViewer.Res."+filename);
+                        var filename = uri.AbsolutePath.Substring(1).Replace("/", ".");
+                        Stream fs = assembly.GetManifestResourceStream("AeroEpubViewer.Res." + filename);
                         if (filename.EndsWith("css"))
                         {
-                            string content =new StreamReader(fs).ReadToEnd();
+                            string content = new StreamReader(fs).ReadToEnd();
                             content = CssHack.Hack(content);
                             return ResourceHandler.FromString(content, null, true, "text/css");
                         }
-                        string mime=Util.GetMimeType(filename);
-                        if(mime!=null)
-                            return ResourceHandler.FromStream(fs,mime);
+                        string mime = Util.GetMimeType(filename);
+                        if (mime != null)
+                            return ResourceHandler.FromStream(fs, mime);
                         return ResourceHandler.FromStream(fs);
                     } //break;
-                case "app": 
+                case "app":
                     {
-                        string[]args=uri.AbsolutePath.Substring(1).Split('/');
-                        switch (args[0]) 
+                        string[] args = uri.AbsolutePath.Substring(1).Split('/');
+                        switch (args[0])
                         {
                             case "pos":
                                 ResizeManage.SetPara(args);
@@ -90,14 +99,14 @@ namespace AeroEpubViewer
                                 return ResourceHandler.FromString("OK");
                             case "inspector":
                                 EpubViewer.chromium.ShowDevTools();
-                                return ResourceHandler.FromString("OK"); 
+                                return ResourceHandler.FromString("OK");
                         }
 
 
                     }
                     break;
-            
-            
+
+
             }
             return null;
         }

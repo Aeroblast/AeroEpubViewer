@@ -12,12 +12,13 @@ var style = document.createElement("style");
 style.innerHTML = PD.direction.injectStyle;
 document.head.appendChild(style);
 var themeStyle = document.createElement("style");
-style.innerHTML = PD.theme.frameStyle;
-document.head.appendChild(style);
+themeStyle.innerHTML = PD.theme.frameStyle;
+document.head.appendChild(themeStyle);
 document.addEventListener("touchstart", function (e) { PD.OnFrameTouchStart(e.touches[0].screenX, e.touches[0].screenY); });
 document.addEventListener("touchend", function (e) { PD.OnFrameTouchEnd(); });
 document.addEventListener("touchmove", function (e) { PD.OnFrameTouchMove(e.touches[0].screenX, e.touches[0].screenY); });
-
+[].forEach.call(document.getElementsByTagName("img"), function (e) { e.src = e.src + "?" + PD.theme.name; });
+[].forEach.call(document.getElementsByTagName("image"), function (e) { e.setAttribute("xlink:href", e.getAttribute("xlink:href") + "?" + PD.theme.name); });
 function Href(e) {
     if (e.getAttribute("epub:type") == "noteref") {
         let noteid = e.href.split('#')[1];
