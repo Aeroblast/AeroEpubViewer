@@ -145,12 +145,18 @@
             z-index: 40;
             border: solid 1px;
             background: white;
+            min-height: 0;
         }
 
         #scrollBar {
             position: fixed;
-            z-index: 2;
+            z-index: 15;
+            opacity: 0.0;
         }
+
+            #scrollBar:hover {
+                opacity: 1;
+            }
     </style>
 </head>
 <body>
@@ -284,7 +290,7 @@
                 for (let i = 0; i < contentLengthData.length; i++) {
                     s += contentLengthData[i];
                     if (s > v) {
-                        let rate = (v-s+contentLengthData[i] ) / contentLengthData[i];
+                        let rate = (v - s + contentLengthData[i]) / contentLengthData[i];
                         frameList.forEach(e => e.parentNode.removeChild(e));
                         frameList = new Array();
                         Init(urlList, i, rate);
@@ -507,8 +513,32 @@
             }
             popupFootnote.style.left = left + "px";
             popupFootnote.style.top = top + "px";
+        }
+        var PopupFootnote2 = function (content, left, top, frame) {
+            if (popupFootnote != null) popupFootnote.parentNode.removeChild(popupFootnote);
+            popupFootnote = document.createElement("iframe");
+            popupFootnote.className = "popupFootnote";
+            popupFootnote.sandbox = "";
+            popupFootnote.src = frame.src + "?footnote";
+            document.body.appendChild(popupFootnote);
+            left = frame.offsetLeft + left
+            top = frame.offsetTop + top + 20;
+
+            popupFootnote.onload = function () {
+                popupFootnote.contentWindow.document.documentElement.innerHTML = frame.contentWindow.document.head.outerHTML + "<body>" + content + "</body>";
+                if (left + popupFootnote.offsetWidth > window.innerWidth) {
+                    left = window.innerWidth - popupFootnote.offsetWidth;
+                }
+                if (top + popupFootnote.offsetHeight > window.innerHeight) {
+                    top = window.innerHeight - popupFootnote.offsetHeight;
+                }
+                popupFootnote.style.left = left + "px";
+                popupFootnote.style.top = top + "px";
+            }
+
 
         }
+        document.PopupFootnote = PopupFootnote2;
         document.FrameMouseUp = function () {
 
             if (popupFootnote != null) {

@@ -23,3 +23,15 @@ height:100vh;
     font-family: 'font-ja';
     src: local('MS Mincho');
 }
+a:link {
+    color: #8b8b8b;
+}
+a:visited {
+    color: #5b5b5b;
+}
+a:hover {
+    color: #000000;
+}
+a:active {
+    color: #000000;
+}

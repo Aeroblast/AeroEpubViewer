@@ -29,6 +29,10 @@ namespace AeroEpubViewer
             {
                 case "book": 
                     {
+                        if (uri.Query.Contains("footnote")) 
+                        {
+                            return ResourceHandler.FromString("");
+                        }
                         var epubItemPath = uri.AbsolutePath;
                         if (epubItemPath[0] == '/') epubItemPath = epubItemPath.Substring(1);
                         ManifestItem i = Program.epub.GetItem(epubItemPath);
