@@ -46,7 +46,6 @@
             left: 0;
             top: 0;
             z-index: 10;
-            background: #fafcc9;
             overflow: hidden;
         }
 
@@ -77,13 +76,13 @@
             from {
                 height: 0vh;
                 overflow: hidden;
-                background: transparent;
+                opacity: 0;
             }
 
             to {
                 height: 89vh;
                 overflow: scroll;
-                background: #ababab;
+                opacity: 1;
             }
         }
 
@@ -92,25 +91,25 @@
             from {
                 height: 89vh;
                 overflow: scroll;
-                background: #ababab;
+                opacity: 1;
             }
 
             to {
                 height: 0vh;
                 overflow: hidden;
-                background: transparent;
+                opacity: 0;
             }
         }
 
         @keyframes menuDisplay {
             from {
                 height: 0vh;
-                background: transparent;
+                opacity: 0;
             }
 
             to {
                 height: 10vh;
-                background: #fafcc9;
+                opacity: 1;
             }
         }
 
@@ -118,12 +117,12 @@
 
             from {
                 height: 10vh;
-                background: #fafcc9;
+                opacity: 1;
             }
 
             to {
                 height: 0vh;
-                background: transparent;
+                opacity: 0;
             }
         }
 
@@ -171,6 +170,15 @@
             <div onclick="ApplyFontSize(document.getElementById('fontSizeInput').value)" style="cursor:pointer;background:white;font-size:0.7em">字号生效</div>
         </div>
         <div><div style="cursor:pointer;" onclick="Inspector()">检查</div></div>
+        <div>
+            <div style="top:3vh;line-height:1.2em;">
+                Theme:　<br /><select id="themeSelect" onchange="SetTheme()">
+                    <option value="default" selected>Default</option>
+                    <option value="warm">Warm</option>
+                    <option value="dark">Dark</option>
+                </select>
+            </div>
+        </div>
 
 
 
@@ -215,6 +223,22 @@
             }
             return 0;
         }
+        var theme_default = new Object();
+        theme_default.name = "default";
+        theme_default.viewerStyle = "#nav,#menu{background:white;color:black;}";
+        theme_default.frameStyle = "body{background:white;color:black;}";
+        var theme_warm = new Object();
+        theme_warm.name = "warm";
+        theme_warm.viewerStyle = "body,#nav,#menu{background:#ffea83;color:black;}";
+        theme_warm.frameStyle = "body{background:#ffea83;color:black;}";
+        var theme_dark = new Object();
+        theme_dark.name = "dark";
+        theme_dark.viewerStyle = "body,#nav,#menu{background:black;color:white;}";
+        theme_dark.frameStyle = "body{background:black;color:white;}";
+
+        document.theme = theme_default;
+        var themeStyle = document.createElement("style");
+        document.head.appendChild(themeStyle);
         var direction = direction_default;
         var frameList = new Array();
         var urlList;
@@ -247,9 +271,6 @@
             let page = CreateFrame(start, posRate, CheckLoad, false, true);
             frameList.push(page);
 
-
-
-
         }
 
         function LoadToc(data, path) {
@@ -268,6 +289,8 @@
         function LoadUserSettings(json) {
             document.userSettings = json;
             document.getElementById("fontSizeInput").value = json.bookFontSize;
+            document.getElementById("themeSelect").value = json.viewerTheme;
+            SetTheme();
         }
         var contentLengthData;
         var scrollBar;
@@ -368,6 +391,7 @@
                 if (check != null) check();
                 Scroll(0);
                 SetScrollBar();
+                page.onload = null;
             }
             document.body.appendChild(page);
             return page;
@@ -562,7 +586,13 @@
         document.OnFrameTouchEnd = function () {
             touchPos = -1;
         };
-
+        function SetTheme()
+        {
+            let name = document.getElementById("themeSelect").value;
+            switch (name) { case "default": document.theme = theme_default; break; case "warm": document.theme = theme_warm; break; case "dark": document.theme = theme_dark; break; }
+            for (let i = 0; i < frameList.length; i++) { frameList[i].contentWindow.location.reload(); }
+            themeStyle.innerHTML = document.theme.viewerStyle;
+        }
     </script>
 </body>
 

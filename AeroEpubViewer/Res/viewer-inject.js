@@ -11,7 +11,9 @@ document.head.appendChild(fontSizeStyle);
 var style = document.createElement("style");
 style.innerHTML = PD.direction.injectStyle;
 document.head.appendChild(style);
-
+var themeStyle = document.createElement("style");
+style.innerHTML = PD.theme.frameStyle;
+document.head.appendChild(style);
 document.addEventListener("touchstart", function (e) { PD.OnFrameTouchStart(e.touches[0].screenX, e.touches[0].screenY); });
 document.addEventListener("touchend", function (e) { PD.OnFrameTouchEnd(); });
 document.addEventListener("touchmove", function (e) { PD.OnFrameTouchMove(e.touches[0].screenX, e.touches[0].screenY); });
