@@ -197,8 +197,8 @@
         direction_rtl.GetWindowLength = function () { return window.innerWidth; }
         direction_rtl.AdjustFrameSize = function (f) { f.width = f.contentWindow.document.documentElement.scrollWidth + "px"; }
         direction_rtl.SetPosStyle = function (e) { e.style.right = e.pos + "px"; }
-        direction_rtl.style = "iframe{height:90vh;top:0;}#scrollBar{width:100vw;left:0;bottom:0;margin:0;transform-origin: 50vw 0;transform: rotate(180deg);}";
-        direction_rtl.injectStyle = "body{height:100vh;min-width:66vh;padding-top:2vh;}";
+        direction_rtl.style = "iframe{height:90vh;top:2vh;}#scrollBar{width:100vw;left:0;bottom:0;margin:0;transform-origin: 50vw 0;transform: rotate(180deg);}";
+        direction_rtl.injectStyle = "body{height:100vh;min-width:66vh;}";
         direction_rtl.GetEffective = function (x, y) { return x; };
         direction_rtl.GetDelta = function (d1, d2) { return d1 - d2; };
         direction_rtl.KeyToDirection = function (k) {
