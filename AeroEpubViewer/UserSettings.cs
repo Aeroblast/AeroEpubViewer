@@ -9,12 +9,12 @@ namespace AeroEpubViewer
     class UserSettings
     {
         public static int bookFontSize = 18;
-        public static string viewerStyle = "warm";
+        public static string theme = "warm";
 
         static string jsonTemplate = "\"bookFontSize\":{0},\"viewerTheme\":\"{1}\"";
         public static string GetJson() 
         {
-            return "{"+string.Format(jsonTemplate,bookFontSize,viewerStyle)+"}";
+            return "{"+string.Format(jsonTemplate,bookFontSize,theme)+"}";
         }
     }
 }

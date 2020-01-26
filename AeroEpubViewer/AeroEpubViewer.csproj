@@ -99,6 +99,7 @@
     </Compile>
     <Compile Include="HtmlHack.cs" />
     <Compile Include="ImageHack.cs" />
+    <Compile Include="ImageQuickView.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="EpubFile.cs" />

@@ -104,6 +104,11 @@ namespace AeroEpubViewer
                             case "inspector":
                                 EpubViewer.chromium.ShowDevTools();
                                 return ResourceHandler.FromString("OK");
+                            case "theme":
+                               UserSettings.theme= args[1];
+                                return ResourceHandler.FromString("OK");
+                            case "ImageQuickView":
+                                return ResourceHandler.FromString(ImageQuickView.GetHTML());
                         }
 
 

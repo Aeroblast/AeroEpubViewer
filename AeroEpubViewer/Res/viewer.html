@@ -19,7 +19,7 @@
             left: 0;
             top: 0;
             background: transparent;
-            z-index: 11;
+            z-index: 21; /*over 'menu'*/
             cursor: pointer;
         }
 
@@ -45,7 +45,7 @@
             height: 0vh;
             left: 0;
             top: 0;
-            z-index: 10;
+            z-index: 20;
             overflow: hidden;
         }
 
@@ -70,6 +70,38 @@
 
         #nav::-webkit-scrollbar {
             display: none;
+        }
+
+        #sp_frame_container {
+            display: none;
+        }
+
+        #sp_frame_close {
+            position: fixed;
+            z-index: 15;
+            width: 100%;
+            height: 5%;
+            top: 0;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.3);
+            text-align: center;
+            color: red;
+            font-weight: bold;
+        }
+
+            #sp_frame_close:hover {
+                background: rgba(255, 255, 255, 0.8);
+            }
+
+        #sp_frame {
+            border: none;
+            margin: 0;
+            z-index: 15;
+            left: 0;
+            position: fixed;
+            width: 100%;
+            height: 95%;
+            top: 5%;
         }
 
         @keyframes navDisplay {
@@ -132,14 +164,15 @@
             display: block;
             left: 0;
         }
-        content>navPoint>navLabel {
-        padding-left:1em;
+
+        content > navPoint > navLabel {
+            padding-left: 1em;
         }
 
-            navLabel:hover {
-                background: #808080;
-                cursor: pointer;
-            }
+        navLabel:hover {
+            background: #808080;
+            cursor: pointer;
+        }
 
         .popupFootnote {
             width: 40vw;
@@ -152,7 +185,7 @@
 
         #scrollBar {
             position: fixed;
-            z-index: 15;
+            z-index: 14;
             opacity: 0.0;
         }
 
@@ -182,11 +215,11 @@
                 </select>
             </div>
         </div>
-
-
+        <div><div style="cursor:pointer;" onclick="ImageQuickView()">速览插图</div></div>
 
 
     </div>
+    <div id="sp_frame_container"><div id="sp_frame_close" onclick="document.getElementById('sp_frame_container').style.display='none'">Close</div><iframe id="sp_frame"></iframe></div>
     <div id="nav" style=""></div>
     <div id="mouseListener" style="position:fixed;z-index:1;width:100vw;height:100vh;left:0;top:0;"></div>
     <script>
@@ -194,6 +227,7 @@
 
         var direction_rtl = new Object();
         direction_rtl.GetFrameLength = function (e) { return e.offsetWidth; }
+        direction_rtl.GetElementPos = function (e) { return e.getBoundingClientRect().right; }
         direction_rtl.GetWindowLength = function () { return window.innerWidth; }
         direction_rtl.AdjustFrameSize = function (f) { f.width = f.contentWindow.document.documentElement.scrollWidth + "px"; }
         direction_rtl.SetPosStyle = function (e) { e.style.right = e.pos + "px"; }
@@ -212,6 +246,7 @@
         }
         var direction_default = new Object();
         direction_default.GetFrameLength = function (e) { return e.offsetHeight; }
+        direction_default.GetElementPos = function (e) { return e.getBoundingClientRect().top; }
         direction_default.GetWindowLength = function () { return window.innerHeight; }
         direction_default.AdjustFrameSize = function (f) { f.height = f.contentWindow.document.documentElement.scrollHeight + "px"; }
         direction_default.SetPosStyle = function (e) { e.style.top = e.pos + "px"; }
@@ -245,9 +280,9 @@
         var direction = direction_default;
         var frameList = new Array();
         var urlList;
-        function Init(_urlList, start = 0, posRate = 0) {
+        function Init(_urlList, start = 0, posRate = 0, id = "") {
             document.direction = direction;
-            console.log("Init start=" + start + " pos=" + posRate + "");
+            console.log("Init start=" + start + " pos=" + posRate + " id=" + id);
             var style = document.createElement('style');
             style.innerHTML = direction.style;
             document.head.appendChild(style);
@@ -270,10 +305,8 @@
             };
             window.addEventListener("resize", PrepareResize);
 
-
-            let page = CreateFrame(start, posRate, CheckLoad, false, true);
+            let page = CreateFrame(start, posRate, CheckLoad, false, true, id);
             frameList.push(page);
-
         }
 
         function LoadToc(data, path) {
@@ -286,6 +319,7 @@
                 label.onclick = function () {
                     Link(path + "/" + content.getAttribute("src"));
                     NavSwitch();
+                    if (menuOn) MenuSwitch();
                 }
             });
         }
@@ -311,6 +345,7 @@
             scrollBar.oninput = function () {
             };
             scrollBar.onchange = function () {
+                scrollBar.blur();
                 let v = scrollBar.value;
                 let s = 0;
                 for (let i = 0; i < contentLengthData.length; i++) {
@@ -342,22 +377,24 @@
             let fullurl = url;
             if (url.indexOf("aeroepub") != 0)
                 fullurl = "aeroepub://" + ("book/" + url).replace("//", "/");
-
-            let path = fullurl.split('#')[0];
+            let split_temp = fullurl.split('#');
+            let path = split_temp[0];
+            let id = "";
+            if (split_temp.length > 1) id = split_temp[1];
             console.log("Linkto:" + fullurl);
             for (var i = 0; i < urlList.length; i++) {
 
-                if (urlList[i] == path) { DirectToIndex(i); return; }
+                if (urlList[i] == path) { DirectToIndex(i, id); return; }
 
             }
             console.log("Cannot link to " + url);
         }
-        function DirectToIndex(urlIndex) {
+        function DirectToIndex(urlIndex, id) {
             frameList.forEach(e => e.parentNode.removeChild(e));
             frameList = new Array();
-            Init(urlList, urlIndex);
+            Init(urlList, urlIndex, 0, id);
         }
-        function CreateFrame(urlIndex, pos, check = null, addSelfLength = false, isPosRate = false) {
+        function CreateFrame(urlIndex, pos, check = null, addSelfLength = false, isPosRate = false, id = null) {
             loading = true;
             console.log("Create Frame " + urlList[urlIndex] + (isPosRate ? " posRate:" : " pos:") + pos + " addSelf:" + addSelfLength);
             let page = document.createElement("iframe");
@@ -382,12 +419,20 @@
                 } else {
                     if (isPosRate) {
                         page.pos = -parseInt(pos * direction.GetFrameLength(page));
-                        console.log(pos + " -> " + page.pos + "px");
+                        //console.log(pos + " -> " + page.pos + "px");
 
                     } else {
                         page.pos = pos;
                     }
                     direction.SetPosStyle(page);
+                }
+                if (id) {
+                    let t = page.contentDocument.getElementById(id);
+                    if (t) {
+                        let ele_pos = direction.GetElementPos(t);
+                        page.pos = -ele_pos + 10;
+                        direction.SetPosStyle(page);
+                    } else console.log('Cannot find id:' + id);
                 }
                 loading = false;
                 page.style.visibility = "visible";
@@ -493,11 +538,12 @@
             if (menuOn) {
                 menuOn = false;
                 menu.style.animation = "menuHide 0.5s ease 0s 1 ";
+                if (navOn) { NavSwitch(); }
 
             } else {
                 menuOn = true;
                 menu.style.animation = "menuDisplay 0.5s ease 0s 1";
-
+                if (!navOn) { NavSwitch(); }
             }
             menu.style.animationFillMode = "forwards";
         }
@@ -589,12 +635,22 @@
         document.OnFrameTouchEnd = function () {
             touchPos = -1;
         };
-        function SetTheme()
-        {
+        function SetTheme() {
             let name = document.getElementById("themeSelect").value;
             switch (name) { case "default": document.theme = theme_default; break; case "warm": document.theme = theme_warm; break; case "dark": document.theme = theme_dark; break; }
             for (let i = 0; i < frameList.length; i++) { frameList[i].contentWindow.location.reload(); }
             themeStyle.innerHTML = document.theme.viewerStyle;
+            let xhttp = null
+            xhttp = new XMLHttpRequest();
+            xhttp.open("GET", "aeroepub://app/theme/" + name, true);
+            xhttp.send();
+        }
+        function ImageQuickView() {
+            MenuSwitch();
+            let sp_frame_c = document.getElementById('sp_frame_container');
+            let sp_frame = document.getElementById('sp_frame');
+            sp_frame_c.style.display = "block";
+            sp_frame.src = "aeroepub://app/ImageQuickView"
         }
     </script>
 </body>
