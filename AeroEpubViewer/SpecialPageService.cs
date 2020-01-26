@@ -24,6 +24,8 @@ namespace AeroEpubViewer
                     r.Append("\"/></div>");
                 }
             }
+
+            r.Append("<script src=\"aeroepub://viewer/sp-page.js\"></script>");
             r.Append("</body>");
 
             return r.ToString();
