@@ -62,7 +62,6 @@ namespace AeroEpubViewer.Epub
             get {
                 if (_spine == null) ReadSpine();
                 return _spine;
-            
             }
         }
         public Dictionary<string, ManifestItem> manifest
@@ -72,7 +71,6 @@ namespace AeroEpubViewer.Epub
                 if (_manifest == null) ReadSpine();
                 return _manifest;
             } 
-        
         }
 
 
@@ -97,9 +95,6 @@ namespace AeroEpubViewer.Epub
 
             f = XFragment.FindFragment("spine", OPF.text);
             _spine = new Spine(f,_manifest);
-
-
-
         }
 
         public void DeleteEmpty()//只查一层……谁家epub也不会套几个文件夹

@@ -216,6 +216,7 @@
             </div>
         </div>
         <div><div style="cursor:pointer;" onclick="ImageQuickView()">速览插图</div></div>
+        <div><div style="cursor:pointer;" onclick="BookInfo()">书籍信息</div></div>
 
 
     </div>
@@ -651,6 +652,13 @@
             let sp_frame = document.getElementById('sp_frame');
             sp_frame_c.style.display = "block";
             sp_frame.src = "aeroepub://app/ImageQuickView"
+        }
+        function BookInfo() {
+            MenuSwitch();
+            let sp_frame_c = document.getElementById('sp_frame_container');
+            let sp_frame = document.getElementById('sp_frame');
+            sp_frame_c.style.display = "block";
+            sp_frame.src = "aeroepub://app/BookInfo"
         }
     </script>
 </body>

@@ -108,7 +108,9 @@ namespace AeroEpubViewer
                                UserSettings.theme= args[1];
                                 return ResourceHandler.FromString("OK");
                             case "ImageQuickView":
-                                return ResourceHandler.FromString(ImageQuickView.GetHTML());
+                                return ResourceHandler.FromString(SpecialPageService.ImageQuickView());
+                            case "BookInfo":
+                                return ResourceHandler.FromString(SpecialPageService.BookInfo());
                         }
 
 
