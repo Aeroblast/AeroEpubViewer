@@ -175,8 +175,8 @@ namespace AeroEpubViewer
         /// <param name="pos">找到Tag之后，Tag的起始位置</param>
         public static XTag FindTag(string tagName, string text, ref int pos)
         {
-            Regex reg1 = new Regex("<" + tagName + "[^a-zA-Z]");
-            Regex reg2 = new Regex("<" + tagName + ".*?>");
+            Regex reg1 = new Regex("<" + tagName + "[\\s]");
+            Regex reg2 = new Regex("<" + tagName + "[\\s\\S]*?>");
             Match m1 = reg1.Match(text, pos);
             if (m1.Success)
             {
@@ -275,6 +275,7 @@ namespace AeroEpubViewer
                 string t = "";
                 for (int i = 1; i < x.Length; i++)
                 {
+                    x[i] = Util.Trim(x[i]);
                     if (x[i].Length == 0) continue;
                     t += x[i];
                     if (_CountSep(t) != 2) { t += ' '; continue; }

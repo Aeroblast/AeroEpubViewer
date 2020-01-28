@@ -332,7 +332,7 @@ namespace AeroEpubViewer
                         break;
                     case "dc:language":
                         string lang = Util.Trim(e.innerXHTML);
-                        if (langcode.ContainsKey(lang)) lang = langcode[lang];
+                        if (langcode.ContainsKey(lang.ToLower())) lang = langcode[lang.ToLower()];
                         metatemp.Append("<tr><td>Language</td><td><data-item>" + lang + "</data-item></td></tr>");
                         break;
                     case "dc:title": break;
