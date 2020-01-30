@@ -82,6 +82,7 @@
 
         nav {
             margin-left: 0;
+            display:block;
         }
 
 
@@ -245,7 +246,7 @@
 
         var direction_rtl = new Object();
         direction_rtl.GetFrameLength = function (e) { return e.offsetWidth; }
-        direction_rtl.GetElementPos = function (e, f) { return f.width - e.getBoundingClientRect().right; }
+        direction_rtl.GetElementPos = function (e, f) { return f.contentWindow.document.documentElement.scrollWidth - e.getBoundingClientRect().right; }
         direction_rtl.GetWindowLength = function () { return window.innerWidth; }
         direction_rtl.AdjustFrameSize = function (f) { f.width = f.contentWindow.document.documentElement.scrollWidth + "px"; }
         direction_rtl.SetPosStyle = function (e) { e.style.right = e.pos + "px"; }
@@ -442,8 +443,8 @@
             Init(urlList, urlIndex, 0, id);
         }
         function CreateFrame(urlIndex, pos, check = null, addSelfLength = false, isPosRate = false, id = null) {
-            loading = true;
-            console.log("Create Frame " + urlList[urlIndex] + (isPosRate ? " posRate:" : " pos:") + pos + " addSelf:" + addSelfLength);
+            loading ++;
+            console.log("Create Frame " + urlList[urlIndex] + (isPosRate ? " posRate:" : " pos:") + pos + " addSelf:" + addSelfLength+" id="+id);
             let page = document.createElement("iframe");
             //private use
             page.pos = pos;
@@ -458,7 +459,6 @@
             direction.SetPosStyle(page);
             page.onload = function () {
                 direction.AdjustFrameSize(page);
-
                 if (addSelfLength) {
                     page.pos = pos - direction.GetFrameLength(page);
                     direction.SetPosStyle(page);
@@ -480,7 +480,7 @@
                         direction.SetPosStyle(page);
                     } else console.log('Cannot find id:' + id);
                 }
-                loading = false;
+                loading--;
                 page.style.visibility = "visible";
                 if (check != null) check();
                 Scroll(0);
@@ -516,7 +516,7 @@
             if (!loading) CheckLoad();
             SetScrollBar();
         }
-        var loading = false;
+        var loading = 0;
         var offScreenDestoryDistance = 50;
         var preLoadDistance = 50;
         var checking = false;
