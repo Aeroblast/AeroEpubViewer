@@ -88,10 +88,11 @@ namespace AeroEpubViewer
                     case "application/xhtml+xml":
                         {
                             string toc = (Program.epub.toc.GetData() as TextEpubItemFile).text;
+                            toc=toc.Replace(" href=\"", " hraf=\"");
                             Match m = Regex.Match(toc, "<body>([\\s\\S]*?)</body>");
                             if (m.Success)
                             {
-                                chromium.ExecuteScriptAsync("LoadTocNav", m.Groups[1], Path.GetDirectoryName(Program.epub.toc.href));
+                                chromium.ExecuteScriptAsync("LoadTocNav", m.Groups[1], Path.GetDirectoryName(Program.epub.toc.href).Replace('\\','/'));
                             }
                             else
                             {

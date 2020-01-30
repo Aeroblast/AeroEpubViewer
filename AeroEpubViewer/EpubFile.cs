@@ -40,7 +40,7 @@ namespace AeroEpubViewer.Epub
             public string name;
             public string value;
             public string id;
-            public List<MetaRecord> refines=new List<MetaRecord>();
+            public List<MetaRecord> refines = new List<MetaRecord>();
             public MetaRecord(XELement e)
             {
                 name = e.tag.tagname;
@@ -51,9 +51,10 @@ namespace AeroEpubViewer.Epub
             public void AddIfExist(XELement e, string property_name)
             {
                 string t = e.tag.GetAttribute(property_name);
-                if (t != "") {
+                if (t != "")
+                {
                     int pre = property_name.IndexOf(':');
-                    if (pre> 0) { property_name = property_name.Substring(pre+1); }
+                    if (pre > 0) { property_name = property_name.Substring(pre + 1); }
                     var a = new MetaRecord();
                     a.name = property_name;
                     a.value = t;
@@ -72,10 +73,17 @@ namespace AeroEpubViewer.Epub
         }
         public string language
         {
-            get { if (dc_language == null) ReadMeta(); return dc_language[0].value; }
+            get
+            {
+                if (dc_language == null) ReadMeta();
+                if (dc_language.Count > 0)
+                    return dc_language[0].value;
+                else
+                    return xml_lang;
+            }
         }
 
-
+        public string xml_lang;
         public List<MetaRecord> dc_titles;
         public List<MetaRecord> dc_creators;
         public List<MetaRecord> dc_language;
@@ -90,6 +98,7 @@ namespace AeroEpubViewer.Epub
             var packge_tag = XTag.FindTag("package", OPF.text);
             idref = packge_tag.GetAttribute("unique-identifier");
             version = packge_tag.GetAttribute("version");
+            xml_lang = packge_tag.GetAttribute("xml:lang");//bookwalker
             dc_titles = new List<MetaRecord>();
             dc_creators = new List<MetaRecord>();
             dc_language = new List<MetaRecord>();

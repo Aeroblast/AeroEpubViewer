@@ -65,6 +65,17 @@ namespace AeroEpubViewer
                     lang += a.value + " ";
                 }
             }
+            if (lang == "") 
+            {
+                if (Dics.langcode.ContainsKey(Program.epub.language))
+                {
+                    lang += Dics.langcode[Program.epub.language] ;
+                }
+                else
+                {
+                    lang += Program.epub.language;
+                }
+            }
             r.Append("<tr><td>Language</td><td><data-item>" + lang + "</data-item></td></tr>");
             foreach (var a in Program.epub.others)
             {

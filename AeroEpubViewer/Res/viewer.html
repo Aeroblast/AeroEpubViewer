@@ -245,7 +245,7 @@
 
         var direction_rtl = new Object();
         direction_rtl.GetFrameLength = function (e) { return e.offsetWidth; }
-        direction_rtl.GetElementPos = function (e) { return e.getBoundingClientRect().right; }
+        direction_rtl.GetElementPos = function (e, f) { return f.width - e.getBoundingClientRect().right; }
         direction_rtl.GetWindowLength = function () { return window.innerWidth; }
         direction_rtl.AdjustFrameSize = function (f) { f.width = f.contentWindow.document.documentElement.scrollWidth + "px"; }
         direction_rtl.SetPosStyle = function (e) { e.style.right = e.pos + "px"; }
@@ -264,7 +264,7 @@
         }
         var direction_default = new Object();
         direction_default.GetFrameLength = function (e) { return e.offsetHeight; }
-        direction_default.GetElementPos = function (e) { return e.getBoundingClientRect().top; }
+        direction_default.GetElementPos = function (e,f) { return e.getBoundingClientRect().top; }
         direction_default.GetWindowLength = function () { return window.innerHeight; }
         direction_default.AdjustFrameSize = function (f) { f.height = f.contentWindow.document.documentElement.scrollHeight + "px"; }
         direction_default.SetPosStyle = function (e) { e.style.top = e.pos + "px"; }
@@ -346,15 +346,14 @@
             let nav = document.getElementById("nav");
             nav.innerHTML = data;
             var checkchild = function (e) {
-                if (e.href) {
-                    let p = path + "/" + e.href.substring("aeroepub://viewer/".length);
+                if (e.getAttribute("hraf")) {
+                    let p = path + "/" + e.getAttribute("hraf");
                     e.onclick = function () {
-                        console.log(p);
                         Link(p);
                         NavSwitch();
                         if (menuOn) MenuSwitch();
                     }
-                    e.removeAttribute("href");
+                    e.removeAttribute("hraf");
                 }
                 [].forEach.call(e.children, checkchild);
             }
@@ -413,8 +412,18 @@
         document.Link = Link;
         function Link(url) {
             let fullurl = url;
-            if (url.indexOf("aeroepub") != 0)
-                fullurl = "aeroepub://" + ("book/" + url).replace("//", "/");
+            if (fullurl.indexOf("/../") > 0)
+            {
+                let i = fullurl.indexOf("/../");
+                let j = i;
+                do {
+                    j--;
+                    if (j < 0) { console.log("error"); return; } 
+                } while (fullurl[j] != '/');
+                fullurl = fullurl.substring(0,j) + fullurl.substring(i+3);
+            }
+            if (fullurl.indexOf("aeroepub") != 0)
+                fullurl = "aeroepub://" + ("book/" + fullurl).replace("//", "/");
             let split_temp = fullurl.split('#');
             let path = split_temp[0];
             let id = "";
@@ -451,7 +460,6 @@
                 direction.AdjustFrameSize(page);
 
                 if (addSelfLength) {
-
                     page.pos = pos - direction.GetFrameLength(page);
                     direction.SetPosStyle(page);
                 } else {
@@ -467,7 +475,7 @@
                 if (id) {
                     let t = page.contentDocument.getElementById(id);
                     if (t) {
-                        let ele_pos = direction.GetElementPos(t);
+                        let ele_pos = direction.GetElementPos(t,page);
                         page.pos = -ele_pos + 10;
                         direction.SetPosStyle(page);
                     } else console.log('Cannot find id:' + id);

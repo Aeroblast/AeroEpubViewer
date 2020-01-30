@@ -12,7 +12,7 @@ namespace AeroEpubViewer
         static string cssInject = "<link href=\"aeroepub://viewer/viewer-inject.css?random={0}\" rel=\"stylesheet\" type=\"text/css\"/>";
         static string jsInject = "<script src=\"aeroepub://viewer/viewer-inject.js?random={0}\"></script>";
         static Regex regLink = new Regex("(<link +href=\".*?)(\".*?>)");
-        static Regex regHref = new Regex("(<.*?href=\".*?\")(.*?>)");
+        static Regex regHref = new Regex("(<.*? href=\".*?\")(.*?>)");
         public static string Hack(string html) 
         {
             int random = Util.RandomRange();

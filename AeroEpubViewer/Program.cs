@@ -27,7 +27,21 @@ namespace AeroEpubViewer
             if (args.Length > 0)
                 if (File.Exists(args[0])) 
                 {
-                    epub = new EpubFile(args[0]);
+                    try
+                    {
+                        epub = new EpubFile(args[0]);
+                    }
+                    catch (System.IO.IOException)
+                    {
+                        MessageBox.Show("该文件无法打开，可能已被其他程序打开："+args[0]);
+                        return;
+                    }
+                    catch (EpubErrorException) 
+                    {
+
+                        MessageBox.Show("读取EPUB时发生错误:" + args[0]);
+                        return;
+                    }
                     var settings = new CefSettings();
                     if(epub.language!="")
                     settings.Locale = epub.language;
