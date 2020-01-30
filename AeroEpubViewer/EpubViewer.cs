@@ -27,23 +27,24 @@ namespace AeroEpubViewer
             chromium.Dock = DockStyle.Fill;
             chromium.IsBrowserInitializedChanged += OnLoad;
             chromium.LoadingStateChanged += SendDataWhenLoad;
-            
 
-            ResizeEnd += (e, arg) => {
+
+            ResizeEnd += (e, arg) =>
+            {
                 if (Size.Equals(ResizeManage.lastSize)) return;
                 chromium.Reload(true); chromium.LoadingStateChanged += SendDataWhenLoad;
                 ResizeManage.lastSize = Size;
             };
             InitializeComponent();
             this.Text = string.Format("AeroEpubViewer - {0}", Program.epub.title);
-            
+
         }
         private void OnLoad(Object sender, EventArgs e)
         {
             //chromium.ShowDevTools();
         }
 
-   
+
 
         public static void SendDataWhenLoad(Object sender, LoadingStateChangedEventArgs e)
         {
@@ -55,28 +56,51 @@ namespace AeroEpubViewer
             string userDataCmd = string.Format("LoadUserSettings({0});", UserSettings.GetJson());
             string initCmd = "";
             string lengthDataCmd = "";
-            foreach (SpineItem i in Program.epub.spine)
+            foreach (SpineItemref i in Program.epub.spine)
             {
+                if (!i.linear) continue;
                 initCmd += string.Format(",'{0}'", "aeroepub://book/" + i.ToString());
                 int l = (i.item.GetData() as TextEpubItemFile).text.Length;
-                lengthDataCmd += ","+l;
+                lengthDataCmd += "," + l;
             }
             lengthDataCmd = "LoadScrollBar([" + lengthDataCmd.Substring(1) + "]);";
-            initCmd = string.Format("Init([{0}],{1},{2});", initCmd.Substring(1),ResizeManage.index,ResizeManage.percent);
-            chromium.ExecuteScriptAsync(userDataCmd + lengthDataCmd + initCmd  );
+            initCmd = string.Format("Init([{0}],{1},{2});", initCmd.Substring(1), ResizeManage.index, ResizeManage.percent);
+            chromium.ExecuteScriptAsync(userDataCmd + lengthDataCmd + initCmd);
 
-            if (Program.epub.spine.toc != null) 
+            if (Program.epub.toc != null)
             {
-                string toc = (Program.epub.spine.toc.GetData() as TextEpubItemFile).text;
-               Match m= Regex.Match(toc, "<navMap>([\\s\\S]*?)</navMap>");
-                if (m.Success)
+                switch (Program.epub.toc.mediaType)
                 {
-                    chromium.ExecuteScriptAsync("LoadToc", m.Groups[1],Path.GetDirectoryName(Program.epub.spine.toc.href));
+                    case "application/x-dtbncx+xml":
+                        {
+                            string toc = (Program.epub.toc.GetData() as TextEpubItemFile).text;
+                            Match m = Regex.Match(toc, "<navMap>([\\s\\S]*?)</navMap>");
+                            if (m.Success)
+                            {
+                                chromium.ExecuteScriptAsync("LoadTocNcx", m.Groups[1], Path.GetDirectoryName(Program.epub.toc.href));
+                            }
+                            else
+                            {
+                                Log.log("[Error]at TOC loading:" + Program.epub.toc);
+                            }
+                        }
+                        break;
+                    case "application/xhtml+xml":
+                        {
+                            string toc = (Program.epub.toc.GetData() as TextEpubItemFile).text;
+                            Match m = Regex.Match(toc, "<body>([\\s\\S]*?)</body>");
+                            if (m.Success)
+                            {
+                                chromium.ExecuteScriptAsync("LoadTocNav", m.Groups[1], Path.GetDirectoryName(Program.epub.toc.href));
+                            }
+                            else
+                            {
+                                Log.log("[Error]at TOC loading:" + Program.epub.toc);
+                            }
+                        } break;
+
                 }
-                else 
-                {
-                    Log.log("[Error]at TOC loading:"+ Program.epub.spine.toc);
-                }
+
             }
             chromium.LoadingStateChanged -= SendDataWhenLoad;
         }

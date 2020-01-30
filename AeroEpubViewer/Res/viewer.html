@@ -12,33 +12,6 @@
             z-index: 5;
         }
 
-        #navSwitch {
-            position: fixed;
-            height: 10vh;
-            width: 10vw;
-            left: 0;
-            top: 0;
-            background: transparent;
-            z-index: 21; /*over 'menu'*/
-            cursor: pointer;
-        }
-
-        #nav {
-            position: fixed;
-            height: 0vh;
-            left: 0;
-            top: 0;
-            z-index: 10;
-            background: transparent;
-            overflow: hidden;
-            padding-left: 2vw;
-            padding-right: 2vw;
-        }
-
-            #nav > navpoint:nth-child(1) > navLabel {
-                margin-top: 10vh;
-            }
-
         #menu {
             position: fixed;
             width: 100%;
@@ -68,8 +41,68 @@
                     line-height: 6vh;
                 }
 
+        #navSwitch {
+            position: fixed;
+            height: 10vh;
+            width: 10vw;
+            left: 0;
+            top: 0;
+            background: transparent;
+            z-index: 21; /*over 'menu'*/
+            cursor: pointer;
+        }
+
+        #nav {
+            position: fixed;
+            height: 0vh;
+            left: 0;
+            top: 0;
+            z-index: 10;
+            background: transparent;
+            overflow: hidden;
+            padding-left: 2vw;
+            padding-right: 2vw;
+        }
+
+            #nav > navpoint:nth-child(1) > navLabel, #nav > nav:nth-child(1) {
+                margin-top: 10vh;
+            }
+
+        li {
+            margin-left: 0.5em;
+            padding: 0;
+            text-indent: 0;
+        }
+
+        #nav ol {
+            list-style: none;
+            margin-left: 0;
+            padding: 0;
+        }
+
+        nav {
+            margin-left: 0;
+        }
+
+
         #nav::-webkit-scrollbar {
             display: none;
+        }
+
+        navLabel {
+            width: 100%;
+            height: 2em;
+            display: block;
+            left: 0;
+        }
+
+        content > navPoint > navLabel {
+            padding-left: 1em;
+        }
+
+        navLabel:hover, #nav li:hover {
+            background: #808080;
+            cursor: pointer;
         }
 
         #sp_frame_container {
@@ -156,22 +189,6 @@
                 height: 0vh;
                 opacity: 0;
             }
-        }
-
-        navLabel {
-            width: 100%;
-            height: 2em;
-            display: block;
-            left: 0;
-        }
-
-        content > navPoint > navLabel {
-            padding-left: 1em;
-        }
-
-        navLabel:hover {
-            background: #808080;
-            cursor: pointer;
         }
 
         .popupFootnote {
@@ -281,6 +298,7 @@
         var direction = direction_default;
         var frameList = new Array();
         var urlList;
+        document.addEventListener('contextmenu', event => event.preventDefault());
         function Init(_urlList, start = 0, posRate = 0, id = "") {
             document.direction = direction;
             console.log("Init start=" + start + " pos=" + posRate + " id=" + id);
@@ -310,7 +328,7 @@
             frameList.push(page);
         }
 
-        function LoadToc(data, path) {
+        function LoadTocNcx(data, path) {
             let nav = document.getElementById("nav");
             nav.innerHTML = data;
             let navPionts = nav.getElementsByTagName("navPoint");
@@ -323,6 +341,25 @@
                     if (menuOn) MenuSwitch();
                 }
             });
+        }
+        function LoadTocNav(data, path) {
+            let nav = document.getElementById("nav");
+            nav.innerHTML = data;
+            var checkchild = function (e) {
+                if (e.href) {
+                    let p = path + "/" + e.href.substring("aeroepub://viewer/".length);
+                    e.onclick = function () {
+                        console.log(p);
+                        Link(p);
+                        NavSwitch();
+                        if (menuOn) MenuSwitch();
+                    }
+                    e.removeAttribute("href");
+                }
+                [].forEach.call(e.children, checkchild);
+            }
+            checkchild(nav);
+
         }
         function LoadUserSettings(json) {
             document.userSettings = json;
@@ -544,7 +581,6 @@
             } else {
                 menuOn = true;
                 menu.style.animation = "menuDisplay 0.5s ease 0s 1";
-                if (!navOn) { NavSwitch(); }
             }
             menu.style.animationFillMode = "forwards";
         }

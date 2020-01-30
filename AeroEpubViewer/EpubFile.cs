@@ -30,47 +30,272 @@ namespace AeroEpubViewer.Epub
                 return _OPF;
             }
         }
+        public string version;
+        string idref;
+        public MetaRecord uniqueIdentifier;
 
-        string _title = null;
-        public string title { get { if (_title == null) ReadMeta(); return _title; } }
-        string _creator = null;
-        public string creator { get { if (_title == null) ReadMeta(); return _creator; } }
-        string _language=null;
-        public string language { get { if (_language == null) ReadMeta(); return _language; } }
+
+        public class MetaRecord
+        {
+            public string name;
+            public string value;
+            public string id;
+            public List<MetaRecord> refines=new List<MetaRecord>();
+            public MetaRecord(XELement e)
+            {
+                name = e.tag.tagname;
+                value = e.innerXHTML;
+                id = e.tag.GetAttribute("id");
+            }
+            public MetaRecord() { }
+            public void AddIfExist(XELement e, string property_name)
+            {
+                string t = e.tag.GetAttribute(property_name);
+                if (t != "") {
+                    int pre = property_name.IndexOf(':');
+                    if (pre> 0) { property_name = property_name.Substring(pre+1); }
+                    var a = new MetaRecord();
+                    a.name = property_name;
+                    a.value = t;
+                    refines.Add(a);
+                }
+            }
+            public MetaRecord GetRefines(string name)
+            {
+                foreach (var a in refines) { if (name == a.name) return a; }
+                return null;
+            }
+        }
+        public string title
+        {
+            get { if (dc_titles == null) ReadMeta(); return dc_titles[0].value; }
+        }
+        public string language
+        {
+            get { if (dc_language == null) ReadMeta(); return dc_language[0].value; }
+        }
+
+
+        public List<MetaRecord> dc_titles;
+        public List<MetaRecord> dc_creators;
+        public List<MetaRecord> dc_language;
+        public List<MetaRecord> dc_identifier;
+        public List<MetaRecord> others;
+        public List<MetaRecord> meta;
+        public string cover_img = "";
+        public ManifestItem toc;
+
         public void ReadMeta()
         {
+            var packge_tag = XTag.FindTag("package", OPF.text);
+            idref = packge_tag.GetAttribute("unique-identifier");
+            version = packge_tag.GetAttribute("version");
+            dc_titles = new List<MetaRecord>();
+            dc_creators = new List<MetaRecord>();
+            dc_language = new List<MetaRecord>();
+            dc_identifier = new List<MetaRecord>();
+            others = new List<MetaRecord>();
+            meta = new List<MetaRecord>();
+            switch (version)
+            {
+                case "3.0": ReadMeta3(); break;
+                default: ReadMeta2(); break;
+            }
+
+        }
+
+        void ReadMeta2()
+        {
             XFragment f = XFragment.FindFragment("metadata", OPF.text);
-            _creator = "";
-            _title = "";
-            _language = "";
 
             foreach (var e in f.root.childs)
             {
                 switch (e.tag.tagname)
                 {
-                    case "dc:title": _title = e.innerXHTML; break;
-                    case "dc:creator": _creator += e.innerXHTML + ","; break;
-                    case "dc:language":_language = e.innerXHTML.ToLower();break;
+                    case "dc:title":
+                        {
+                            var t = new MetaRecord(e);
+                            t.AddIfExist(e, "opf:file-as");
+                            dc_titles.Add(t);
+                        }
+                        break;
+                    case "dc:creator":
+                        {
+                            var t = new MetaRecord(e);
+                            t.AddIfExist(e, "opf:file-as");
+                            t.AddIfExist(e, "opf:role");
+                            dc_creators.Add(t);
+                        }
+                        break;
+                    case "dc:language":
+                        {
+                            var t = new MetaRecord(e);
+                            dc_language.Add(t);
+                        }
+                        break;
+                    case "dc:identifier":
+                        {
+                            var t = new MetaRecord(e);
+                            t.AddIfExist(e, "opf:scheme");
+                            dc_identifier.Add(t);
+                        }
+                        break;
+                    case "dc:contributor":
+                        {
+                            var t = new MetaRecord(e);
+                            t.AddIfExist(e, "opf:file-as");
+                            t.AddIfExist(e, "opf:role");
+                            others.Add(t);
+                        }
+                        break;
+                    case "dc:date":
+                        {
+                            var t = new MetaRecord(e);
+                            t.AddIfExist(e, "opf:event");
+                            others.Add(t);
+                        }
+                        break;
+                    case "meta":
+                        {
+                            var t = new MetaRecord();
+                            t.name = e.tag.GetAttribute("name");
+                            t.value = e.tag.GetAttribute("content");
+                            meta.Add(t);
+                        }
+                        break;
+                    default:
+                        {
+                            var t = new MetaRecord(e);
+                            others.Add(t);
+                        }
+                        break;
                 }
             }
-            if (_creator.EndsWith(",")) _creator = _creator.Substring(0, _creator.Length - 1);
+            foreach (var a in meta)
+            {
+                if (a.name == "cover")
+                {
+                    string id = a.value;
+                    if (manifest.ContainsKey(id))
+                    {
+                        cover_img = manifest[id].href;
+                    }
+                    break;
+                }
+            }
+            toc = spine.toc;
+        }
+        void ReadMeta3()
+        {
+            XFragment f = XFragment.FindFragment("metadata", OPF.text);
+            List<MetaRecord> primary = new List<MetaRecord>();
+            foreach (var e in f.root.childs)
+            {
+                switch (e.tag.tagname)
+                {
+
+                    case "dc:language":
+                    case "dc:identifier":
+                        {
+                            var t = new MetaRecord(e);
+                            primary.Add(t);
+                        }
+                        break;
+                    case "meta":
+                        {
+                            string name = e.tag.GetAttribute("name");
+                            if (name != "")
+                            {
+                                var t = new MetaRecord();
+                                t.name = name;
+                                t.value = e.tag.GetAttribute("content");
+                                meta.Add(t);
+                                continue;
+                            }
+                            string refines = e.tag.GetAttribute("refines");
+                            if (refines != "")
+                            {
+                                if (refines.StartsWith("#") && refines.Length > 1)
+                                {
+                                    string id = refines.Substring(1);
+                                    var t = new MetaRecord(e);
+                                    t.name = e.tag.GetAttribute("property");
+                                    t.AddIfExist(e, "scheme");
+                                    foreach (var r in primary)
+                                    { //要是refine在primary前面我可不管……
+                                        if (r.id == id)
+                                        {
+                                            r.refines.Add(t);
+                                            break;
+                                        }
+                                    }
+                                    continue;
+                                }
+                            }
+                            string property = e.tag.GetAttribute("property");
+                            if (property != "")
+                            {
+                                var t = new MetaRecord(e);
+                                t.name = property;
+                                meta.Add(t);
+                                continue;
+                            }
+                        }
+                        break;
+                    default:
+                        {
+                            var t = new MetaRecord(e);
+                            t.AddIfExist(e, "xml:lang");
+                            t.AddIfExist(e, "dir");
+                            primary.Add(t);
+                        }
+                        break;
+                }
+            }
+            foreach (var a in primary)
+            {
+                switch (a.name)
+                {
+                    case "dc:title": dc_titles.Add(a); break;
+                    case "dc:creator": dc_creators.Add(a); break;
+                    case "dc:identifier": dc_identifier.Add(a); break;
+                    case "dc:language": dc_language.Add(a); break;
+                    default: others.Add(a); break;
+                }
+            }
+            foreach (var a in dc_identifier)
+            {
+                if (idref == a.id) { uniqueIdentifier = a; break; }
+            }
+            foreach (var a in manifest)
+            {
+                switch (a.Value.properties)
+                {
+                    case "nav": toc = a.Value; break;
+                    case "cover-image": cover_img = a.Value.href; break;
+                }
+            }
+            if (toc == null) toc = spine.toc;
+            //check
+            //if (dc_titles.Count == 0 || dc_identifier.Count == 0 || dc_language.Count == 0) { throw new EpubErrorException("Lack of some metadata."); }
         }
         Spine _spine;
-        Dictionary<string,ManifestItem> _manifest;
-        public Spine spine 
+        Dictionary<string, ManifestItem> _manifest;
+        public Spine spine
         {
-            get {
+            get
+            {
                 if (_spine == null) ReadSpine();
                 return _spine;
             }
         }
         public Dictionary<string, ManifestItem> manifest
-        { 
-            get 
+        {
+            get
             {
                 if (_manifest == null) ReadSpine();
                 return _manifest;
-            } 
+            }
         }
 
 
@@ -82,19 +307,19 @@ namespace AeroEpubViewer.Epub
             foreach (var e in f.root.childs)
             {
                 if (e.tag.tagname != "item") continue;
-                var i = new ManifestItem(e,this);
-                _manifest.Add(i.id,i);            
+                var i = new ManifestItem(e, this);
+                _manifest.Add(i.id, i);
             }
-            foreach (var a in _manifest) 
+            foreach (var a in _manifest)
             {
-                if (a.Value.href[0] != '/') 
+                if (a.Value.href[0] != '/')
                 {
-                    a.Value.href =Path.GetDirectoryName(OPF.fullName) +"/"+ a.Value.href;
+                    a.Value.href = Path.GetDirectoryName(OPF.fullName) + "/" + a.Value.href;
                 }
             }
 
             f = XFragment.FindFragment("spine", OPF.text);
-            _spine = new Spine(f,_manifest);
+            _spine = new Spine(f, _manifest);
         }
 
         public void DeleteEmpty()//只查一层……谁家epub也不会套几个文件夹
@@ -123,7 +348,7 @@ namespace AeroEpubViewer.Epub
         public EpubItemFile GetFile(string fullName)
         {
             foreach (var i in items) if (i.fullName == fullName) return i;
-            throw new EpubErrorException("Cannot find file by filename:"+fullName);
+            throw new EpubErrorException("Cannot find file by filename:" + fullName);
         }
         public T GetFile<T>(string fullName) where T : EpubItemFile
         {
@@ -173,7 +398,7 @@ namespace AeroEpubViewer.Epub
                             using (StreamReader r = new StreamReader(stm))
                             {
                                 string s = Util.Trim(r.ReadToEnd());
-                                if (s != "application/epub+zip") throw new EpubErrorException("The mimetype of epub should be 'application/epub+zip'. Current:"+s);
+                                if (s != "application/epub+zip") throw new EpubErrorException("The mimetype of epub should be 'application/epub+zip'. Current:" + s);
                                 var i = new MIMETypeItem();
                                 items.Insert(0, i);
                             }
@@ -214,8 +439,6 @@ namespace AeroEpubViewer.Epub
                                     }
                                     break;
                             }
-
-
                     }
                 }
             }
@@ -225,42 +448,49 @@ namespace AeroEpubViewer.Epub
     }
     public class ManifestItem
     {
-        public string href,id,mediaType;
+        //http://idpf.org/epub/30/spec/epub30-publications.html#sec-item-elem
+        public string href, id, mediaType;
+        public string properties;
+        //public string fallback, mediaOverlay;
         EpubFile belongTo;
-        public ManifestItem(XELement e,EpubFile belongTo) 
+        public ManifestItem(XELement e, EpubFile belongTo)
         {
             this.belongTo = belongTo;
             XTag tag = e.tag;
-            href=tag.GetAttribute("href");
+            href = tag.GetAttribute("href");
             id = tag.GetAttribute("id");
             mediaType = tag.GetAttribute("media-type");
+            properties = tag.GetAttribute("properties");
         }
-        public EpubItemFile GetData() 
+        public EpubItemFile GetData()
         {
             return belongTo.GetFile(Uri.UnescapeDataString(href));
         }
     }
     public class Spine : IEnumerable
     {
-        List<SpineItem> items=new List<SpineItem>();
-        public ManifestItem toc;
+        //http://idpf.org/epub/30/spec/epub30-publications.html#sec-spine-elem
+        List<SpineItemref> items = new List<SpineItemref>();
+        public ManifestItem toc;//For EPUB2
         public string pageProgressionDirection;
-        public Spine(XFragment spine, Dictionary<string, ManifestItem> items) 
+        public string id;
+        public Spine(XFragment spine, Dictionary<string, ManifestItem> items)
         {
             string toc = spine.root.tag.GetAttribute("toc");
-            if (toc != "") 
+            string id = spine.root.tag.GetAttribute("id");
+            if (toc != "")
             {
-               this.toc= items[toc];
+                this.toc = items[toc];
             }
             pageProgressionDirection = spine.root.tag.GetAttribute("page-progression-direction");
-            foreach (var e in spine.root.childs) 
+            foreach (var e in spine.root.childs)
             {
                 if (e.tag.tagname != "itemref") continue;
-                this.items.Add(new SpineItem(e,items));
+                this.items.Add(new SpineItemref(e, items));
             }
         }
         public int Count { get { return items.Count; } }
-        public SpineItem this[int index]
+        public SpineItemref this[int index]
         {
             get
             {
@@ -274,18 +504,21 @@ namespace AeroEpubViewer.Epub
         }
 
     }
-    public class SpineItem
+    public class SpineItemref
     {
+        //http://idpf.org/epub/30/spec/epub30-publications.html#sec-itemref-elem
         public ManifestItem item;
         public string properties;
+        public string id;
         public bool linear = true;
-        public SpineItem(XELement itemref, Dictionary<string, ManifestItem> items)
+        public SpineItemref(XELement itemref, Dictionary<string, ManifestItem> items)
         {
             this.item = items[itemref.tag.GetAttribute("idref")];
             properties = itemref.tag.GetAttribute("properties");
+            id = itemref.tag.GetAttribute("id");
             if (itemref.tag.GetAttribute("linear") == "no") linear = false;
         }
-        public string href{ get { return item.href; } }
+        public string href { get { return item.href; } }
         public override string ToString()
         {
             return href;
@@ -295,7 +528,7 @@ namespace AeroEpubViewer.Epub
 
     public class TextEpubItemFile : EpubItemFile
     {
-         public string text;
+        public string text;
 
         public TextEpubItemFile(string fullName, string data)
         {
@@ -361,7 +594,8 @@ namespace AeroEpubViewer.Epub
         }
     }
 
-    public class EpubErrorException : System.Exception {
+    public class EpubErrorException : System.Exception
+    {
         public EpubErrorException(string s) : base(s) { }
     }
 

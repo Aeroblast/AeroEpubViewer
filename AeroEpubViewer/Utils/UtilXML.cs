@@ -153,7 +153,7 @@ namespace AeroEpubViewer
 
     public enum PartType
     {
-        text, tag_start, tag_end, tag_single
+        text, tag_start, tag_end, tag_single,comment
     }
     public class XText : XPart
     {
@@ -258,8 +258,7 @@ namespace AeroEpubViewer
                 Regex reg_comm = new Regex("<!--[\\S\\s]*?-->");
                 m = reg_comm.Match(text, m.Index);
                 originalText = m.Value;
-                isComment = true;
-                type = PartType.tag_single;
+                type = PartType.comment;
             }
             else 
             {

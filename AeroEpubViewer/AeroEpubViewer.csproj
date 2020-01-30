@@ -94,6 +94,7 @@
   <ItemGroup>
     <Compile Include="AeroEpubSchemeHandlerFactory.cs" />
     <Compile Include="CssHack.cs" />
+    <Compile Include="Dics.cs" />
     <Compile Include="EpubViewer.cs">
       <SubType>Form</SubType>
     </Compile>
