@@ -323,7 +323,9 @@ namespace AeroEpubViewer.Epub
             {
                 if (a.Value.href[0] != '/')
                 {
-                    a.Value.href = Path.GetDirectoryName(OPF.fullName) + "/" + a.Value.href;
+                    string dir = Path.GetDirectoryName(OPF.fullName);
+                    if (dir != "")
+                        a.Value.href = Path.GetDirectoryName(OPF.fullName) + "/" + a.Value.href;
                 }
             }
 
@@ -466,7 +468,7 @@ namespace AeroEpubViewer.Epub
         {
             this.belongTo = belongTo;
             XTag tag = e.tag;
-            href = tag.GetAttribute("href");
+            href = tag.GetAttribute("href");//Will be Add opf path in ReadSpine()
             id = tag.GetAttribute("id");
             mediaType = tag.GetAttribute("media-type");
             properties = tag.GetAttribute("properties");
