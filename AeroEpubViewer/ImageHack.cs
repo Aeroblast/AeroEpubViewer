@@ -30,12 +30,13 @@ namespace AeroEpubViewer
         {
             if (!prepared) PrepareWarmer();
             Bitmap b = new Bitmap(new MemoryStream(data));
-            Bitmap r = new Bitmap(b.Width, b.Height, PixelFormat.Format24bppRgb);
+            Bitmap r = new Bitmap(b.Width, b.Height, PixelFormat.Format32bppArgb);
             using (Graphics g = Graphics.FromImage(r))
             {
+                g.Clear(Color.Transparent);
                 g.DrawImage(b, new Rectangle(0, 0, b.Width, b.Height), 0, 0, b.Width, b.Height, GraphicsUnit.Pixel, imageAttributes);
                 var output = new MemoryStream();
-                r.Save(output, ImageFormat.Bmp);
+                r.Save(output, ImageFormat.Png);
                 return output.ToArray();
             }
         }
