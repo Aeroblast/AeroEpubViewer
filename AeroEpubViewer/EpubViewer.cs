@@ -60,7 +60,7 @@ namespace AeroEpubViewer
             {
                 if (!i.linear) continue;
                 initCmd += string.Format(",'{0}'", "aeroepub://book/" + i.ToString());
-                int l = (i.item.GetData() as TextEpubItemFile).text.Length;
+                int l = (i.item.GetFile() as TextEpubItemFile).text.Length;
                 lengthDataCmd += "," + l;
             }
             lengthDataCmd = "LoadScrollBar([" + lengthDataCmd.Substring(1) + "]);";
@@ -73,7 +73,7 @@ namespace AeroEpubViewer
                 {
                     case "application/x-dtbncx+xml":
                         {
-                            string toc = (Program.epub.toc.GetData() as TextEpubItemFile).text;
+                            string toc = (Program.epub.toc.GetFile() as TextEpubItemFile).text;
                             Match m = Regex.Match(toc, "<navMap>([\\s\\S]*?)</navMap>");
                             if (m.Success)
                             {
@@ -87,7 +87,7 @@ namespace AeroEpubViewer
                         break;
                     case "application/xhtml+xml":
                         {
-                            string toc = (Program.epub.toc.GetData() as TextEpubItemFile).text;
+                            string toc = (Program.epub.toc.GetFile() as TextEpubItemFile).text;
                             toc=toc.Replace(" href=\"", " hraf=\"");
                             Match m = Regex.Match(toc, "<body>([\\s\\S]*?)</body>");
                             if (m.Success)

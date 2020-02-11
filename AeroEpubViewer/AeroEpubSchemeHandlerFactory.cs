@@ -41,14 +41,14 @@ namespace AeroEpubViewer
                             //To-do:注入样式，js
                             if (i.href.EndsWith("html"))
                             {
-                                string content = (i.GetData() as TextEpubItemFile).text;
+                                string content = (i.GetFile() as TextEpubItemFile).text;
                                 content = HtmlHack.Hack(content);
                                 return ResourceHandler.FromString(content);
                             }
                             if (i.href.EndsWith("css"))
                             {
                                 //html里的其实也应该处理……
-                                string content = (i.GetData() as TextEpubItemFile).text;
+                                string content = (i.GetFile() as TextEpubItemFile).text;
                                 content = CssHack.Hack(content);
                                 return ResourceHandler.FromString(content, null, true, i.mediaType);
                             }
@@ -56,12 +56,12 @@ namespace AeroEpubViewer
                             {
                                 if (!i.mediaType.Contains("image")) throw new Exception("Should be image.");
 
-                                var d = ImageHack.Warmer(i.GetData().GetBytes());
+                                var d = ImageHack.Warmer(i.GetFile().GetBytes());
                                 return ResourceHandler.FromByteArray(d, "image/bmp");
 
 
                             }
-                            return ResourceHandler.FromByteArray(i.GetData().GetBytes(), i.mediaType);
+                            return ResourceHandler.FromByteArray(i.GetFile().GetBytes(), i.mediaType);
                         }
                         else
                         {
@@ -111,6 +111,17 @@ namespace AeroEpubViewer
                                 return ResourceHandler.FromString(SpecialPageService.ImageQuickView());
                             case "BookInfo":
                                 return ResourceHandler.FromString(SpecialPageService.BookInfo());
+                            case "StartSearch":
+                                {
+                                    var t = uri.AbsolutePath.Substring(1);
+                                    int i =t. IndexOf('/');
+                                    var word= Uri.UnescapeDataString(t.Substring(i+1));
+                                    SearchService.Start(word);
+                                    Log.log(word);
+                                    return ResourceHandler.FromString("OK");
+                                }
+                            case "CheckSearchResult":
+                                return ResourceHandler.FromString(SearchService.GetResult(int.Parse(args[1])));
                         }
 
 

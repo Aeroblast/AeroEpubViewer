@@ -1,0 +1,64 @@
+﻿<html>
+<head>
+    <style>
+        #search_result>div {
+            border:1px solid gray;
+            cursor:pointer;
+        }
+        .around_text {
+        color:gray;
+        }
+        
+        </style>
+</head>
+<body>
+    <div>搜索：<input id="search_input" type="text" /></div>
+    <div id="search_result"></div>
+    <script src="aeroepub://viewer/sp-page.js"></script>
+    <script>
+        var PD = this.parent.document;
+        var search_input = document.getElementById("search_input");
+        var search_result=document.getElementById("search_result");
+        search_input.onkeydown = function (e) {
+            if (e.key == 'Enter') { search_input.blur(); word = search_input.value; StartSearch(); }
+        }
+        var search_result_data;
+        var checker;
+        var word;
+        function StartSearch()
+        {
+            search_result_data = new Array();
+            let xhttp = null
+            xhttp = new XMLHttpRequest();
+            xhttp.open("GET", "aeroepub://app/StartSearch/" + word, true);
+            console.log(word);
+            xhttp.send();
+            checker=setInterval(Check,300);
+        }
+        var returned=true;
+        function Check()
+        {
+            if (!returned) return;
+            returned = false;
+            let xhttp = new XMLHttpRequest();
+            xhttp.open("GET", "aeroepub://app/CheckSearchResult/" + search_result_data.length, true);
+            xhttp.onload = function ()
+            {
+                let text = xhttp.responseText;
+                let r = JSON.parse(text);
+                if (r.cmd == "Stop") clearInterval(checker);
+                if (r.list.length)
+                {
+                    [].forEach.call(r.list, function (l) {
+                        search_result_data.push(l);
+                        let t = l.preview.replace('\"', '"');
+                        let show = "<span class='around_text'>" + t.substr(0, l.start.textOffset) + "</span><b>" + t.substr(l.start.textOffset, word.length) + "</b><span class='around_text'>" + t.substr(l.start.textOffset + word.length)+"</span>";
+                        search_result.innerHTML+="<div onclick='PD.Link(\""+l.href+"\",\""+l.start.selector+"\");PD.CloseSpFrame()'>"+show+"</div>"
+                    });
+                }
+            }
+            xhttp.send();
+        }
+    </script>
+</body>
+</html>

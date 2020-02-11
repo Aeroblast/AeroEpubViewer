@@ -473,7 +473,7 @@ namespace AeroEpubViewer.Epub
             mediaType = tag.GetAttribute("media-type");
             properties = tag.GetAttribute("properties");
         }
-        public EpubItemFile GetData()
+        public EpubItemFile GetFile()
         {
             return belongTo.GetFile(Uri.UnescapeDataString(href));
         }
