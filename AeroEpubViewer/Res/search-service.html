@@ -56,7 +56,7 @@
                         search_result_data.push(l);
                         let t = l.preview.replace('\"', '"');
                         let show = "<span class='around_text'>" + t.substr(0, l.start.textOffset) + "</span><b>" + t.substr(l.start.textOffset, word.length) + "</b><span class='around_text'>" + t.substr(l.start.textOffset + word.length)+"</span>";
-                        search_result.innerHTML+="<div onclick='PD.Link(\""+l.href+"\",\""+l.start.selector+"\");PD.CloseSpFrame();PD.body.focus()'>"+show+"</div>"
+                        search_result.innerHTML+="<div onclick='PD.Link(\""+l.href+"\",\""+l.start.selector+"\");PD.CloseSpFrame();PD.defaultView.focus()'>"+show+"</div>"
                     });
                 }
                 if (r.cmd == "Stop") {

@@ -485,7 +485,16 @@ transform: rotate(90deg);\
             scrollBarFadeHandle = setTimeout(function () {
                 scrollBar_container.style.animation = "fadeOut 0.5s ease 0s 1";
                 scrollBar_container.style.animationFillMode = "forwards";
-            }, 1000);
+            }, 2000);
+        }
+        function ScrollBarShow() {
+            clearTimeout(scrollBarFadeHandle);
+            scrollBar_container.style.animation = "";
+            scrollBar_container.style.opacity = "1";
+            scrollBarFadeHandle = setTimeout(function () {
+                scrollBar_container.style.animation = "fadeOut 0.5s ease 0s 1";
+                scrollBar_container.style.animationFillMode = "forwards";
+            }, 2000);
         }
         ///↓Nav///
         document.Link = Link;
@@ -520,6 +529,7 @@ transform: rotate(90deg);\
             frameList.forEach(e => e.parentNode.removeChild(e));
             frameList = new Array();
             Init(urlList, urlIndex, 0, selector);
+            ScrollBarShow();
         }
         ///↓Core Function///
         function CreateFrame(urlIndex, pos, check = null, addSelfLength = false, isPosRate = false, selector = null) {
@@ -799,9 +809,14 @@ transform: rotate(90deg);\
             let sp_frame_c = document.getElementById('sp_frame_search_container');
             let sp_frame = document.getElementById('sp_frame_search');
             sp_frame_c.style.display = "block";
-            if (!search_page_init)
-                sp_frame.src = "aeroepub://viewer/search-service.html"
+            if (!search_page_init) {
+                sp_frame.onload = function () { sp_frame.contentWindow.document.getElementById("search_input").focus(); }
+                sp_frame.src = "aeroepub://viewer/search-service.html";
+            }
+                
             search_page_init = true;
+            sp_frame.contentWindow.document.getElementById("search_input").focus();
+
         }
     </script>
 </body>
