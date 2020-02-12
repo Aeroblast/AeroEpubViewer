@@ -223,12 +223,11 @@
 
         #scrollBar_container {
             position: fixed;
-            z-index: 13;
+            z-index: 21;
             opacity: 0;
         }
 
         #scrollBar {
-            z-index: 21;
             -webkit-appearance: none;
             background: transparent;
         }
@@ -562,7 +561,10 @@ transform: rotate(90deg);\
                 loading--;
                 page.style.visibility = "visible";
                 if (check != null) check();
-                Scroll(0);
+                //Must scroll once to update current frame
+                if (page.lastFrame) {
+                    Scroll(-1);
+                } else { Scroll(0); }
                 SetScrollBar();
                 page.onload = null;
             }
