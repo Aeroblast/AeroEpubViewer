@@ -1,6 +1,6 @@
 ﻿var PD = this.parent.document;
 window.onmousewheel = function (e) {
-    PD.Scroll(Math.sign(e.wheelDelta) * 40);
+    PD.Wheel(e);
 }
 document.addEventListener("keydown", PD.keydown);
 document.addEventListener('contextmenu', event => event.preventDefault());

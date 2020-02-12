@@ -192,6 +192,26 @@
             }
         }
 
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
         .popupFootnote {
             width: 40vw;
             position: fixed;
@@ -201,14 +221,37 @@
             min-height: 0;
         }
 
-        #scrollBar {
+        #scrollBar_container {
             position: fixed;
-            z-index: 14;
-            opacity: 0.0;
+            z-index: 13;
+            opacity: 0;
         }
 
-            #scrollBar:hover {
-                opacity: 1;
+        #scrollBar {
+            z-index: 21;
+            -webkit-appearance: none;
+            background: transparent;
+        }
+
+            #scrollBar::-webkit-slider-runnable-track {
+                -webkit-appearance: none;
+                height: 3vh;
+                background: rgba(255,255,255,0.3);
+                border: none;
+                border-radius: 3px;
+            }
+
+            #scrollBar::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                width: 15px;
+                height: 3vh;
+                background: rgba(255,255,255,1);
+                border: none;
+                border-radius: 3px;
+            }
+
+            #scrollBar:focus {
+                outline: none;
             }
     </style>
 </head>
@@ -235,7 +278,7 @@
         </div>
         <div><div style="cursor:pointer;" onclick="ImageQuickView()">速览插图</div></div>
         <div><div style="cursor:pointer;" onclick="BookInfo()">书籍信息</div></div>
-        <div><div style="cursor:pointer;" onclick="SearchService()">搜索服务</div></div>
+        <div><div style="cursor:pointer;" onclick="SearchService()">搜索</div></div>
 
 
     </div>
@@ -243,6 +286,7 @@
     <div id="sp_frame_search_container" class="sp_frame_container"><div class="sp_frame_close" onclick="document.getElementById('sp_frame_search_container').style.display='none'">Close</div><iframe id="sp_frame_search" class="sp_frame"></iframe></div>
     <div id="nav" style=""></div>
     <div id="mouseListener" style="position:fixed;z-index:1;width:100vw;height:100vh;left:0;top:0;"></div>
+    <div id="scrollBar_container" onmouseenter="ScrollBarMouseEnter()" onmouseleave="ScrollBarMouseLeave()"></div>
     <script>
         ScreenTest();
 
@@ -252,7 +296,14 @@
         direction_rtl.GetWindowLength = function () { return window.innerWidth; }
         direction_rtl.AdjustFrameSize = function (f) { f.width = f.contentWindow.document.documentElement.scrollWidth + "px"; }
         direction_rtl.SetPosStyle = function (e) { e.style.right = e.pos + "px"; }
-        direction_rtl.style = "iframe{height:90vh;top:2vh;}#scrollBar{width:100vw;left:0;bottom:0;margin:0;transform-origin: 50vw 0;transform: rotate(180deg);}";
+        direction_rtl.style = "\
+iframe{height:90vh;top:2vh;}\
+#scrollBar_container{width: 100vw;height:7vh; left: 0; bottom: 0; margin: 0;}\
+#scrollBar{\
+width: 100vw; left: 0; bottom: 0; margin: 0;margin-top:2vh;\
+transform-origin: 50vw; transform: rotate(180deg); \
+}\
+";
         direction_rtl.injectStyle = "body{height:100vh;min-width:66vh;}";
         direction_rtl.GetEffective = function (x, y) { return x; };
         direction_rtl.GetDelta = function (d1, d2) { return d1 - d2; };
@@ -271,7 +322,16 @@
         direction_default.GetWindowLength = function () { return window.innerHeight; }
         direction_default.AdjustFrameSize = function (f) { f.height = f.contentWindow.document.documentElement.scrollHeight + "px"; }
         direction_default.SetPosStyle = function (e) { e.style.top = e.pos + "px"; }
-        direction_default.style = "iframe{width:95vw;left:2.5vw;min-height:90vh;} #scrollBar{-webkit-appearance: slider-vertical;margin:0;width:2.5vw;height:100vh;top:0;right:0;transform-origin: 1.25vw 50vh;transform: rotate(180deg);}";
+        direction_default.style = "\
+iframe{width:92vw;left:4vw;min-height:90vh;} \
+#scrollBar_container{width: 3vw;height:100vh; right: 0; bottom: 0; margin: 0;}\
+#scrollBar{\
+margin:0 0 0 3vw;\
+width:100vh;height:3vw;\
+transform-origin:top left;\
+transform: rotate(90deg);\
+}\
+";
         direction_default.injectStyle = "body{width:100vw;padding-bottom:3vh;}";
         direction_default.GetEffective = function (x, y) { return y; };
         direction_default.GetDelta = function (d1, d2) { return d2 - d1; };
@@ -302,6 +362,7 @@
         var frameList = new Array();
         var urlList;
         document.addEventListener('contextmenu', event => event.preventDefault());
+        document.Wheel = function (event) { document.Scroll(Math.sign(event.wheelDelta) * 50); }
         function Init(_urlList, start = 0, posRate = 0, selector = "") {
             document.direction = direction;
             console.log("Init start=" + start + " pos=" + posRate + " selector=" + selector);
@@ -310,7 +371,7 @@
             document.head.appendChild(style);
             urlList = _urlList;
             document.getElementById("mouseListener").onmousewheel = function (e) {
-                document.Scroll(Math.sign(e.wheelDelta) * 40);
+                document.Wheel(e);
             }
             document.keydown = function (e) {
                 let d = direction.KeyToDirection(e.key);
@@ -372,6 +433,7 @@
         ///↓Scroll Bar///
         var contentLengthData;
         var scrollBar;
+        var scrollBar_container = document.getElementById("scrollBar_container");
         function LoadScrollBar(arr) {
             contentLengthData = arr;
             let total = 0;
@@ -391,7 +453,7 @@
                 let s = 0;
                 for (let i = 0; i < contentLengthData.length; i++) {
                     s += contentLengthData[i];
-                    if (s > v) {
+                    if (s >= v) {
                         let rate = (v - s + contentLengthData[i]) / contentLengthData[i];
                         frameList.forEach(e => e.parentNode.removeChild(e));
                         frameList = new Array();
@@ -399,8 +461,9 @@
                         return;
                     }
                 }
+                console.log("DEBUG:shouldnt be here");
             };
-            document.body.appendChild(scrollBar);
+            scrollBar_container.appendChild(scrollBar);
 
         }
         function SetScrollBar() {
@@ -413,9 +476,21 @@
 
             scrollBar.value = v;
         }
+        var scrollBarFadeHandle = null;
+        function ScrollBarMouseEnter() {
+            clearTimeout(scrollBarFadeHandle);
+            scrollBar_container.style.animation = "";
+            scrollBar_container.style.opacity = "1";
+        }
+        function ScrollBarMouseLeave() {
+            scrollBarFadeHandle = setTimeout(function () {
+                scrollBar_container.style.animation = "fadeOut 0.5s ease 0s 1";
+                scrollBar_container.style.animationFillMode = "forwards";
+            }, 1000);
+        }
         ///↓Nav///
         document.Link = Link;
-        function Link(url,_selector=null) {
+        function Link(url, _selector = null) {
             let fullurl = url;
             if (fullurl.indexOf("/../") > 0) {
                 let i = fullurl.indexOf("/../");
@@ -433,7 +508,7 @@
             let selector = "";
             if (_selector) selector = _selector;
             else if (split_temp.length > 1) selector = "#" + split_temp[1];
-            
+
             console.log("Linkto:" + fullurl);
             for (var i = 0; i < urlList.length; i++) {
 
@@ -471,8 +546,6 @@
                 } else {
                     if (isPosRate) {
                         page.pos = -parseInt(pos * direction.GetFrameLength(page));
-                        //console.log(pos + " -> " + page.pos + "px");
-
                     } else {
                         page.pos = pos;
                     }
@@ -568,7 +641,7 @@
             xhttp.open("GET", "aeroepub://app/screentest/" + e.offsetWidth + "/" + e.offsetHeight, true);
             xhttp.send();
         }
-        /// UI///
+        /// Other UI///
         var nav = document.getElementById("nav");
         var navOn = false;
         function NavSwitch() {
@@ -698,8 +771,10 @@
             xhttp.open("GET", "aeroepub://app/theme/" + name, true);
             xhttp.send();
         }
+
+        ///SP Frame//
         document.CloseSpFrame = function () {
-            document.getElementById('sp_frame_general_container').style.display = 'none' ;
+            document.getElementById('sp_frame_general_container').style.display = 'none';
             document.getElementById('sp_frame_search_container').style.display = 'none';
         }
         function ImageQuickView() {

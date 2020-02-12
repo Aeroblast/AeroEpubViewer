@@ -1,19 +1,21 @@
 ﻿<html>
 <head>
     <style>
-        #search_result>div {
+        .search_result>div {
             border:1px solid gray;
             cursor:pointer;
         }
         .around_text {
         color:gray;
         }
-        
+        div.info {
+        border:none;
+        }
         </style>
 </head>
 <body>
     <div>搜索：<input id="search_input" type="text" /></div>
-    <div id="search_result"></div>
+    <div id="search_result" class="search_result"></div>
     <script src="aeroepub://viewer/sp-page.js"></script>
     <script>
         var PD = this.parent.document;
@@ -27,7 +29,9 @@
         var word;
         function StartSearch()
         {
+            if (word == "") return;
             search_result_data = new Array();
+            search_result.innerHTML = "";
             let xhttp = null
             xhttp = new XMLHttpRequest();
             xhttp.open("GET", "aeroepub://app/StartSearch/" + word, true);
@@ -46,16 +50,20 @@
             {
                 let text = xhttp.responseText;
                 let r = JSON.parse(text);
-                if (r.cmd == "Stop") clearInterval(checker);
                 if (r.list.length)
                 {
                     [].forEach.call(r.list, function (l) {
                         search_result_data.push(l);
                         let t = l.preview.replace('\"', '"');
                         let show = "<span class='around_text'>" + t.substr(0, l.start.textOffset) + "</span><b>" + t.substr(l.start.textOffset, word.length) + "</b><span class='around_text'>" + t.substr(l.start.textOffset + word.length)+"</span>";
-                        search_result.innerHTML+="<div onclick='PD.Link(\""+l.href+"\",\""+l.start.selector+"\");PD.CloseSpFrame()'>"+show+"</div>"
+                        search_result.innerHTML+="<div onclick='PD.Link(\""+l.href+"\",\""+l.start.selector+"\");PD.CloseSpFrame();PD.body.focus()'>"+show+"</div>"
                     });
                 }
+                if (r.cmd == "Stop") {
+                    clearInterval(checker);
+                    search_result.innerHTML += "<div class='info'>搜索完成，共" + search_result_data.length + "个结果。</div>";
+                }
+                returned = true;
             }
             xhttp.send();
         }
