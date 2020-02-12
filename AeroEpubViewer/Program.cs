@@ -19,13 +19,13 @@ namespace AeroEpubViewer
         /// 应用程序的主入口点。
         /// </summary>
         [STAThread]
-        static void Main(string []args)
+        static void Main(string[] args)
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            
+
             if (args.Length > 0)
-                if (File.Exists(args[0])) 
+                if (File.Exists(args[0]))
                 {
                     try
                     {
@@ -33,32 +33,34 @@ namespace AeroEpubViewer
                     }
                     catch (System.IO.IOException)
                     {
-                        MessageBox.Show("该文件无法打开，可能已被其他程序打开："+args[0]);
+                        MessageBox.Show("该文件无法打开，可能已被其他程序打开：" + args[0]);
                         return;
                     }
-                    catch (EpubErrorException) 
+                    catch (EpubErrorException)
                     {
 
                         MessageBox.Show("读取EPUB时发生错误:" + args[0]);
                         return;
                     }
                     var settings = new CefSettings();
-                    if(epub.language!="")
-                    settings.Locale = epub.language;
+                    if (epub.language != "")
+                        settings.Locale = epub.language;
 
                     settings.RegisterScheme(new CefCustomScheme
                     {
                         SchemeName = "aeroepub",
                         SchemeHandlerFactory = new AeroEpubSchemeHandlerFactory()
                     });
-                    settings.CachePath =cachePath ;
+                    settings.CachePath = cachePath;
                     Cef.Initialize(settings);
                     Cef.EnableHighDPISupport();
                     Application.Run(new EpubViewer());
                 }
+                else { MessageBox.Show("文件不存在:" + args[0]); }
+            else { MessageBox.Show("去看使用说明。"); }
             Util.DeleteDir(cachePath);
         }
     }
 
- 
+
 }

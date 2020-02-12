@@ -98,6 +98,7 @@ namespace AeroEpubViewer
 
                 r.Append("<tr><td>" + name + "</td><td><data-item>" + value + "</data-item></td></tr>");
             }
+            r.Append("<tr><td>File</td><td><data-item>" + Program.epub.path + "</data-item></td></tr>");
             r.Append("</table><p>Other metadata:</p><table>");
             foreach (var a in Program.epub.dc_identifier)
             {
