@@ -41,7 +41,7 @@ namespace AeroEpubViewer
         }
         private void OnLoad(Object sender, EventArgs e)
         {
-            chromium.ShowDevTools();
+            //chromium.ShowDevTools();
         }
 
 
