@@ -13,10 +13,12 @@ namespace AeroEpubViewer
         static string jsInject = "<script src=\"aeroepub://viewer/viewer-inject.js?random={0}\"></script>";
         static Regex regLink = new Regex("(<link +href=\".*?)(\".*?>)");
         static Regex regHref = new Regex("(<.*? href=\".*?\")(.*?>)");
-        public static string Hack(string html) 
+        static Regex regScript = new Regex("<script.*?/>");
+        public static string Hack(string html)
         {
             int random = Util.RandomRange();
-            html = regLink.Replace(html, "$1?r="+random+"$2");
+            html = regScript.Replace(html, "");
+            html = regLink.Replace(html, "$1?r=" + random + "$2");
             html = regHref.Replace(html, "$1 onclick=\"Href(this);event.stopPropagation();return false;\"$2");
             cssInject = string.Format(cssInject, random);
             jsInject = string.Format(jsInject, random);
