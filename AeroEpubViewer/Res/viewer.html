@@ -360,8 +360,33 @@ transform: rotate(90deg);\
         var direction = direction_default;
         var frameList = new Array();
         var urlList;
+        //////////Event////////
         document.addEventListener('contextmenu', event => event.preventDefault());
         document.Wheel = function (event) { document.Scroll(Math.sign(event.wheelDelta) * 50); }
+        document.getElementById("mouseListener").onmousewheel = function (e) {
+            document.Wheel(e);
+        }
+        document.keydown = function (e) {
+            if (e.ctrlKey) {
+                switch (e.key) {
+                    case "f": SearchService(); break;
+
+                }
+            } else {
+                let d = direction.KeyToDirection(e.key);
+                Scroll(d * 30);
+            }
+
+        };
+        document.addEventListener("keydown", document.keydown);
+        var PrepareResize = function () {
+            window.removeEventListener("resize", PrepareResize)
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("GET", "aeroepub://app/pos" + GetBookPos(), true);
+            xhttp.send();
+        };
+        window.addEventListener("resize", PrepareResize);
+        //////////Load/////////
         function Init(_urlList, start = 0, posRate = 0, selector = "") {
             document.direction = direction;
             console.log("Init start=" + start + " pos=" + posRate + " selector=" + selector);
@@ -369,23 +394,8 @@ transform: rotate(90deg);\
             style.innerHTML = direction.style;
             document.head.appendChild(style);
             urlList = _urlList;
-            document.getElementById("mouseListener").onmousewheel = function (e) {
-                document.Wheel(e);
-            }
-            document.keydown = function (e) {
-                let d = direction.KeyToDirection(e.key);
-                Scroll(d * 30);
-            };
-            //document.addEventListener("mouseup", MenuSwitch);
-            document.MenuSwitch = MenuSwitch;
-            document.addEventListener("keydown", document.keydown);
-            var PrepareResize = function () {
-                window.removeEventListener("resize", PrepareResize)
-                var xhttp = new XMLHttpRequest();
-                xhttp.open("GET", "aeroepub://app/pos" + GetBookPos(), true);
-                xhttp.send();
-            };
-            window.addEventListener("resize", PrepareResize);
+
+
 
             let page = CreateFrame(start, posRate, CheckLoad, false, true, selector);
             frameList.push(page);
@@ -401,7 +411,7 @@ transform: rotate(90deg);\
                 label.onclick = function () {
                     Link(path + "/" + content.getAttribute("src"));
                     NavSwitch();
-                    if (menuOn) MenuSwitch();
+                    document.MenuClose();
                 }
             });
         }
@@ -414,7 +424,7 @@ transform: rotate(90deg);\
                     e.onclick = function () {
                         Link(p);
                         NavSwitch();
-                        if (menuOn) MenuSwitch();
+                        document.MenuClose();
                     }
                     e.removeAttribute("hraf");
                 }
@@ -671,19 +681,27 @@ transform: rotate(90deg);\
         }
         var menuOn = false;
         var menu = document.getElementById("menu");
-        function MenuSwitch() {
+
+        document.MenuSwitch = function () {
             if (menuOn) {
-                menuOn = false;
-                menu.style.animation = "menuHide 0.5s ease 0s 1 ";
-                if (navOn) { NavSwitch(); }
 
+                document.MenuClose();
             } else {
-                menuOn = true;
-                menu.style.animation = "menuDisplay 0.5s ease 0s 1";
+                document.MenuOpen();
             }
-            menu.style.animationFillMode = "forwards";
-        }
 
+        };
+        document.MenuClose = function () {
+            menuOn = false;
+            menu.style.animation = "menuHide 0.5s ease 0s 1 ";
+            menu.style.animationFillMode = "forwards";
+            if (navOn) { NavSwitch(); }
+        };
+        document.MenuOpen = function () {
+            menuOn = true;
+            menu.style.animation = "menuDisplay 0.5s ease 0s 1";
+            menu.style.animationFillMode = "forwards";
+        };
         function ApplyFontSize(a) {
             document.userSettings.bookFontSize = parseInt(a);
             let xhttp = null
@@ -757,7 +775,7 @@ transform: rotate(90deg);\
                 popupFootnote = null;
                 return;
             }
-            MenuSwitch();
+            document.MenuSwitch();
         }
 
         var touchPos = -1;
@@ -790,14 +808,14 @@ transform: rotate(90deg);\
             document.getElementById('sp_frame_search_container').style.display = 'none';
         }
         function ImageQuickView() {
-            MenuSwitch();
+            document.MenuSwitch();
             let sp_frame_c = document.getElementById('sp_frame_general_container');
             let sp_frame = document.getElementById('sp_frame_general');
             sp_frame_c.style.display = "block";
             sp_frame.src = "aeroepub://app/ImageQuickView"
         }
         function BookInfo() {
-            MenuSwitch();
+            document.MenuSwitch();
             let sp_frame_c = document.getElementById('sp_frame_general_container');
             let sp_frame = document.getElementById('sp_frame_general');
             sp_frame_c.style.display = "block";
@@ -805,17 +823,17 @@ transform: rotate(90deg);\
         }
         var search_page_init = false;
         function SearchService() {
-            MenuSwitch();
+            document.MenuSwitch();
             let sp_frame_c = document.getElementById('sp_frame_search_container');
             let sp_frame = document.getElementById('sp_frame_search');
             sp_frame_c.style.display = "block";
             if (!search_page_init) {
                 sp_frame.onload = function () { sp_frame.contentWindow.document.getElementById("search_input").focus(); }
                 sp_frame.src = "aeroepub://viewer/search-service.html";
+            } else {
+                sp_frame.contentWindow.document.getElementById("search_input").focus();
             }
-                
             search_page_init = true;
-            sp_frame.contentWindow.document.getElementById("search_input").focus();
 
         }
     </script>

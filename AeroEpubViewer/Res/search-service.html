@@ -1,17 +1,19 @@
 ﻿<html>
 <head>
     <style>
-        .search_result>div {
-            border:1px solid gray;
-            cursor:pointer;
+        .search_result > div {
+            border: 1px solid gray;
+            cursor: pointer;
         }
+
         .around_text {
-        color:gray;
+            color: gray;
         }
+
         div.info {
-        border:none;
+            border: none;
         }
-        </style>
+    </style>
 </head>
 <body>
     <div>搜索：<input id="search_input" type="text" /></div>
@@ -20,52 +22,112 @@
     <script>
         var PD = this.parent.document;
         var search_input = document.getElementById("search_input");
-        var search_result=document.getElementById("search_result");
-        search_input.onkeydown = function (e) {
-            if (e.key == 'Enter') { search_input.blur(); word = search_input.value; StartSearch(); }
-        }
+        var search_result = document.getElementById("search_result");
+        var search_result_elements;
         var search_result_data;
         var checker;
         var word;
-        function StartSearch()
-        {
+        function StartSearch() {
             if (word == "") return;
             search_result_data = new Array();
+            search_result_elements = new Array();
             search_result.innerHTML = "";
             let xhttp = null
             xhttp = new XMLHttpRequest();
             xhttp.open("GET", "aeroepub://app/StartSearch/" + word, true);
             console.log(word);
             xhttp.send();
-            checker=setInterval(Check,300);
+            checker = setInterval(Check, 300);
         }
-        var returned=true;
-        function Check()
-        {
+        var returned = true;
+        function Check() {
             if (!returned) return;
             returned = false;
             let xhttp = new XMLHttpRequest();
             xhttp.open("GET", "aeroepub://app/CheckSearchResult/" + search_result_data.length, true);
-            xhttp.onload = function ()
-            {
+            xhttp.onload = function () {
                 let text = xhttp.responseText;
                 let r = JSON.parse(text);
-                if (r.list.length)
-                {
+                if (r.list.length) {
                     [].forEach.call(r.list, function (l) {
                         search_result_data.push(l);
                         let t = l.preview.replace('\"', '"');
-                        let show = "<span class='around_text'>" + t.substr(0, l.start.textOffset) + "</span><b>" + t.substr(l.start.textOffset, word.length) + "</b><span class='around_text'>" + t.substr(l.start.textOffset + word.length)+"</span>";
-                        search_result.innerHTML+="<div onclick='PD.Link(\""+l.href+"\",\""+l.start.selector+"\");PD.CloseSpFrame();PD.defaultView.focus()'>"+show+"</div>"
+                        let show = "<span class='around_text'>" + t.substr(0, l.start.textOffset) + "</span><b>" + t.substr(l.start.textOffset, word.length) + "</b><span class='around_text'>" + t.substr(l.start.textOffset + word.length) + "</span>";
+                        let item = document.createElement('div');
+                        item.onclick = function () {
+                            eval("ClickedStyle(this);PD.Link('" + l.href + "','" + l.start.selector + "');PD.CloseSpFrame();PD.MenuClose();PD.defaultView.focus()");
+                        }
+                        item.className = "result_item"
+                        item.innerHTML = show;
+                        search_result.appendChild(item);
+                        search_result_elements.push(item);
                     });
+
                 }
                 if (r.cmd == "Stop") {
                     clearInterval(checker);
-                    search_result.innerHTML += "<div class='info'>搜索完成，共" + search_result_data.length + "个结果。</div>";
+                    let item = document.createElement('div');
+                    item.className = "info";
+                    item.innerHTML = "搜索完成，共" + search_result_data.length + "个结果。";
+                    search_result.appendChild(item);
                 }
                 returned = true;
             }
             xhttp.send();
+        }
+        function ClickedStyle(a) {
+            a.style.background = "rgba(0,0,0,0.25)";
+        }
+        /////////Keyboard//////////
+        search_input.onkeydown = function (e) {
+            if (e.key == 'Enter') { search_input.blur(); word = search_input.value; StartSearch(); }
+        }
+        var selectIndex = -1;
+        document.addEventListener("keydown", function (e) {
+            switch (e.key) {
+                case "ArrowUp":
+                    if (selectIndex - 1 >= 0) {
+                        UnSelectItem(selectIndex);
+                        selectIndex--;
+                        SelectItem(selectIndex);
+                        search_input.blur();
+                    } else {
+                        UnSelectItem(selectIndex);
+                        search_input.focus();
+                        selectIndex = -1;
+                    }
+                    break;
+                case "ArrowDown":
+                    if (selectIndex + 1 < search_result_elements.length) {
+                        UnSelectItem(selectIndex);
+                        selectIndex++;
+                        SelectItem(selectIndex);
+                        search_input.blur();
+
+                    }
+                    break;
+                case "Enter": ClickItem(selectIndex); break;
+                case "Escape": PD.CloseSpFrame(); PD.MenuClose(); PD.defaultView.focus(); break;
+
+            }
+        });
+        function UnSelectItem(i) {
+            if (i < search_result_elements.length && i >= 0) {
+                search_result_elements[i].style.border = "";
+                search_result_elements[i].style.color = "";
+            }
+        }
+        function SelectItem(i) {
+
+            if (i < search_result_elements.length && i >= 0) {
+                search_result_elements[i].style.border = "red 1px solid";
+                search_result_elements[i].style.color = "red";
+            }
+        }
+        function ClickItem(i) {
+            if (i < search_result_elements.length && i >= 0) {
+                search_result_elements[i].click();
+            }
         }
     </script>
 </body>

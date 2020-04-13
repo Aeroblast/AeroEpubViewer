@@ -2,7 +2,7 @@
 window.onmousewheel = function (e) {
     PD.Wheel(e);
 }
-document.addEventListener("keydown", PD.keydown);
+document.addEventListener("keydown", function (e) { PD.keydown(e);});
 document.addEventListener('contextmenu', event => event.preventDefault());
 document.body.onclick = PD.FrameMouseUp;
 var fontSizeStyle = document.createElement("style");
@@ -27,5 +27,4 @@ function Href(e) {
         return false;
     }
     PD.Link(e.href);
-
 }

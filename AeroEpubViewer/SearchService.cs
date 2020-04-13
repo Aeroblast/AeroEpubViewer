@@ -119,10 +119,17 @@ namespace AeroEpubViewer
                         {
                             if (a.Name == "rt")
                             {
-                                string t = a.InnerText;
-                                var i = t.IndexOf(word);
-                                if (i >= 0)
-                                    matches.Add(new DocRange(a, i, a, i + word.Length, currentHref));
+                                foreach (XmlNode b in a.ChildNodes) 
+                                {
+                                    if (b.NodeType == XmlNodeType.Text)
+                                    {
+                                        string t = b.InnerText;
+                                        var i = t.IndexOf(word);
+                                        if (i >= 0)
+                                            matches.Add(new DocRange(b, i, b, i + word.Length, currentHref));
+                                    }
+                                }
+
                             }
                             else { SearchNode(a); }
                         }
