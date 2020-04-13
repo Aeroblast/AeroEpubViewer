@@ -54,8 +54,7 @@ document.body.oncopy = function (e) {
         if (sel.anchorNode.nodeType == Node.ELEMENT_NODE) {
 
         }
-        else if (sel.anchorNode.nodeType == Node.TEXT_NODE)
-        {
+        else if (sel.anchorNode.nodeType == Node.TEXT_NODE) {
             str_html += "<" + sel.anchorNode.parentNode.nodeName + ">";
             let t = sel.anchorNode.nodeValue.substr(sel.anchorOffset);
             str_html += t;
@@ -80,12 +79,11 @@ document.body.oncopy = function (e) {
                             break;
                     }
                 }
-            } 
+            }
             last = next;
             if (last == sel.focusNode) { break; }
             if (last.nodeType == Node.ELEMENT_NODE) {
-                switch (last.nodeName)
-                {
+                switch (last.nodeName) {
                     case 'RT':
                         flag_ruby = true;
                         break;
@@ -99,11 +97,11 @@ document.body.oncopy = function (e) {
             }
         } while (true);
         if (sel.focusNode.nodeType == Node.ELEMENT_NODE) {
- 
+
             str_html += sel.focusNode.outerHTML;
         }
         else if (sel.focusNode.nodeType == Node.TEXT_NODE) {
-            let t = sel.focusNode.nodeValue.substr(0,sel.focusOffset);
+            let t = sel.focusNode.nodeValue.substr(0, sel.focusOffset);
             str_html += t;
             if (!flag_ruby) str_txt += Trim(t);
             str_html += "</" + sel.focusNode.parentNode.nodeName + ">";
