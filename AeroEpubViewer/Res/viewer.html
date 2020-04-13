@@ -767,16 +767,16 @@ transform: rotate(90deg);\
 
 
         }
-        document.PopupFootnote = PopupFootnote2;
-        document.FrameMouseUp = function () {
-
+        document.TryCloseFootnote = function () {
             if (popupFootnote != null) {
                 popupFootnote.parentNode.removeChild(popupFootnote);
                 popupFootnote = null;
-                return;
+                return true;
             }
-            document.MenuSwitch();
+            return false;
         }
+
+        document.PopupFootnote = PopupFootnote2;
 
         var touchPos = -1;
         document.OnFrameTouchStart = function (x, y) {
