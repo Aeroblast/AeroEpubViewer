@@ -160,6 +160,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="icon.ico" />
+    <EmbeddedResource Include="Res\image-quick-view.html" />
     <EmbeddedResource Include="Res\search-service.html" />
     <EmbeddedResource Include="Res\sp-page.js" />
   </ItemGroup>

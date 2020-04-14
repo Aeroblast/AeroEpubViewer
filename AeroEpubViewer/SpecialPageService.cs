@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
+using System.IO;
+using System.Xml;
 using AeroEpubViewer.Epub;
 
 namespace AeroEpubViewer
@@ -11,24 +14,29 @@ namespace AeroEpubViewer
     {
         public static string ImageQuickView()
         {
-
+            var filename = "image-quick-view.html".Replace("/", ".");
+            Stream fs = Assembly.GetExecutingAssembly().GetManifestResourceStream("AeroEpubViewer.Res." + filename);
+            string content = new StreamReader(fs).ReadToEnd();
             StringBuilder r = new StringBuilder();
-            r.Append("<html><head><style>img{max-height:95vh;max-width:90vw}</style></head><body>");
-            foreach (var i in Program.epub.manifest)
+            int i = 0;
+            foreach (SpineItemref a in Program.epub.spine)
             {
-                if (i.Value.mediaType.Contains("image"))
+                var text = (a.item.GetFile() as TextEpubItemFile).text;
+                XmlDocument xml = new XmlDocument();
+                xml.LoadXml(text);
+                var rs = xml.GetElementsByTagName("img");
+                var tocm = new TocManager();
+                foreach (XmlNode n in rs)
                 {
-
-                    r.Append("<div><img src=\"aeroepub://book/");
-                    r.Append(i.Value.href);
-                    r.Append("\"/></div>");
+                    string src = Util.ReferPath(a.href, n.Attributes["src"].Value);
+                    DocPoint p = new DocPoint(n, 0);
+                    var toc = tocm.GetPosition(i, p);
+                    string record = $"<div class='item' onclick=\"Direct('{a.href}','{p.selector}')\"><div><img src='aeroepub://book/{src}'></div><div>{toc.ToString()}</div></div>";
+                    r.Append(record);
                 }
+                i++;
             }
-
-            r.Append("<script src=\"aeroepub://viewer/sp-page.js\"></script>");
-            r.Append("</body>");
-
-            return r.ToString();
+            return content.Replace("{0}", r.ToString());
         }
 
 
@@ -65,11 +73,11 @@ namespace AeroEpubViewer
                     lang += a.value + " ";
                 }
             }
-            if (lang == "") 
+            if (lang == "")
             {
                 if (Dics.langcode.ContainsKey(Program.epub.language))
                 {
-                    lang += Dics.langcode[Program.epub.language] ;
+                    lang += Dics.langcode[Program.epub.language];
                 }
                 else
                 {

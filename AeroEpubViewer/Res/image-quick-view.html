@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        img {
+            max-height: 95vh;
+            max-width: 90vw
+        }
+
+        #context_menu {
+            position: absolute;
+            display: none;
+            width: 200px;
+            border: solid;
+            z-index: 40;
+            background: inherit;
+        }
+
+            #context_menu > div {
+                cursor: pointer;
+            }
+
+        .item {
+            background: rgba(255,255,255,0.4);
+            padding: 5px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+            .item > div {
+            }
+    </style>
+</head>
+<body>
+    <div id='context_menu'>
+
+    </div>
+    <div>{0}</div>
+    <script>
+        function Direct(href, selector) {
+            eval("PD.Link('" + href + "','" + selector + "');PD.CloseSpFrame();PD.MenuClose();PD.defaultView.focus()");
+        }
+    </script>
+    <script src="aeroepub://viewer/sp-page.js"></script>
+</body>
+</html>

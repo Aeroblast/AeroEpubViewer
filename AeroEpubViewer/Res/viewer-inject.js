@@ -9,8 +9,8 @@ var selectionFlag = false;
 document.body.onmouseup = function (e) {
     if (e.button == 0)//left click
     {
-        if (PD.TryCloseFootnote()) return;
-
+        let tryclose = PD.TryCloseFootnote() || PD.TryCloseContextMenu();
+        if (tryclose) return;
         let sel = window.getSelection();
         if (sel.type == 'Range') {
             selectionFlag = true;
@@ -24,9 +24,10 @@ document.body.onmouseup = function (e) {
     } else
         if (e.button == 2)//right
         {
-            if (e.target.nodeName == "img")
+            console.log(e.target.tagName)
+            if (e.target.tagName == "IMG")
             {
-
+                PD.ContextMenu(e.target, e.pageX, e.pageY, window.frameElement);
             }
         }
 

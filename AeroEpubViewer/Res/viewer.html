@@ -252,6 +252,19 @@
             #scrollBar:focus {
                 outline: none;
             }
+
+        #context_menu {
+            position: fixed;
+            display: none;
+            width: 200px;
+            border: solid;
+            z-index: 40;
+            background: inherit;
+        }
+
+            #context_menu > div {
+                cursor: pointer;
+            }
     </style>
 </head>
 <body>
@@ -286,6 +299,7 @@
     <div id="nav" style=""></div>
     <div id="mouseListener" style="position:fixed;z-index:1;width:100vw;height:100vh;left:0;top:0;"></div>
     <div id="scrollBar_container" onmouseenter="ScrollBarMouseEnter()" onmouseleave="ScrollBarMouseLeave()"></div>
+    <div id="context_menu"></div>
     <script>
         ScreenTest();
 
@@ -658,10 +672,7 @@ transform: rotate(90deg);\
         }
         function ScreenTest() {
             let e = document.getElementById("screenTest");
-            let xhttp = null
-            xhttp = new XMLHttpRequest();
-            xhttp.open("GET", "aeroepub://app/screentest/" + e.offsetWidth + "/" + e.offsetHeight, true);
-            xhttp.send();
+            AppCall("aeroepub://app/screentest/" + e.offsetWidth + "/" + e.offsetHeight);
         }
         /// Other UI///
         var nav = document.getElementById("nav");
@@ -704,19 +715,11 @@ transform: rotate(90deg);\
         };
         function ApplyFontSize(a) {
             document.userSettings.bookFontSize = parseInt(a);
-            let xhttp = null
-            xhttp = new XMLHttpRequest();
-            xhttp.open("GET", "aeroepub://app/pos" + GetBookPos(), true);
-            xhttp.send();
-            xhttp = new XMLHttpRequest();
-            xhttp.open("GET", "aeroepub://app/bookfontsize/" + document.userSettings.bookFontSize, true);
-            xhttp.send();
+            AppCall("aeroepub://app/pos" + GetBookPos());
+            AppCall("aeroepub://app/bookfontsize/" + document.userSettings.bookFontSize);
         }
         function Inspector() {
-            let xhttp = null
-            xhttp = new XMLHttpRequest();
-            xhttp.open("GET", "aeroepub://app/inspector" + GetBookPos(), true);
-            xhttp.send();
+            AppCall("aeroepub://app/inspector");
         }
         var popupFootnote = null;
         document.PopupFootnote = function (content, left, top, frame) {
@@ -764,7 +767,8 @@ transform: rotate(90deg);\
                 popupFootnote.style.top = top + "px";
                 popupFootnote.contentWindow.document.addEventListener('contextmenu', event => event.preventDefault());
             }
-
+            menuOn = false;
+            menu.style.animation = "";
 
         }
         document.TryCloseFootnote = function () {
@@ -777,6 +781,32 @@ transform: rotate(90deg);\
         }
 
         document.PopupFootnote = PopupFootnote2;
+        ///////menu
+        var contextMenu = document.getElementById("context_menu");
+        var contextMenuOn = false;
+        document.ContextMenu = function (e, left, top, frame) {
+            contextMenuOn = true;
+            left = frame.offsetLeft + left;
+            top = frame.offsetTop + top;
+            contextMenu.style.left = left + "px";
+            contextMenu.style.top = top + "px";
+            contextMenu.style.display = "block";
+            if (e.tagName == "IMG") {
+                contextMenu.innerHTML = "<div onclick=\"CopyImage('" + e.src + "')\">复制图片</div>"
+            }
+        }
+        document.TryCloseContextMenu = function () {
+            if (contextMenuOn) {
+                contextMenu.style.display = "none";
+                contextMenuOn = false;
+                return true;
+            }
+            return false;
+        }
+        function CopyImage(url) {
+            AppCall("aeroepub://app/CopyImage/" + url.substring("aeroepub://book/".length));
+            document.TryCloseContextMenu();
+        }
 
         var touchPos = -1;
         document.OnFrameTouchStart = function (x, y) {
@@ -812,7 +842,7 @@ transform: rotate(90deg);\
             let sp_frame_c = document.getElementById('sp_frame_general_container');
             let sp_frame = document.getElementById('sp_frame_general');
             sp_frame_c.style.display = "block";
-            sp_frame.src = "aeroepub://app/ImageQuickView"
+            if (sp_frame.src != "aeroepub://app/ImageQuickView") sp_frame.src = "aeroepub://app/ImageQuickView";
         }
         function BookInfo() {
             document.MenuSwitch();
@@ -835,6 +865,12 @@ transform: rotate(90deg);\
             }
             search_page_init = true;
 
+        }
+        function AppCall(url) {
+            let xhttp = null
+            xhttp = new XMLHttpRequest();
+            xhttp.open("GET", url, true);
+            xhttp.send();
         }
     </script>
 </body>

@@ -65,7 +65,7 @@ namespace AeroEpubViewer
                         }
                         else
                         {
-                            Log.log("[Error]Cannot get "+uri);
+                            Log.log("[Error]Cannot get " + uri);
                         }
 
                     }
@@ -105,7 +105,7 @@ namespace AeroEpubViewer
                                 EpubViewer.chromium.ShowDevTools();
                                 return ResourceHandler.FromString("OK");
                             case "theme":
-                               UserSettings.theme= args[1];
+                                UserSettings.theme = args[1];
                                 return ResourceHandler.FromString("OK");
                             case "ImageQuickView":
                                 return ResourceHandler.FromString(SpecialPageService.ImageQuickView());
@@ -114,14 +114,23 @@ namespace AeroEpubViewer
                             case "StartSearch":
                                 {
                                     var t = uri.AbsolutePath.Substring(1);
-                                    int i =t. IndexOf('/');
-                                    var word= Uri.UnescapeDataString(t.Substring(i+1));
+                                    int i = t.IndexOf('/');
+                                    var word = Uri.UnescapeDataString(t.Substring(i + 1));
                                     SearchService.Start(word);
                                     Log.log(word);
                                     return ResourceHandler.FromString("OK");
                                 }
                             case "CheckSearchResult":
                                 return ResourceHandler.FromString(SearchService.GetResult(int.Parse(args[1])));
+                            case "CopyImage":
+                                {
+                                    string path = uri.AbsolutePath.Substring("/CopyImage/".Length);
+                                    var f = Program.epub.GetFile(path);
+                                    using (var stm = new MemoryStream(f.GetBytes()))
+                                    using (var img = System.Drawing.Image.FromStream(stm))
+                                        System.Windows.Forms.Clipboard.SetImage(img);
+                                }
+                                return ResourceHandler.FromString("OK");
                         }
 
 
