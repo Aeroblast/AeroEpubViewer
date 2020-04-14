@@ -30,6 +30,7 @@ namespace AeroEpubViewer
                     try
                     {
                         epub = new EpubFile(args[0]);
+                        TocManage.Parse();
                     }
                     catch (System.IO.IOException)
                     {

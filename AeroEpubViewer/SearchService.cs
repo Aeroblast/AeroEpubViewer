@@ -168,54 +168,6 @@ namespace AeroEpubViewer
 
         }
     }
-    class DocRange
-    {
-        public DocPoint start, end;
-        public string preview, href;
-        public DocRange(XmlNode startNode, int startOffset, XmlNode endNode, int endOffset, string href)
-        {
-            start = new DocPoint(startNode, startOffset);
-            end = new DocPoint(endNode, endOffset);
-            preview = startNode.Value.Replace("\"", "\\\"").Replace("\n", " ").Replace("\r"," ") ;
-            this.href = href;
-        }
-        public string ToJSON()
-        {
-            return $"{{\"start\":{start.ToJSON()},\"end\":{end.ToJSON()},\"href\":\"{href}\",\"preview\":\"{preview}\"}}";
-        }
-    }
-    class DocPoint
-    {
-        public string selector;
-        public int nodeOffset, textOffset;
-        public DocPoint(XmlNode node, int offset)
-        {
-            selector = GetSelector((node.ParentNode));
-            var c = node.ParentNode.ChildNodes;
-            for (int i = 0; i < c.Count; i++)
-                if (c[i] == node)
-                { nodeOffset = i; break; }
-            textOffset = offset;
-        }
-        string GetSelector(XmlNode e)
-        {
-            if (e.Name == "body") return "body";
-            var c = e.ParentNode.ChildNodes;
-            int elementCount = 0;
-            foreach (XmlNode n in c)
-            {
-                if (n == e)
-                {
-                    return GetSelector(e.ParentNode) + ">:nth-child(" + (elementCount + 1) + ")";
-                }
-                if (n.NodeType == XmlNodeType.Element) elementCount++;
-            }
-            throw new XMLException("Parent Node??");
-        }
-        public string ToJSON()
-        {
-            return $"{{\"selector\":\"{selector}\",\"nodeOffset\":{nodeOffset},\"textOffset\":{textOffset}}}";
-        }
-    }
+
 
 }

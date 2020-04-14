@@ -7,18 +7,29 @@ document.addEventListener('contextmenu', event => event.preventDefault());
 
 var selectionFlag = false;
 document.body.onmouseup = function (e) {
-    if (PD.TryCloseFootnote()) return;
+    if (e.button == 0)//left click
+    {
+        if (PD.TryCloseFootnote()) return;
 
-    let sel = window.getSelection();
-    if (sel.type == 'Range') {
-        selectionFlag = true;
-        return;
-    }
-    if (selectionFlag) {
-        selectionFlag = false;
-        return;
-    }
-    PD.MenuSwitch();
+        let sel = window.getSelection();
+        if (sel.type == 'Range') {
+            selectionFlag = true;
+            return;
+        }
+        if (selectionFlag) {
+            selectionFlag = false;
+            return;
+        }
+        PD.MenuSwitch();
+    } else
+        if (e.button == 2)//right
+        {
+            if (e.target.nodeName == "img")
+            {
+
+            }
+        }
+
 };
 var fontSizeStyle = document.createElement("style");
 fontSizeStyle.innerHTML = "body{font-size:" + PD.userSettings.bookFontSize + "px}";
@@ -45,7 +56,6 @@ function Href(e) {
 }
 document.body.oncopy = function (e) {
     e.preventDefault();
-
     let sel = window.getSelection();
     if (sel.type == "Range") {
         let str_html = "";
@@ -106,8 +116,6 @@ document.body.oncopy = function (e) {
             if (!flag_ruby) str_txt += Trim(t);
             str_html += "</" + sel.focusNode.parentNode.nodeName + ">";
         }
-        console.log(str_html);
-        console.log(flag_ruby);
         e.clipboardData.setData("text/html", str_html);
         e.clipboardData.setData("text/plain", str_txt);
     }

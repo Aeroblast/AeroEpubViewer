@@ -4,10 +4,19 @@
         .search_result > div {
             border: 1px solid gray;
             cursor: pointer;
+            padding: 0.2em;
         }
 
         .around_text {
             color: gray;
+        }
+
+        .toc_name {
+            text-align: right;
+        }
+
+        p {
+            margin: 0;
         }
 
         div.info {
@@ -52,7 +61,7 @@
                     [].forEach.call(r.list, function (l) {
                         search_result_data.push(l);
                         let t = l.preview.replace('\"', '"');
-                        let show = "<span class='around_text'>" + t.substr(0, l.start.textOffset) + "</span><b>" + t.substr(l.start.textOffset, word.length) + "</b><span class='around_text'>" + t.substr(l.start.textOffset + word.length) + "</span>";
+                        let show = "<p><span class='around_text'>" + t.substr(0, l.start.textOffset) + "</span><b>" + t.substr(l.start.textOffset, word.length) + "</b><span class='around_text'>" + t.substr(l.start.textOffset + word.length) + "</span></p><p class='toc_name'>" + l.toc + "</p>";
                         let item = document.createElement('div');
                         item.onclick = function () {
                             eval("ClickedStyle(this);PD.Link('" + l.href + "','" + l.start.selector + "');PD.CloseSpFrame();PD.MenuClose();PD.defaultView.focus()");

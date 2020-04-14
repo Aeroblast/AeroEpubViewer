@@ -95,6 +95,7 @@
     <Compile Include="AeroEpubSchemeHandlerFactory.cs" />
     <Compile Include="CssHack.cs" />
     <Compile Include="Dics.cs" />
+    <Compile Include="DocRange.cs" />
     <Compile Include="EpubViewer.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -106,6 +107,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="EpubFile.cs" />
     <Compile Include="Resize.cs" />
+    <Compile Include="TocManage.cs" />
     <Compile Include="UserSettings.cs" />
     <Compile Include="Utils\Log.cs" />
     <Compile Include="Utils\Util.cs" />

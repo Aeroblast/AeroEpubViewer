@@ -30,7 +30,7 @@ namespace AeroEpubViewer.Epub
                 return _OPF;
             }
         }
-        public string version;
+
         string idref;
         public MetaRecord uniqueIdentifier;
 
@@ -67,6 +67,11 @@ namespace AeroEpubViewer.Epub
                 return null;
             }
         }
+        string _version;
+        public string version
+        {
+            get { if (_version == null) ReadMeta(); return _version; }
+        }
         public string title
         {
             get { if (dc_titles == null) ReadMeta(); return dc_titles[0].value; }
@@ -97,7 +102,7 @@ namespace AeroEpubViewer.Epub
         {
             var packge_tag = XTag.FindTag("package", OPF.text);
             idref = packge_tag.GetAttribute("unique-identifier");
-            version = packge_tag.GetAttribute("version");
+            _version = packge_tag.GetAttribute("version");
             xml_lang = packge_tag.GetAttribute("xml:lang");//bookwalker
             dc_titles = new List<MetaRecord>();
             dc_creators = new List<MetaRecord>();
@@ -105,7 +110,7 @@ namespace AeroEpubViewer.Epub
             dc_identifier = new List<MetaRecord>();
             others = new List<MetaRecord>();
             meta = new List<MetaRecord>();
-            switch (version)
+            switch (_version)
             {
                 case "3.0": ReadMeta3(); break;
                 default: ReadMeta2(); break;
