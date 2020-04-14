@@ -794,6 +794,9 @@ transform: rotate(90deg);\
             if (e.tagName == "IMG") {
                 contextMenu.innerHTML = "<div onclick=\"CopyImage('" + e.src + "')\">复制图片</div>"
             }
+            if (e.tagName.toUpperCase() == "IMAGE") {
+                contextMenu.innerHTML = "<div onclick=\"CopyImage('" + ReferPath(frame.src, e.getAttribute("xlink:href")) + "')\">复制图片</div>"
+            }
         }
         document.TryCloseContextMenu = function () {
             if (contextMenuOn) {
@@ -866,11 +869,23 @@ transform: rotate(90deg);\
             search_page_init = true;
 
         }
+        ///////////util
         function AppCall(url) {
             let xhttp = null
             xhttp = new XMLHttpRequest();
             xhttp.open("GET", url, true);
             xhttp.send();
+        }
+        function ReferPath(file, href) {
+            file = file.substr(0,file.lastIndexOf('/'));
+            while (href.startsWith(".."))
+            {
+                href = href.substr(3);
+                file = file.substr(0,file.lastIndexOf('/'));
+            }
+            let s = "";
+            if (href[0] != '/' && file[file.length] != '/') s = "/";
+            return file +s+ href;
         }
     </script>
 </body>

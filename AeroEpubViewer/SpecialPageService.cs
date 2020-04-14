@@ -25,10 +25,19 @@ namespace AeroEpubViewer
                 XmlDocument xml = new XmlDocument();
                 xml.LoadXml(text);
                 var rs = xml.GetElementsByTagName("img");
+                var rs2 = xml.GetElementsByTagName("image");//svg
                 var tocm = new TocManager();
                 foreach (XmlNode n in rs)
                 {
                     string src = Util.ReferPath(a.href, n.Attributes["src"].Value);
+                    DocPoint p = new DocPoint(n, 0);
+                    var toc = tocm.GetPosition(i, p);
+                    string record = $"<div class='item' onclick=\"Direct('{a.href}','{p.selector}')\"><div><img src='aeroepub://book/{src}'></div><div>{toc.ToString()}</div></div>";
+                    r.Append(record);
+                }
+                foreach (XmlNode n in rs2)
+                {
+                    string src = Util.ReferPath(a.href, n.Attributes["xlink:href"].Value);
                     DocPoint p = new DocPoint(n, 0);
                     var toc = tocm.GetPosition(i, p);
                     string record = $"<div class='item' onclick=\"Direct('{a.href}','{p.selector}')\"><div><img src='aeroepub://book/{src}'></div><div>{toc.ToString()}</div></div>";

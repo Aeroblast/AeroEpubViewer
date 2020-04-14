@@ -25,7 +25,7 @@ document.body.onmouseup = function (e) {
         if (e.button == 2)//right
         {
             console.log(e.target.tagName)
-            if (e.target.tagName == "IMG")
+            if (e.target.tagName == "IMG" || e.target.tagName.toUpperCase() =="IMAGE")
             {
                 PD.ContextMenu(e.target, e.pageX, e.pageY, window.frameElement);
             }
