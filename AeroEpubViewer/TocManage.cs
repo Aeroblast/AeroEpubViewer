@@ -70,6 +70,7 @@ namespace AeroEpubViewer
         }
         public TocItem GetPosition(int docIndex, DocPoint p)
         {
+            if (TocManage.tocTree == null) return new TocItem();
             this.p = p;
             var r = SearchToc(TocManage.tocTree, docIndex);
             if (r == null) //the point is before the first toc record
