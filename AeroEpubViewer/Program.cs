@@ -37,10 +37,10 @@ namespace AeroEpubViewer
                         MessageBox.Show("该文件无法打开，可能已被其他程序打开：" + args[0]);
                         return;
                     }
-                    catch (EpubErrorException)
+                    catch (EpubErrorException e)
                     {
 
-                        MessageBox.Show("读取EPUB时发生错误:" + args[0]);
+                        MessageBox.Show("读取EPUB时发生错误:" + args[0]+"\n"+e.Message);
                         return;
                     }
                     var settings = new CefSettings();

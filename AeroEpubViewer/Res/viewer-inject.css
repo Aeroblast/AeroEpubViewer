@@ -3,30 +3,37 @@
     max-width: 100vw;
     object-fit: contain;
 }
-div > img,div>svg {
+
+div > img, div > svg {
     max-height: 100%;
     max-width: 100%;
     object-fit: contain;
 }
 
 body {
- margin:0!important;
-padding:0;
+    margin: 0 !important;
+    padding: 0;
+    font-family: serif;
 }
+
 aside {
-position:absolute;
-right:100vh;
-height:100vh;
+    position: absolute;
+    right: 100vh;
+    height: 100vh;
 }
+
 a:link {
     color: #8b8b8b;
 }
+
 a:visited {
     color: #5b5b5b;
 }
+
 a:hover {
     color: #000000;
 }
+
 a:active {
     color: #000000;
 }

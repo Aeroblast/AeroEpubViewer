@@ -294,8 +294,8 @@
 
 
     </div>
-    <div id="sp_frame_general_container" class="sp_frame_container"><div class="sp_frame_close" onclick="document.getElementById('sp_frame_general_container').style.display='none'">Close</div><iframe id="sp_frame_general" class="sp_frame"></iframe></div>
-    <div id="sp_frame_search_container" class="sp_frame_container"><div class="sp_frame_close" onclick="document.getElementById('sp_frame_search_container').style.display='none'">Close</div><iframe id="sp_frame_search" class="sp_frame"></iframe></div>
+    <div id="sp_frame_general_container" class="sp_frame_container"><div class="sp_frame_close" onclick="document.CloseSpFrame()">Close</div><iframe id="sp_frame_general" class="sp_frame"></iframe></div>
+    <div id="sp_frame_search_container" class="sp_frame_container"><div class="sp_frame_close" onclick="document.CloseSpFrame()">Close</div><iframe id="sp_frame_search" class="sp_frame"></iframe></div>
     <div id="nav" style=""></div>
     <div id="mouseListener" style="position:fixed;z-index:1;width:100vw;height:100vh;left:0;top:0;"></div>
     <div id="scrollBar_container" onmouseenter="ScrollBarMouseEnter()" onmouseleave="ScrollBarMouseLeave()"></div>
@@ -836,35 +836,44 @@ transform: rotate(90deg);\
         }
 
         ///SP Frame//
+        var sp_frame_c = document.getElementById('sp_frame_general_container');
+        var sp_frame = document.getElementById('sp_frame_general');
+        var sp_page_scroll = 100;
         document.CloseSpFrame = function () {
-            document.getElementById('sp_frame_general_container').style.display = 'none';
+            sp_page_scroll = sp_frame.contentDocument.scrollingElement.scrollTop;
+            sp_frame_c.style.display = 'none';
             document.getElementById('sp_frame_search_container').style.display = 'none';
+            console.log(sp_page_scroll)
         }
+
         function ImageQuickView() {
-            document.MenuSwitch();
-            let sp_frame_c = document.getElementById('sp_frame_general_container');
-            let sp_frame = document.getElementById('sp_frame_general');
+            document.MenuClose();
             sp_frame_c.style.display = "block";
-            if (sp_frame.src != "aeroepub://app/ImageQuickView") sp_frame.src = "aeroepub://app/ImageQuickView";
+            if (sp_frame.src != "aeroepub://app/ImageQuickView") {
+                sp_frame.src = "aeroepub://app/ImageQuickView";
+                sp_page_scroll = 0;
+            }
+            sp_frame.contentDocument.scrollingElement.scrollTop= sp_page_scroll;
         }
         function BookInfo() {
-            document.MenuSwitch();
-            let sp_frame_c = document.getElementById('sp_frame_general_container');
-            let sp_frame = document.getElementById('sp_frame_general');
+            document.MenuClose();
+
             sp_frame_c.style.display = "block";
             sp_frame.src = "aeroepub://app/BookInfo"
         }
+        var search_frame_c = document.getElementById('sp_frame_search_container');
+        var search_frame = document.getElementById('sp_frame_search');
         var search_page_init = false;
+        var search_page_scroll = 0;
         function SearchService() {
-            document.MenuSwitch();
-            let sp_frame_c = document.getElementById('sp_frame_search_container');
-            let sp_frame = document.getElementById('sp_frame_search');
-            sp_frame_c.style.display = "block";
+            document.MenuClose();
+
+            search_frame_c.style.display = "block";
             if (!search_page_init) {
-                sp_frame.onload = function () { sp_frame.contentWindow.document.getElementById("search_input").focus(); }
-                sp_frame.src = "aeroepub://viewer/search-service.html";
+                search_frame.onload = function () { sp_frame.contentWindow.document.getElementById("search_input").focus(); }
+                search_frame.src = "aeroepub://viewer/search-service.html";
             } else {
-                sp_frame.contentWindow.document.getElementById("search_input").focus();
+                search_frame.contentWindow.document.getElementById("search_input").focus();
             }
             search_page_init = true;
 
@@ -877,15 +886,14 @@ transform: rotate(90deg);\
             xhttp.send();
         }
         function ReferPath(file, href) {
-            file = file.substr(0,file.lastIndexOf('/'));
-            while (href.startsWith(".."))
-            {
+            file = file.substr(0, file.lastIndexOf('/'));
+            while (href.startsWith("..")) {
                 href = href.substr(3);
-                file = file.substr(0,file.lastIndexOf('/'));
+                file = file.substr(0, file.lastIndexOf('/'));
             }
             let s = "";
             if (href[0] != '/' && file[file.length] != '/') s = "/";
-            return file +s+ href;
+            return file + s + href;
         }
     </script>
 </body>

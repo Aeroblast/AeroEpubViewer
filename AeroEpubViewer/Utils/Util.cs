@@ -54,6 +54,7 @@ namespace AeroEpubViewer
                 if (p == "..") { r = Path.GetDirectoryName(r); continue; }
                 r = Path.Combine(r + "/", p);
             }
+            if (r.StartsWith("/")) { return r.Substring(1); }
             return r;
         }
         public static string Trim(string str)
@@ -73,23 +74,23 @@ namespace AeroEpubViewer
         public static bool Contains(string[] c, string s) { if (c != null) foreach (string x in c) if (x == s) return true; return false; }
 
 
-        static Dictionary<string, string> mimeMap = new Dictionary<string, string> 
+        static Dictionary<string, string> mimeMap = new Dictionary<string, string>
         {
             { ".css","text/css"},
             { ".js","text/javascript"}
         };
-        public static string GetMimeType(string filename) 
+        public static string GetMimeType(string filename)
         {
             string a;
-            bool r=mimeMap.TryGetValue(Path.GetExtension(filename).ToLower(), out a);
+            bool r = mimeMap.TryGetValue(Path.GetExtension(filename).ToLower(), out a);
             if (r) return a;
             else return null;
-        
+
         }
         static Random random = new Random();
         public static int RandomRange(int start = 0, int end = int.MaxValue)
         {
-            return random.Next(start,end);
+            return random.Next(start, end);
         }
     }
 
