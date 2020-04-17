@@ -25,8 +25,7 @@ document.body.onmouseup = function (e) {
         if (e.button == 2)//right
         {
             console.log(e.target.tagName)
-            if (e.target.tagName == "IMG" || e.target.tagName.toUpperCase() =="IMAGE")
-            {
+            if (e.target.tagName == "IMG" || e.target.tagName.toUpperCase() == "IMAGE") {
                 PD.ContextMenu(e.target, e.pageX, e.pageY, window.frameElement);
             }
         }
@@ -62,14 +61,12 @@ document.body.oncopy = function (e) {
         let str_html = "";
         let str_txt = "";
         let flag_ruby = false;
-        if (sel.anchorNode == sel.focusNode)
-        {
+        if (sel.anchorNode == sel.focusNode) {
             str_html = str_txt = sel.anchorNode.nodeValue.substr(sel.anchorOffset, sel.focusOffset - sel.anchorOffset);
         }
-        else
-        {
+        else {
             if (sel.anchorNode.nodeType == Node.ELEMENT_NODE) {
-                
+
             }
             else if (sel.anchorNode.nodeType == Node.TEXT_NODE) {
                 str_html += "<" + sel.anchorNode.parentNode.nodeName + ">";
@@ -77,10 +74,11 @@ document.body.oncopy = function (e) {
                 str_html += t;
                 str_txt += t;
             }
+            let last = sel.anchorNode;
             if (last != sel.focusNode)
                 do {
                     let next;
-                    if (last.nodeType == Node.ELEMENT_NODE) {
+                    if (last.nodeType == Node.ELEMENT_NODE && last.childNodes.length != 0) {
                         next = last.firstChild;
                     } else {
                         next = last.nextSibling;
@@ -105,7 +103,12 @@ document.body.oncopy = function (e) {
                                 flag_ruby = true;
                                 break;
                         }
-                        str_html += "<" + last.nodeName + ">";
+                        if (last.childNodes.length == 0) {
+                            str_html += "<" + last.nodeName + "/>";
+
+                        }
+                        else { str_html += "<" + last.nodeName + ">"; }
+
                     }
                     else if (last.nodeType == Node.TEXT_NODE) {
                         let t = last.nodeValue;
@@ -127,6 +130,12 @@ document.body.oncopy = function (e) {
 
         e.clipboardData.setData("text/html", str_html);
         e.clipboardData.setData("text/plain", str_txt);
+
+
+        let message = str_txt;
+        if (message.length > 20) message = message.substr(0, 20) + "…";
+        message = message.replace('\n', '');
+        console.log("Copy:" + message);
     }
 
 }
