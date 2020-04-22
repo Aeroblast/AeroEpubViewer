@@ -32,7 +32,15 @@ namespace AeroEpubViewer
         public List<int> values = new List<int>();
         public DocPoint(XmlNode node, int offset)
         {
-            selector = GetSelector((node.ParentNode));
+            if (node.ParentNode == null)
+            {
+                selector = "html";
+                values.Add(0);
+            }
+            else
+            {
+                selector = GetSelector(node.ParentNode);
+            }
             values.TrimExcess();
             var c = node.ParentNode.ChildNodes;
             for (int i = 0; i < c.Count; i++)
@@ -43,6 +51,7 @@ namespace AeroEpubViewer
         string GetSelector(XmlNode e)
         {
             if (e.Name == "body") return "body";
+            if (e.Name == "html") return "html";
             var c = e.ParentNode.ChildNodes;
             int elementCount = 0;
             foreach (XmlNode n in c)

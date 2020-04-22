@@ -853,7 +853,7 @@ transform: rotate(90deg);\
                 sp_frame.src = "aeroepub://app/ImageQuickView";
                 sp_page_scroll = 0;
             }
-            sp_frame.contentDocument.scrollingElement.scrollTop= sp_page_scroll;
+            sp_frame.contentDocument.scrollingElement.scrollTop = sp_page_scroll;
         }
         function BookInfo() {
             document.MenuClose();
@@ -870,7 +870,7 @@ transform: rotate(90deg);\
 
             search_frame_c.style.display = "block";
             if (!search_page_init) {
-                search_frame.onload = function () { sp_frame.contentWindow.document.getElementById("search_input").focus(); }
+                search_frame.onload = function () { search_frame.contentWindow.document.getElementById("search_input").focus(); }
                 search_frame.src = "aeroepub://viewer/search-service.html";
             } else {
                 search_frame.contentWindow.document.getElementById("search_input").focus();
