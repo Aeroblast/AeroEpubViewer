@@ -784,19 +784,23 @@ transform: rotate(90deg);\
         ///////menu
         var contextMenu = document.getElementById("context_menu");
         var contextMenuOn = false;
+        var tempTargetElement = null;
         document.ContextMenu = function (e, left, top, frame) {
+            tempTargetElement = e;
             contextMenuOn = true;
             left = frame.offsetLeft + left;
             top = frame.offsetTop + top;
             contextMenu.style.left = left + "px";
             contextMenu.style.top = top + "px";
             contextMenu.style.display = "block";
+            let inner = "<div onclick=\"InspectElement()\">检查元素</div>";
             if (e.tagName == "IMG") {
-                contextMenu.innerHTML = "<div onclick=\"CopyImage('" + e.src + "')\">复制图片</div>"
+                inner += "<div onclick=\"CopyImage('" + e.src + "')\">复制图片</div>";
             }
             if (e.tagName.toUpperCase() == "IMAGE") {
-                contextMenu.innerHTML = "<div onclick=\"CopyImage('" + ReferPath(frame.src, e.getAttribute("xlink:href")) + "')\">复制图片</div>"
+                inner += "<div onclick=\"CopyImage('" + ReferPath(frame.src, e.getAttribute("xlink:href")) + "')\">复制图片</div>";
             }
+            contextMenu.innerHTML = inner;
         }
         document.TryCloseContextMenu = function () {
             if (contextMenuOn) {
@@ -810,7 +814,11 @@ transform: rotate(90deg);\
             AppCall("aeroepub://app/CopyImage/" + url.substring("aeroepub://book/".length));
             document.TryCloseContextMenu();
         }
-
+        function InspectElement() {
+            console.log(tempTargetElement);
+            Inspector();
+            document.TryCloseContextMenu();
+        }
         var touchPos = -1;
         document.OnFrameTouchStart = function (x, y) {
             touchPos = direction.GetEffective(x, y);

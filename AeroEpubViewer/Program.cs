@@ -30,7 +30,6 @@ namespace AeroEpubViewer
                     try
                     {
                         epub = new EpubFile(args[0]);
-                        TocManage.Parse();
                     }
                     catch (System.IO.IOException)
                     {
@@ -42,6 +41,13 @@ namespace AeroEpubViewer
 
                         MessageBox.Show("读取EPUB时发生错误:" + args[0]+"\n"+e.Message);
                         return;
+                    }
+                    try {
+                        TocManage.Parse();
+                    }
+                    catch (EpubErrorException e)
+                    {
+                        Console.WriteLine(e.Message);
                     }
                     var settings = new CefSettings();
                     if (epub.language != "")

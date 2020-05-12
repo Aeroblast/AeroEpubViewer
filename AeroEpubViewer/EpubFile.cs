@@ -96,7 +96,13 @@ namespace AeroEpubViewer.Epub
         public List<MetaRecord> others;
         public List<MetaRecord> meta;
         public string cover_img = "";
-        public ManifestItem toc;
+        ManifestItem _toc;
+        public ManifestItem toc {
+            get {
+                if (_version == null) ReadMeta();
+                return _toc;
+            }
+        }
 
         public void ReadMeta()
         {
@@ -197,7 +203,7 @@ namespace AeroEpubViewer.Epub
                     break;
                 }
             }
-            toc = spine.toc;
+            _toc = spine.toc;
         }
         void ReadMeta3()
         {
@@ -285,11 +291,11 @@ namespace AeroEpubViewer.Epub
             {
                 switch (a.Value.properties)
                 {
-                    case "nav": toc = a.Value; break;
+                    case "nav": _toc = a.Value; break;
                     case "cover-image": cover_img = a.Value.href; break;
                 }
             }
-            if (toc == null) toc = spine.toc;
+            if (_toc == null) _toc = spine.toc;
             //check
             //if (dc_titles.Count == 0 || dc_identifier.Count == 0 || dc_language.Count == 0) { throw new EpubErrorException("Lack of some metadata."); }
         }
