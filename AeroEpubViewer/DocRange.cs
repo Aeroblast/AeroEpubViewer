@@ -39,7 +39,10 @@ namespace AeroEpubViewer
             }
             else
             {
-                selector = GetSelector(node.ParentNode);
+                if (node.NodeType == XmlNodeType.Text)
+                    selector = GetSelector(node.ParentNode);
+                else
+                    selector = GetSelector(node);
             }
             values.TrimExcess();
             var c = node.ParentNode.ChildNodes;
@@ -50,7 +53,6 @@ namespace AeroEpubViewer
         }
         string GetSelector(XmlNode e)
         {
-            if (e.Name == "body") return "body";
             if (e.Name == "html") return "html";
             var c = e.ParentNode.ChildNodes;
             int elementCount = 0;

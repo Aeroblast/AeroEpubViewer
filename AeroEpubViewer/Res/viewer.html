@@ -537,7 +537,7 @@ transform: rotate(90deg);\
                 fullurl = "aeroepub://" + ("book/" + fullurl).replace("//", "/");
             let split_temp = fullurl.split('#');
             let path = split_temp[0];
-            let selector = "";
+            let selector = null;
             if (_selector) selector = _selector;
             else if (split_temp.length > 1) selector = "#" + split_temp[1];
 
@@ -608,7 +608,7 @@ transform: rotate(90deg);\
         var currentFrame = null;
         function GetBookPos() {
             if (currentFrame == null) return "/0";
-            return "/" + currentFrame.urlIndex + "/" + currentFrame.pos + "/" + (direction.GetFrameLength(currentFrame));
+            return "/" + currentFrame.urlIndex + "/" + Math.floor(currentFrame.pos) + "/" + (direction.GetFrameLength(currentFrame));
         }
         document.Scroll = Scroll;
         function Scroll(px) {
