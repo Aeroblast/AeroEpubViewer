@@ -49,6 +49,7 @@ namespace AeroEpubViewer
                     {
                         Console.WriteLine(e.Message);
                     }
+                    UserSettings.ReadSettings();
                     var settings = new CefSettings();
                     if (epub.language != "")
                         settings.Locale = epub.language;

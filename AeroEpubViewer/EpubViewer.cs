@@ -28,6 +28,14 @@ namespace AeroEpubViewer
             chromium.IsBrowserInitializedChanged += OnLoad;
             chromium.LoadingStateChanged += SendDataWhenLoad;
 
+            {
+                string[] temp;
+                if (UserSettings.fontFamilySettings.TryGetValue(Util.TrimLanguageCode(Program.epub.language), out temp))
+                {
+                    chromium.BrowserSettings.SerifFontFamily = temp[1];
+                    chromium.BrowserSettings.SansSerifFontFamily = temp[2];
+                }
+            }
 
             ResizeEnd += (e, arg) =>
             {
@@ -89,7 +97,7 @@ namespace AeroEpubViewer
                         {
                             string toc = (Program.epub.toc.GetFile() as TextEpubItemFile).text;
                             toc=toc.Replace(" href=\"", " hraf=\"");
-                            Match m = Regex.Match(toc, "<body([\\s\\S]*?)</body>");
+                            Match m = Regex.Match(toc, "<body[\\s\\S]*?>([\\s\\S]*?)</body>");
                             if (m.Success)
                             {
                                 chromium.ExecuteScriptAsync("LoadTocNav", m.Groups[1], Path.GetDirectoryName(Program.epub.toc.href).Replace('\\','/'));

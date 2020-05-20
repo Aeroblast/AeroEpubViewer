@@ -92,6 +92,25 @@ namespace AeroEpubViewer
         {
             return random.Next(start, end);
         }
+        public static string TrimLanguageCode(string s) 
+        {
+            s = s.ToLower();
+            switch (s) 
+            {
+                case "zh-tw":
+                case "zh-hant":
+                    return "zh-Hant";
+                default:
+                    return s.Substring(0,2);
+            }
+        }
+        public static string[] LanguageCodes = new string[] {"en","zh","zh-Hant","ja" };
+        public static bool isLanguageCode(string s) 
+        {
+            foreach (var code in LanguageCodes)
+                if (s == code) return true;
+            return false;
+        }
     }
 
 
