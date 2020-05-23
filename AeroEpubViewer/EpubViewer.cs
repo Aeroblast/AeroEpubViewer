@@ -71,7 +71,7 @@ namespace AeroEpubViewer
                 int l = (i.item.GetFile() as TextEpubItemFile).text.Length;
                 lengthDataCmd += "," + l;
             }
-            lengthDataCmd = "LoadScrollBar([" + lengthDataCmd.Substring(1) + "]);";
+            lengthDataCmd = $"LoadScrollBar([{ lengthDataCmd.Substring(1)}],{new TocManager().GetPlainStructJSON()});";
             initCmd = string.Format("Init([{0}],{1},{2});", initCmd.Substring(1), ResizeManage.index, ResizeManage.percent);
             chromium.ExecuteScriptAsync(userDataCmd + lengthDataCmd + initCmd);
 

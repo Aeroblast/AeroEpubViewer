@@ -15,12 +15,13 @@ namespace AeroEpubViewer
         {
             if (Program.epub.toc == null) return;
             if (Program.epub.version == "2.0") Parse2();
+            if (Program.epub.version == "3.0") Parse3();
         }
-        static string ncxPath;
+        static string tocPath;
         public static void Parse2()
         {
             var f = Program.epub.toc.GetFile() as TextEpubItemFile;
-            ncxPath = f.fullName;
+            tocPath = f.fullName;
             XmlDocument xml = new XmlDocument();
             xml.LoadXml(f.text);
             var root = xml.GetElementsByTagName("navMap")[0];
@@ -42,7 +43,7 @@ namespace AeroEpubViewer
                         break;
                     case "content":
                         {
-                            pt.url = Util.ReferPath(ncxPath, e.Attributes["src"].Value);
+                            pt.url = Util.ReferPath(tocPath, e.Attributes["src"].Value);
                         }
                         break;
                     case "navPoint":
@@ -53,10 +54,48 @@ namespace AeroEpubViewer
                         break;
                 }
             }
-
         }
-
+        public static void Parse3()
+        {
+            var f = Program.epub.toc.GetFile() as TextEpubItemFile;
+            tocPath = f.fullName;
+            XmlDocument xml = new XmlDocument();
+            xml.LoadXml(f.text);
+            foreach (XmlElement nav in xml.GetElementsByTagName("nav"))
+            {
+                if (nav.GetAttribute("epub:type") == "toc")
+                {
+                    tocTree = new TocItem();
+                    tocTree.children = new List<TocItem>();
+                    var root = nav.GetElementsByTagName("ol")[0];
+                    Parse3Helper(root, tocTree);
+                    break;
+                }
+            }
+        }
+        static void Parse3Helper(XmlNode px, TocItem pt)
+        {
+            foreach (XmlNode e in px.ChildNodes)
+                if (e.Name == "li")
+                {
+                    var node = pt.AddChild();
+                    foreach (XmlNode a in e.ChildNodes)
+                    {
+                        if (a.Name == "a" && node.name == "")
+                        {
+                            node.name = a.InnerText;
+                            node.url = Util.ReferPath(tocPath, ((XmlElement)a).GetAttribute("href"));
+                            continue;
+                        }
+                        if (a.Name == "ol")
+                        {
+                            Parse3Helper(a, node);
+                        }
+                    }
+                }
+        }
     }
+
     class TocManager
     {
         public TocItem GetPosition(string path, DocPoint p)
@@ -77,6 +116,42 @@ namespace AeroEpubViewer
             if (r == null) //the point is before the first toc record
             { r = new TocItem(); }
             return r;
+        }
+        public string[] GetPlainStruct()
+        {
+            if (TocManage.tocTree == null) return null;
+            List<string> urls = new List<string>();
+            foreach (SpineItemref i in Program.epub.spine)
+            {
+                if (!i.linear) continue;
+                urls.Add(i.href);
+            }
+            string[] plain = new string[urls.Count];
+            GetPlainStructHelper(urls, TocManage.tocTree, ref plain);
+            return plain;
+        }
+        public string GetPlainStructJSON()
+        {
+            if (TocManage.tocTree == null) return "[]";
+            StringBuilder r = new StringBuilder();
+            r.Append("[\"");
+            r.Append(string.Join("\",\"", GetPlainStruct()));
+            r.Append("\"]");
+            return r.ToString();
+        }
+        void GetPlainStructHelper(List<string> urls, TocItem p, ref string[] plain)
+        {
+            foreach (TocItem i in p.children)
+            {
+                string u = i.url.Split('#')[0];
+                int index = urls.IndexOf(u);
+                if (index >= 0)
+                {
+                    plain[index] = i.name;
+                }
+                if (i.children != null)
+                    GetPlainStructHelper(urls, i, ref plain);
+            }
         }
         DocPoint p;
         TocItem last;
@@ -107,7 +182,7 @@ namespace AeroEpubViewer
                 else return -1;
             else
                 if (p2 == null) return 1;
-            
+
             return p1.CompareTo(p2);
         }
 
