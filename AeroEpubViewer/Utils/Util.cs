@@ -45,8 +45,8 @@ namespace AeroEpubViewer
 
         public static string ReferPath(string filename, string refPath)
         {
-            string r = Path.GetDirectoryName(filename);
-            string[] parts = refPath.Replace('/', '\\').Split('\\');
+            string r = Path.GetDirectoryName(filename).Replace('\\', '/') ;
+            string[] parts = refPath.Replace('\\', '/').Split('/');
             foreach (string p in parts)
             {
                 if (p == "") continue;
