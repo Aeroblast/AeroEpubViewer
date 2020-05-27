@@ -57,7 +57,12 @@ namespace AeroEpubViewer
         }
         public static void Parse3()
         {
+            if (Program.epub.toc.mediaType == "application/x-dtbncx+xml") 
+            {
+                Parse2();return;
+            }
             var f = Program.epub.toc.GetFile() as TextEpubItemFile;
+            
             tocPath = f.fullName;
             XmlDocument xml = new XmlDocument();
             xml.LoadXml(f.text);
