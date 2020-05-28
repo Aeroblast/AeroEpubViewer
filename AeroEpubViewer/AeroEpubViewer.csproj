@@ -112,6 +112,7 @@
     <Compile Include="Utils\Log.cs" />
     <Compile Include="Utils\Util.cs" />
     <Compile Include="Utils\UtilXML.cs" />
+    <Compile Include="Xhtml.cs" />
     <EmbeddedResource Include="EpubViewer.resx">
       <DependentUpon>EpubViewer.cs</DependentUpon>
     </EmbeddedResource>
@@ -135,6 +136,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <EmbeddedResource Include="Res\xhtml.dtd">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

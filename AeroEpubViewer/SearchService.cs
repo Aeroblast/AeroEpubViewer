@@ -32,7 +32,7 @@ namespace AeroEpubViewer
         public static string GetResult(int count)
         {
             string arr = "[]";
-            if (end) 
+            if (end)
             {
                 if (count < matches.Count)
                 {
@@ -50,7 +50,7 @@ namespace AeroEpubViewer
             workState = WorkState.run;
             return $"{{\"cmd\":\"Wait\",\"list\":{arr}}}";
         }
-        static string GetRestResult(int count) 
+        static string GetRestResult(int count)
         {
             StringBuilder arr = new StringBuilder();
             arr.Append("[");
@@ -64,10 +64,10 @@ namespace AeroEpubViewer
             return arr.ToString();
         }
         static string currentHref;
-        enum WorkState { idle,run,pause }
+        enum WorkState { idle, run, pause }
         static WorkState workState = WorkState.idle;
         static bool working = false;
-        static bool end=true;
+        static bool end = true;
         public static void SearchWorker()
         {
             end = false;
@@ -93,8 +93,7 @@ namespace AeroEpubViewer
         {
             try
             {
-                XmlDocument xml = new XmlDocument();
-                xml.LoadXml(text);
+                var xml = Xhtml.Load(text);
                 SearchNode(xml.GetElementsByTagName("body")[0]);
             }
             catch (XmlException)
@@ -119,7 +118,7 @@ namespace AeroEpubViewer
                         {
                             if (a.Name == "rt")
                             {
-                                foreach (XmlNode b in a.ChildNodes) 
+                                foreach (XmlNode b in a.ChildNodes)
                                 {
                                     if (b.NodeType == XmlNodeType.Text)
                                     {

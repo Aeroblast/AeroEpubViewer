@@ -217,8 +217,7 @@ namespace AeroEpubViewer
                         if (id != "")
                         {
                             var f = itemref.item.GetFile() as TextEpubItemFile;
-                            XmlDocument xml = new XmlDocument();
-                            xml.LoadXml(f.text);
+                            var xml = Xhtml.Load(f.text);
                             var x = xml.SelectSingleNode($"//*[@id='{id}']");//Cannot use GetElementById because of DTD not always in  epub
                             if (x != null)
                             {
