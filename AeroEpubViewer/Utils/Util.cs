@@ -99,12 +99,17 @@ namespace AeroEpubViewer
             {
                 case "zh-tw":
                 case "zh-hant":
-                    return "zh-Hant";
+                    return "zh-TW";
+                case "zh-cn":
+                case "zh-hans":
+                case "zh-hans-cn":
+                case "zh":
+                    return "zh-CN";
                 default:
                     return s.Substring(0,2);
             }
         }
-        public static string[] LanguageCodes = new string[] {"en","zh","zh-Hant","ja" };
+        public static string[] LanguageCodes = new string[] {"en","zh-CN","zh-TW","ja" };
         public static bool isLanguageCode(string s) 
         {
             foreach (var code in LanguageCodes)
