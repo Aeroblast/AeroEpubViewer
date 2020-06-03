@@ -9,15 +9,27 @@ namespace AeroEpubViewer
 {
     class UserSettings
     {
-        public static int bookFontSize = 18;
-        public static string theme = "warm";
         public static string settingsPath = System.AppDomain.CurrentDomain.BaseDirectory + "UserSettings\\";
-        public static Dictionary<string, string[]> fontFamilySettings = new Dictionary<string, string[]>();
-        static string jsonTemplate = "\"bookFontSize\":{0},\"viewerTheme\":\"{1}\"";
+
+        //path
+        static string generalSetting = Path.Combine(settingsPath, "general.txt");
         static string fontSetting = Path.Combine(settingsPath, "font.txt");
+
+        //general
+        public static string theme = "warm";
+        public static string warmColor = "#ffe6a0";
+
+        //font
+        public static int bookFontSize = 18;
+        public static Dictionary<string, string[]> fontFamilySettings = new Dictionary<string, string[]>();
+
         public static string GetJson()
         {
-            return "{" + string.Format(jsonTemplate, bookFontSize, theme) + "}";
+            return "{" +
+                $"\"bookFontSize\":{bookFontSize}," +
+                $"\"viewerTheme\":\"{theme}\"," +
+                $"\"warmColor\":\"{warmColor}\""
+                + "}";
         }
         public static void ReadSettings()
         {
@@ -38,6 +50,26 @@ namespace AeroEpubViewer
                                     fontFamilySettings.Add(code, para);
                             }
                         }
+                    }
+            }
+            if (File.Exists(generalSetting))
+            {
+                string line;
+                using (var file = new StreamReader(generalSetting))
+                    while ((line = file.ReadLine()) != null)
+                    {
+                        string[] para = GetPara(line);
+                        if (para.Length == 2)
+                            switch (para[0])
+                            {
+                                case "Theme":
+                                    theme = para[1].ToLower();
+                                    break;
+                                case "WarmColor":
+                                    warmColor = para[1];
+                                    ImageHack.SetWarmColor(warmColor);
+                                    break;
+                            }
                     }
             }
         }

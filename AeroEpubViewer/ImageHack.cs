@@ -13,9 +13,17 @@ namespace AeroEpubViewer
 
         static ImageAttributes imageAttributes = new ImageAttributes();
         static bool prepared = false;
+        public static int warmColor = 0xffe6a0;
+        public static void SetWarmColor(string hex)
+        {
+            if (hex.Length == 7 && hex[0] == '#')
+            {
+                hex = hex.Substring(1);
+                int.TryParse(hex, System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out warmColor);
+            }
+        }
         static void PrepareWarmer()
         {
-            int warmColor = 0xffe6a0;
             float[][] colorMatrixElements = {
    new float[] {1-(0xff-(warmColor>>16))/(float)0xff,  0,  0,  0, 0},
    new float[] {0, 1 - (0xff - ((warmColor&0xff00) >> 8)) / (float)0xff,  0,  0, 0},

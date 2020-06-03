@@ -392,10 +392,15 @@ transform: rotate(90deg);\
         theme_default.name = "default";
         theme_default.viewerStyle = "#nav,#menu{background:white;color:black;}.scrollBarChapterName {background:white;}";
         theme_default.frameStyle = "body{background:white;color:black;}";
+        var warmColor = "";
         var theme_warm = new Object();
-        theme_warm.name = "warm";
-        theme_warm.viewerStyle = "body,#nav,#menu{background:#ffe6a0;color:black;}.scrollBarChapterName {background:#ffe6a0;}";
-        theme_warm.frameStyle = "body{background:#ffe6a0;color:black;}";
+        function gen_theme_warm(_warmColor) {
+            warmColor = _warmColor;
+            theme_warm.name = "warm";
+            theme_warm.viewerStyle = "body,#nav,#menu{background:{warm};color:black;}.scrollBarChapterName {background:{warm};}".replace("{warm}", warmColor);
+            theme_warm.frameStyle = "body{background:{warm};color:black;}".replace("{warm}", warmColor);
+        }
+
         var theme_dark = new Object();
         theme_dark.name = "dark";
         theme_dark.viewerStyle = "body,#nav,#menu{background:black;color:white;}.scrollBarChapterName{background:black;}";
@@ -575,7 +580,7 @@ transform: rotate(90deg);\
                     gotchapter = true;
                 }
             }
-            if (currentChapterName == "" || (currentChapterName != chaptername&&currentChapterName!="")) {
+            if (currentChapterName == "" || (currentChapterName != chaptername && currentChapterName != "")) {
                 let pxmax = direction.GetParallelLength(scrollBar_container);
                 direction.SetParallelPositivePos(scrollBarChapterDisplay, chapterpos / scrollBar.max * pxmax);
                 direction.SetParallelLength(scrollBarChapterDisplay, chapterlength / scrollBar.max * pxmax);
@@ -907,13 +912,11 @@ transform: rotate(90deg);\
         };
         function SetTheme() {
             let name = document.getElementById("themeSelect").value;
+            gen_theme_warm(document.userSettings.warmColor);
             switch (name) { case "default": document.theme = theme_default; break; case "warm": document.theme = theme_warm; break; case "dark": document.theme = theme_dark; break; }
             for (let i = 0; i < frameList.length; i++) { frameList[i].contentWindow.location.reload(); }
             themeStyle.innerHTML = document.theme.viewerStyle;
-            let xhttp = null
-            xhttp = new XMLHttpRequest();
-            xhttp.open("GET", "aeroepub://app/theme/" + name, true);
-            xhttp.send();
+            AppCall("aeroepub://app/theme/" + name);
         }
 
         ///SP Frame//
