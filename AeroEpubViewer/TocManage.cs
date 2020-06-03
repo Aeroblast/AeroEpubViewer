@@ -57,12 +57,12 @@ namespace AeroEpubViewer
         }
         public static void Parse3()
         {
-            if (Program.epub.toc.mediaType == "application/x-dtbncx+xml") 
+            if (Program.epub.toc.mediaType == "application/x-dtbncx+xml")
             {
-                Parse2();return;
+                Parse2(); return;
             }
             var f = Program.epub.toc.GetFile() as TextEpubItemFile;
-            
+
             tocPath = f.fullName;
             XmlDocument xml = new XmlDocument();
             xml.LoadXml(f.text);
@@ -144,7 +144,7 @@ namespace AeroEpubViewer
             r.Append("\"]");
             return r.ToString();
         }
-        void GetPlainStructHelper(List<string> urls, TocItem p, ref string[] plain)
+        void GetPlainStructHelper(List<string> urls, TocItem p, ref string[] plain, string intro = "")
         {
             foreach (TocItem i in p.children)
             {
@@ -152,10 +152,11 @@ namespace AeroEpubViewer
                 int index = urls.IndexOf(u);
                 if (index >= 0)
                 {
-                    plain[index] = i.name;
+                    if (plain[index] == null)
+                        plain[index] = intro+i.name;
                 }
                 if (i.children != null)
-                    GetPlainStructHelper(urls, i, ref plain);
+                    GetPlainStructHelper(urls, i, ref plain, intro + i.name + " > ");
             }
         }
         DocPoint p;
