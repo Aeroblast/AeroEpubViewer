@@ -397,8 +397,8 @@ transform: rotate(90deg);\
         function gen_theme_warm(_warmColor) {
             warmColor = _warmColor;
             theme_warm.name = "warm";
-            theme_warm.viewerStyle = "body,#nav,#menu{background:{warm};color:black;}.scrollBarChapterName {background:{warm};}".replace("{warm}", warmColor);
-            theme_warm.frameStyle = "body{background:{warm};color:black;}".replace("{warm}", warmColor);
+            theme_warm.viewerStyle = "body,#nav,#menu{background:{warm};color:black;}.scrollBarChapterName {background:{warm};}".replace(/{warm}/g, warmColor);
+            theme_warm.frameStyle = "body{background:{warm};color:black;}".replace(/{warm}/g, warmColor);
         }
 
         var theme_dark = new Object();
