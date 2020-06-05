@@ -110,6 +110,12 @@ namespace AeroEpubViewer
                             }
                         }
                         break;
+                    case "dc:date":
+                        {
+                            var dateEvent = a.GetRefines("event");
+                            name += $" ({dateEvent.value})";
+                        }
+                        break;
                 }
 
                 r.Append("<tr><td>" + name + "</td><td><data-item>" + value + "</data-item></td></tr>");
