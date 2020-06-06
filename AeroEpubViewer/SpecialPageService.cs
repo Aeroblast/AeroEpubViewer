@@ -113,7 +113,8 @@ namespace AeroEpubViewer
                     case "dc:date":
                         {
                             var dateEvent = a.GetRefines("event");
-                            name += $" ({dateEvent.value})";
+                            if (dateEvent != null)
+                                name += $" ({dateEvent.value})";
                         }
                         break;
                 }
