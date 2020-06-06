@@ -67,7 +67,12 @@ namespace AeroEpubViewer
                 }
                 else { MessageBox.Show("文件不存在:" + args[0]); }
             else { MessageBox.Show("去看使用说明。"); }
-            Util.DeleteDir(cachePath);
+            try
+            {
+                Util.DeleteDir(cachePath);
+            }
+            catch (Exception) { }
+
         }
     }
 
