@@ -754,26 +754,25 @@ transform: rotate(90deg);\
         }
         /// Other UI///
         var nav = document.getElementById("nav");
-        var navOn = false;
+        document.navOn = false;
         function NavSwitch() {
-            if (navOn) {
-                navOn = false;
+            if (document.navOn) {
+                document.navOn = false;
                 nav.style.animation = "navHide 0.5s ease 0s 1 ";
 
             } else {
-                navOn = true;
+                document.navOn = true;
                 nav.style.animation = "navDisplay 0.5s ease 0s 1";
 
             }
             nav.style.animationFillMode = "forwards";
 
         }
-        var menuOn = false;
+        document.menuOn = false;
         var menu = document.getElementById("menu");
 
         document.MenuSwitch = function () {
-            if (menuOn) {
-
+            if (document.menuOn || document.navOn) {
                 document.MenuClose();
             } else {
                 document.MenuOpen();
@@ -781,13 +780,13 @@ transform: rotate(90deg);\
 
         };
         document.MenuClose = function () {
-            menuOn = false;
+            document.menuOn = false;
             menu.style.animation = "menuHide 0.5s ease 0s 1 ";
             menu.style.animationFillMode = "forwards";
-            if (navOn) { NavSwitch(); }
+            if (document.navOn) { NavSwitch(); }
         };
         document.MenuOpen = function () {
-            menuOn = true;
+            document.menuOn = true;
             menu.style.animation = "menuDisplay 0.5s ease 0s 1";
             menu.style.animationFillMode = "forwards";
         };

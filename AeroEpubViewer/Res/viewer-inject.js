@@ -20,7 +20,15 @@ document.body.onmouseup = function (e) {
             selectionFlag = false;
             return;
         }
-        PD.MenuSwitch();
+
+        if (PD.menuOn || PD.navOn) {
+            PD.MenuClose();
+        } else {
+            let top = window.frameElement.offsetTop + e.pageY;
+            if (top < PD.defaultView.innerHeight * 0.2)
+                PD.MenuOpen();
+        }
+
     } else
         if (e.button == 2)//right
         {
@@ -49,7 +57,9 @@ function Href(e) {
         PD.PopupFootnote(note.innerHTML, e.offsetLeft, e.offsetTop, this.frameElement);
         return false;
     }
+    PD.MenuClose();
     PD.Link(e.href);
+
 }
 document.body.oncopy = function (e) {
     e.preventDefault();
