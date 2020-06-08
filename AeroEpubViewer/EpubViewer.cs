@@ -21,9 +21,10 @@ namespace AeroEpubViewer
 
         public EpubViewer()
         {
+            CheckForIllegalCrossThreadCalls = false;//only for Hide()Show() in OnLoad, to solve wired focus problem at start up
             chromium = new ChromiumWebBrowser("aeroepub://viewer/viewer.html");
             chromium.BrowserSettings.WebSecurity = CefState.Disabled; ;
-            this.Controls.Add(chromium);
+            Controls.Add(chromium);
             chromium.Dock = DockStyle.Fill;
             chromium.IsBrowserInitializedChanged += OnLoad;
             chromium.LoadingStateChanged += SendDataWhenLoad;
@@ -45,13 +46,13 @@ namespace AeroEpubViewer
             };
             InitializeComponent();
             this.Text = string.Format("AeroEpubViewer - {0}", Program.epub.title);
-
         }
         private void OnLoad(Object sender, EventArgs e)
         {
             //chromium.ShowDevTools();
+            Hide();
+            Show();
         }
-
 
 
         public static void SendDataWhenLoad(Object sender, LoadingStateChangedEventArgs e)
@@ -96,17 +97,18 @@ namespace AeroEpubViewer
                     case "application/xhtml+xml":
                         {
                             string toc = (Program.epub.toc.GetFile() as TextEpubItemFile).text;
-                            toc=toc.Replace(" href=\"", " hraf=\"");
+                            toc = toc.Replace(" href=\"", " hraf=\"");
                             Match m = Regex.Match(toc, "<body[\\s\\S]*?>([\\s\\S]*?)</body>");
                             if (m.Success)
                             {
-                                chromium.ExecuteScriptAsync("LoadTocNav", m.Groups[1], Path.GetDirectoryName(Program.epub.toc.href).Replace('\\','/'));
+                                chromium.ExecuteScriptAsync("LoadTocNav", m.Groups[1], Path.GetDirectoryName(Program.epub.toc.href).Replace('\\', '/'));
                             }
                             else
                             {
                                 Log.log("[Error]at TOC loading:" + Program.epub.toc);
                             }
-                        } break;
+                        }
+                        break;
 
                 }
 
