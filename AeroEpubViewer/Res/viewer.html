@@ -314,6 +314,7 @@
     <div id="scrollBar_container" onmouseenter="ScrollBarMouseEnter(event)" onmouseleave="ScrollBarMouseLeave(event)" onmousemove="ScrollBarMouseMove(event)">
         <div id="scrollBarChapterDisplay" class="scrollBarChapterDisplay"><div class="scrollBarChapterName"></div></div>
     </div>
+    <div id="measure_container"><div></div><div></div></div>
     <div id="context_menu"></div>
     <script>
         ScreenTest();
@@ -350,6 +351,8 @@ transform-origin: 50vw; transform: rotate(180deg); \
 #scrollBar::-webkit-slider-thumb{width: 15px;height: 3vh;}\
 .scrollBarChapterDisplay{height:3vh;margin-top:2vh;}\
 .scrollBarChapterName{margin-top:-1.5em;}\
+#measure_container{position:fixed;width:100%;height:1vh;left:0;bottom:7vh;}\
+#measure_container>div{position:fixed;height:1vh;width:1vh;bottom:7vh;background:#ff0000;border-radius:0.3vh;}\
 ";
         direction_rtl.injectStyle = "body{height:100vh;min-width:66vh;}";
         var direction_default = new Object();
@@ -372,7 +375,7 @@ transform-origin: 50vw; transform: rotate(180deg); \
             return 0;
         }
         direction_default.style = "\
-iframe{width:92vw;left:4vw;min-height:90vh;} \
+iframe{width:91vw;left:4.5vw;min-height:90vh;} \
 #scrollBar_container{width: 3vw;height:100vh; right: 0; bottom: 0; margin: 0;}\
 #scrollBar{\
 margin:0 0 0 3vw;\
@@ -384,6 +387,8 @@ transform: rotate(90deg);\
 #scrollBar::-webkit-slider-thumb{width: 3vw;height: 3vh;}\
 .scrollBarChapterDisplay{width:3vh;}\
 .scrollBarChapterName{margin-left:-10em;width:10em;white-space:normal}\
+#measure_container{position:fixed;width:1vw;height:100%;right:3vw;}\
+#measure_container>div{position:fixed;height:1vh;width:1vw;right:3vw;background:#ff0000;border-radius:1vw;}\
 ";
         direction_default.injectStyle = "body{width:100vw;padding-bottom:3vh;}";
 
@@ -428,8 +433,8 @@ transform: rotate(90deg);\
                 }
             } else {
                 switch (e.key) {
-                    case "PageDown": LongScroll(-0.9 * direction.GetWindowLength()); break;
-                    case "PageUp": LongScroll(0.9 * direction.GetWindowLength()); break;
+                    case "PageDown": LongScroll(-0.8 * direction.GetWindowLength()); break;
+                    case "PageUp": LongScroll(0.8 * direction.GetWindowLength()); break;
                     case "ArrowDown":
                     case "ArrowLeft":
                     case "ArrowRight":
@@ -454,6 +459,7 @@ transform: rotate(90deg);\
             console.log("Init start=" + start + " pos=" + posRate + " selector=" + selector);
 
             directionStyle.innerHTML = direction.style;
+            InitMeasure();
 
             urlList = _urlList;
 
@@ -716,6 +722,7 @@ transform: rotate(90deg);\
             }
             if (!loading) CheckLoad();
             SetScrollBar();
+            MeasureScroll(px);
         }
         var longScrollTimerHandle = null;
         var longScrollRest = 0;
@@ -723,7 +730,7 @@ transform: rotate(90deg);\
         function LongScroll(px) {
             if (longScrollTimerHandle != null) { return; }
             longScrollRest = px;
-            longScrollDelta = Math.floor(Math.abs(px)/15)+1;
+            longScrollDelta = Math.abs(px) / 15;
             longScrollTimerHandle = setInterval(function () {
                 if (longScrollRest > 0) {
                     Scroll(longScrollDelta);
@@ -887,6 +894,34 @@ transform: rotate(90deg);\
         }
 
         document.PopupFootnote = PopupFootnote2;
+
+        var measure_container = document.getElementById("measure_container");
+        var measure_firstInit = false;
+        var measure_d;
+        var measure_count = 2;
+        var measure_pos = new Array(measure_count);
+        function InitMeasure() {
+            measure_d = direction.GetWindowLength() * 0.8;
+            let start = direction.GetWindowLength() * 0.1;
+            measure_pos[0] = start;
+            measure_pos[1] = start + measure_d;
+            //measure_pos[2] = start + measure_d * 2;
+            direction.SetParallelPositivePos(measure_container.children[0], measure_pos[0]);
+            direction.SetParallelPositivePos(measure_container.children[1], measure_pos[1]);
+            //direction.SetParallelPositivePos(measure_container.children[2], measure_pos[2]);
+        }
+        function MeasureScroll(px) {
+            for (let i = 0; i < measure_count; i++) {
+                measure_pos[i] = measure_pos[i] + px;
+                if (measure_pos[i] < -20) { measure_pos[i] += measure_count * measure_d; }
+                else if (measure_pos[i] > direction.GetWindowLength() + 20) {
+                    measure_pos[i] -= measure_count * measure_d;
+                }
+            }
+            direction.SetParallelPositivePos(measure_container.children[0], measure_pos[0]);
+            direction.SetParallelPositivePos(measure_container.children[1], measure_pos[1]);
+            //direction.SetParallelPositivePos(measure_container.children[2], measure_pos[2]);
+        }
         ///////menu
         var contextMenu = document.getElementById("context_menu");
         var contextMenuOn = false;
