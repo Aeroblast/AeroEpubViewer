@@ -427,10 +427,18 @@ transform: rotate(90deg);\
 
                 }
             } else {
-                let d = direction.KeyToDirection(e.key);
-                Scroll(d * 30);
+                switch (e.key) {
+                    case "PageDown": LongScroll(-0.9 * direction.GetWindowLength()); break;
+                    case "PageUp": LongScroll(0.9 * direction.GetWindowLength()); break;
+                    case "ArrowDown":
+                    case "ArrowLeft":
+                    case "ArrowRight":
+                    case "ArrowUp":
+                        let d = direction.KeyToDirection(e.key);
+                        Scroll(d * 30);
+                        break;
+                }
             }
-
         };
         document.addEventListener("keydown", document.keydown);
         var PrepareResize = function () {
@@ -708,6 +716,27 @@ transform: rotate(90deg);\
             }
             if (!loading) CheckLoad();
             SetScrollBar();
+        }
+        var longScrollTimerHandle = null;
+        var longScrollRest = 0;
+        var longScrollDelta = 40;
+        function LongScroll(px) {
+            if (longScrollTimerHandle != null) { return; }
+            longScrollRest = px;
+            longScrollDelta = Math.floor(Math.abs(px)/15)+1;
+            longScrollTimerHandle = setInterval(function () {
+                if (longScrollRest > 0) {
+                    Scroll(longScrollDelta);
+                    longScrollRest -= longScrollDelta;
+                    if (longScrollRest <= 0) { clearInterval(longScrollTimerHandle); longScrollTimerHandle = null; longScrollRest = 0 }
+                }
+                else if (longScrollRest < 0) {
+                    Scroll(-longScrollDelta);
+                    longScrollRest += longScrollDelta;
+                    if (longScrollRest >= 0) { clearInterval(longScrollTimerHandle); longScrollTimerHandle = null; longScrollRest = 0 }
+                }
+
+            }, 25);
         }
         var loading = 0;
         var offScreenDestoryDistance = 50;
