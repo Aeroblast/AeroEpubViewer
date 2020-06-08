@@ -21,7 +21,6 @@ namespace AeroEpubViewer
 
         public EpubViewer()
         {
-            CheckForIllegalCrossThreadCalls = false;//only for Hide()Show() in OnLoad, to solve wired focus problem at start up
             chromium = new ChromiumWebBrowser("aeroepub://viewer/viewer.html");
             chromium.BrowserSettings.WebSecurity = CefState.Disabled; ;
             Controls.Add(chromium);
@@ -50,9 +49,16 @@ namespace AeroEpubViewer
         private void OnLoad(Object sender, EventArgs e)
         {
             //chromium.ShowDevTools();
-            Hide();
-            Show();
+
+            refreshForm = new RefreshForm(() =>
+            {
+                Hide();
+                Show();
+            });
+            Invoke(refreshForm);
         }
+        public delegate void RefreshForm();
+        public RefreshForm refreshForm;
 
 
         public static void SendDataWhenLoad(Object sender, LoadingStateChangedEventArgs e)
