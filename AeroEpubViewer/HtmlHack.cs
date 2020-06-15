@@ -30,11 +30,11 @@ namespace AeroEpubViewer
             if (UserSettings.userBookCssContent != null) cssInject += "<link href=\"aeroepub://app/UserBookCss\" rel=\"stylesheet\" type=\"text/css\"/>";
             if (Program.epub.spine.pageProgressionDirection == "rtl")
             {
-                if (UserSettings.userBookCssContent_rtl != null) cssInject += "<link href=\"aeroepub://app/UserBookCss_rtl\" rel=\"stylesheet\" type=\"text/css\"/>";
+                if (UserSettings.userBookCssContent_rtl != null) cssInject += "<link href=\"aeroepub://app/UserBookCssRtl\" rel=\"stylesheet\" type=\"text/css\"/>";
             }
             else
             {
-                if (UserSettings.userBookCssContent_ltr != null) cssInject += "<link href=\"aeroepub://app/UserBookCss_ltr\" rel=\"stylesheet\" type=\"text/css\"/>";
+                if (UserSettings.userBookCssContent_ltr != null) cssInject += "<link href=\"aeroepub://app/UserBookCssLtr\" rel=\"stylesheet\" type=\"text/css\"/>";
             }
         }
     }
