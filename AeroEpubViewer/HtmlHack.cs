@@ -25,5 +25,17 @@ namespace AeroEpubViewer
             html = html.Replace("</head>", cssInject + "\n</head>").Replace("</body>", jsInject + "\n</body>");
             return html;
         }
+        public static void LoadUser()
+        {
+            if (UserSettings.userBookCssContent != null) cssInject += "<link href=\"aeroepub://app/UserBookCss\" rel=\"stylesheet\" type=\"text/css\"/>";
+            if (Program.epub.spine.pageProgressionDirection == "rtl")
+            {
+                if (UserSettings.userBookCssContent_rtl != null) cssInject += "<link href=\"aeroepub://app/UserBookCss_rtl\" rel=\"stylesheet\" type=\"text/css\"/>";
+            }
+            else
+            {
+                if (UserSettings.userBookCssContent_ltr != null) cssInject += "<link href=\"aeroepub://app/UserBookCss_ltr\" rel=\"stylesheet\" type=\"text/css\"/>";
+            }
+        }
     }
 }

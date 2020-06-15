@@ -131,6 +131,13 @@ namespace AeroEpubViewer
                                         System.Windows.Forms.Clipboard.SetImage(img);
                                 }
                                 return ResourceHandler.FromString("OK");
+                            case "UserBookCss":
+                                return ResourceHandler.FromString(UserSettings.userBookCssContent,null,true,"text/css");
+                            case "UserBookCssRtl":
+                                return ResourceHandler.FromString(UserSettings.userBookCssContent_rtl, null, true, "text/css");
+                            case "UserBookCssLtr":
+                                return ResourceHandler.FromString(UserSettings.userBookCssContent_ltr, null, true, "text/css");
+
                         }
 
 

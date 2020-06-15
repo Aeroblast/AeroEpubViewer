@@ -23,6 +23,14 @@ namespace AeroEpubViewer
         public static int bookFontSize = 18;
         public static Dictionary<string, string[]> fontFamilySettings = new Dictionary<string, string[]>();
 
+        //user files
+        public static string userBookCss = Path.Combine(settingsPath, "user-book.css");
+        public static string userBookCssContent = null;
+        public static string userBookCss_ltr = Path.Combine(settingsPath, "user-book-ltr.css");
+        public static string userBookCssContent_ltr = null;
+        public static string userBookCss_rtl = Path.Combine(settingsPath, "user-book-rtl.css");
+        public static string userBookCssContent_rtl = null;
+
         public static string GetJson()
         {
             return "{" +
@@ -72,6 +80,19 @@ namespace AeroEpubViewer
                             }
                     }
             }
+            if (File.Exists(userBookCss))
+            {
+                userBookCssContent = File.ReadAllText(userBookCss);
+            }
+            if (File.Exists(userBookCss_ltr))
+            {
+                userBookCssContent_ltr = File.ReadAllText(userBookCss_ltr);
+            }
+            if (File.Exists(userBookCss_rtl))
+            {
+                userBookCssContent_rtl = File.ReadAllText(userBookCss_rtl);
+            }
+            HtmlHack.LoadUser();
         }
         public static void WriteSettings()
         {
