@@ -278,6 +278,10 @@
             #context_menu > div {
                 cursor: pointer;
             }
+
+        #measure_container > div {
+            background: #d57474;
+        }
     </style>
 </head>
 <body>
@@ -351,8 +355,8 @@ transform-origin: 50vw; transform: rotate(180deg); \
 #scrollBar::-webkit-slider-thumb{width: 15px;height: 3vh;}\
 .scrollBarChapterDisplay{height:3vh;margin-top:2vh;}\
 .scrollBarChapterName{margin-top:-1.5em;}\
-#measure_container{position:fixed;width:100%;height:1vh;left:0;bottom:7vh;}\
-#measure_container>div{position:fixed;height:1vh;width:1vh;bottom:7vh;background:#ff0000;border-radius:0.3vh;}\
+#measure_container{position:fixed;width:100%;height:1vh;left:0;bottom:6.5vh;}\
+#measure_container>div{position:fixed;height:1vh;width:1vh;bottom:6vh;border-radius:0.3vh;}\
 ";
         direction_rtl.injectStyle = "body{height:100vh;min-width:66vh;}";
         var direction_default = new Object();
@@ -388,7 +392,7 @@ transform: rotate(90deg);\
 .scrollBarChapterDisplay{width:3vh;}\
 .scrollBarChapterName{margin-left:-10em;width:10em;white-space:normal}\
 #measure_container{position:fixed;width:1vw;height:100%;right:3vw;}\
-#measure_container>div{position:fixed;height:1vh;width:1vw;right:3vw;background:#ff0000;border-radius:1vw;}\
+#measure_container>div{position:fixed;height:1vh;width:1vw;right:2.5vw;border-radius:1vw;}\
 ";
         direction_default.injectStyle = "body{width:100vw;padding-bottom:3vh;}";
 
