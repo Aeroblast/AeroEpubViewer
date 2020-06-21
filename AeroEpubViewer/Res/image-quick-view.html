@@ -31,16 +31,50 @@
 
             .item > div {
             }
+
+        .size_msg {
+            display: inline;
+        }
     </style>
 </head>
 <body>
     <div id='context_menu'>
 
     </div>
-    <div>{0}</div>
+    <div>Hide Small Image<input id="hide_small_input" type="checkbox" onchange="ApplyHide()" checked /> </div>
+    <div id="img_list">{0}</div>
     <script>
         function Direct(href, selector) {
             eval("PD.Link('" + href + "','" + selector + "');PD.CloseSpFrame();PD.MenuClose();PD.defaultView.focus()");
+        }
+        const img_list = document.getElementById("img_list");
+        const filterW = 500;
+        const filterH = 500;
+        [].forEach.call(img_list.children, function (item) {
+            let img = item.getElementsByTagName("img")[0];
+            let div = document.createElement("div");
+            div.className = "size_msg";
+            img.parentNode.appendChild(div);
+            img.onload = function () {
+                let w = img.naturalWidth;
+                let h = img.naturalHeight;
+                let msg = "W:" + w + " H:" + h;
+                div.innerHTML = msg;
+                if (w < filterW || h < filterH) {
+                    item.setAttribute("small", "");
+                }
+            }
+        });
+        const hideSmallStyle = document.createElement("style");
+        hideSmallStyle.innerHTML = "[small]{display:none}";
+        const hideSmallInput = document.getElementById("hide_small_input");
+        document.head.appendChild(hideSmallStyle);
+        function ApplyHide() {
+            if (hideSmallInput.checked) {
+                document.head.appendChild(hideSmallStyle);
+            } else {
+                document.head.removeChild(hideSmallStyle);
+            }
         }
     </script>
     <script src="aeroepub://viewer/sp-page.js"></script>
