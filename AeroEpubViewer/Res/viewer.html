@@ -619,6 +619,9 @@ transform: rotate(90deg);\
         ///↓Nav///
         document.Link = Link;
         function Link(url, _selector = null) {
+            if (url.startsWith("http://") || url.startsWith("https://")) {
+                AppCall("aeroepub://app/External/"+encodeURIComponent(url));
+            }
             let fullurl = url;
             if (fullurl.indexOf("/../") > 0) {
                 let i = fullurl.indexOf("/../");

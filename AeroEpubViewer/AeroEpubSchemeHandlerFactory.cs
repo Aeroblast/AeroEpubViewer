@@ -137,7 +137,9 @@ namespace AeroEpubViewer
                                 return ResourceHandler.FromString(UserSettings.userBookCssContent_rtl, null, true, "text/css");
                             case "UserBookCssLtr":
                                 return ResourceHandler.FromString(UserSettings.userBookCssContent_ltr, null, true, "text/css");
-
+                            case "External":
+                                System.Diagnostics.Process.Start("explorer.exe", Uri.UnescapeDataString(args[1]));
+                                return ResourceHandler.FromString("OK");
                         }
 
 
