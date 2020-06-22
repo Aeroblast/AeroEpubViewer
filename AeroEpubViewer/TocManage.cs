@@ -153,7 +153,7 @@ namespace AeroEpubViewer
                 if (index >= 0)
                 {
                     if (plain[index] == null)
-                        plain[index] = intro+i.name;
+                        plain[index] = intro + i.name;
                 }
                 if (i.children != null)
                     GetPlainStructHelper(urls, i, ref plain, intro + i.name + " > ");
@@ -198,8 +198,13 @@ namespace AeroEpubViewer
     {
         public List<TocItem> children;
         public TocItem parent;
-        public string name = "";
-        public string _url;
+        string _name = "";
+        public string name
+        {
+            get { return _name; }
+            set { _name = Util.Trim(value); }
+        }
+        string _url;
         public string url
         {
             set
