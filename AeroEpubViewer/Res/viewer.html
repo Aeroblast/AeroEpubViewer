@@ -668,7 +668,7 @@ transform: rotate(90deg);\
 
             page.scrolling = "no";
             page.frameBorder = "0";
-            page.src = urlList[urlIndex];
+            page.src = urlList[urlIndex]+"?page";
             direction.SetPosStyle(page);
             page.onload = function () {
                 direction.AdjustFrameSize(page);
@@ -677,7 +677,7 @@ transform: rotate(90deg);\
                 if (direction == direction_rtl && wm != "vertical-rl") {
                     if (page.offsetHeight < page.contentDocument.documentElement.scrollHeight) {
                         console.log("Need Pagebreak");
-                        PageBreak_Rtl(page, page.contentDocument.documentElement.scrollHeight);
+                        //PageBreak_Rtl(page, page.contentDocument.documentElement.scrollHeight);
                     }
 
                 }

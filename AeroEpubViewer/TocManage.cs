@@ -66,7 +66,8 @@ namespace AeroEpubViewer
             tocPath = f.fullName;
             XmlDocument xml = new XmlDocument();
             xml.LoadXml(f.text);
-            foreach (XmlElement nav in xml.GetElementsByTagName("nav"))
+            var navs = xml.GetElementsByTagName("nav");
+            foreach (XmlElement nav in navs)
             {
                 if (nav.GetAttribute("epub:type") == "toc")
                 {
@@ -74,8 +75,16 @@ namespace AeroEpubViewer
                     tocTree.children = new List<TocItem>();
                     var root = nav.GetElementsByTagName("ol")[0];
                     Parse3Helper(root, tocTree);
-                    break;
+                    return;
                 }
+            }
+            //We have <nav>, but no epub:type is toc, so last try:
+            if (navs.Count > 0) {
+                var nav = navs[0] as XmlElement;
+                tocTree = new TocItem();
+                tocTree.children = new List<TocItem>();
+                var root = nav.GetElementsByTagName("ol")[0];
+                Parse3Helper(root, tocTree);
             }
         }
         static void Parse3Helper(XmlNode px, TocItem pt)

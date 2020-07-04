@@ -38,28 +38,27 @@ namespace AeroEpubViewer
                         ManifestItem i = Program.epub.GetItem(epubItemPath);
                         if (i != null)
                         {
-                            //To-do:注入样式，js
-                            if (i.href.EndsWith("html"))
+                            if (i.mediaType== "application/xhtml+xml")
                             {
                                 string content = (i.GetFile() as TextEpubItemFile).text;
                                 content = HtmlHack.Hack(content);
                                 return ResourceHandler.FromString(content);
                             }
-                            if (i.href.EndsWith("css"))
+                            if (i.mediaType== "text/css")
                             {
                                 //html里的其实也应该处理……
                                 string content = (i.GetFile() as TextEpubItemFile).text;
                                 content = CssHack.Hack(content);
                                 return ResourceHandler.FromString(content, null, true, i.mediaType);
                             }
-                            if (uri.Query.Contains("warm"))
-                            {
-                                if (!i.mediaType.Contains("image")) throw new Exception("Should be image.");
-
-                                var d = ImageHack.Warmer(i.GetFile().GetBytes());
-                                return ResourceHandler.FromByteArray(d, "image/bmp");
-
-
+                            if (i.mediaType.StartsWith("image")) {
+                                if (uri.Query.Contains("warm")) {
+                                    var d = ImageHack.Warmer(i.GetFile().GetBytes());
+                                    return ResourceHandler.FromByteArray(d, "image/bmp");
+                                }
+                                if (uri.Query.Contains("page")) {
+                                    return ResourceHandler.FromString($"<html><head><link href=\"aeroepub://viewer/viewer-inject.css\" rel=\"stylesheet\" type=\"text/css\"/></head><body><img src={("aeroepub://book" + uri.AbsolutePath)}><script src=\"aeroepub://viewer/viewer-inject.js\"></script></body></html>");
+                                }
                             }
                             return ResourceHandler.FromByteArray(i.GetFile().GetBytes(), i.mediaType);
                         }

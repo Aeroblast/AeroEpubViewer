@@ -75,7 +75,17 @@ namespace AeroEpubViewer
             {
                 if (!i.linear) continue;
                 initCmd += string.Format(",'{0}'", "aeroepub://book/" + i.ToString());
-                int l = (i.item.GetFile() as TextEpubItemFile).text.Length;
+                int l;
+                if (i.item.mediaType== "application/xhtml+xml")
+                {
+                    l = (i.item.GetFile() as TextEpubItemFile).text.Length;
+                }
+                else if (i.item.mediaType.Contains("image")) { l = 10; }
+                else
+                {
+                    throw new Exception("Cannot Handle type in spine:" + i.item.mediaType);
+                }
+
                 lengthDataCmd += "," + l;
             }
             lengthDataCmd = $"LoadScrollBar([{ lengthDataCmd.Substring(1)}],{new TocManager().GetPlainStructJSON()});";

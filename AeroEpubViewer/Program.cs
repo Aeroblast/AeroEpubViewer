@@ -21,32 +21,42 @@ namespace AeroEpubViewer
         [STAThread]
         static void Main(string[] args)
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-
-            if (args.Length > 0)
-                if (File.Exists(args[0]))
-                {
-                    ReadBook(args[0]);
-                }
-                else { MessageBox.Show("文件不存在:" + args[0]); }
-            else
-            {
-                OpenFileDialog dialog = new OpenFileDialog();
-                dialog.Multiselect = false;
-                dialog.Title = "请选择书";
-                dialog.Filter = "ePUB电子书(*.epub)|*.epub";
-                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    ReadBook(dialog.FileName);
-                }
-            }
+#if !DEBUG
             try
             {
-                Util.DeleteDir(cachePath);
-            }
-            catch (Exception) { }
+#endif
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
 
+                if (args.Length > 0)
+                    if (File.Exists(args[0]))
+                    {
+                        ReadBook(args[0]);
+                    }
+                    else { MessageBox.Show("文件不存在:" + args[0]); }
+                else
+                {
+                    OpenFileDialog dialog = new OpenFileDialog();
+                    dialog.Multiselect = false;
+                    dialog.Title = "请选择书";
+                    dialog.Filter = "ePUB电子书(*.epub)|*.epub";
+                    if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                    {
+                        ReadBook(dialog.FileName);
+                    }
+                }
+                try
+                {
+                    Util.DeleteDir(cachePath);
+                }
+                catch (Exception) { }
+#if !DEBUG
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.ToString());
+            }
+#endif
         }
         static void ReadBook(string bookPath)
         {
