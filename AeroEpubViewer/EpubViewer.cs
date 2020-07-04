@@ -52,8 +52,8 @@ namespace AeroEpubViewer
 
             refreshForm = new RefreshForm(() =>
             {
-                Hide();
-                Show();
+                Activate();
+                Focus();
             });
             Invoke(refreshForm);
         }
