@@ -5,6 +5,10 @@ window.onmousewheel = function (e) {
 document.addEventListener("keydown", function (e) { PD.keydown(e); });
 document.addEventListener('contextmenu', event => event.preventDefault());
 
+[].forEach.call(document.body.querySelectorAll('[href]'), function (a) {
+    a.onclick = function () { Href(a); event.stopPropagation(); return false; }
+});
+
 var selectionFlag = false;
 document.body.onmouseup = function (e) {
     if (e.button == 0)//left click
@@ -37,7 +41,7 @@ document.body.onmouseup = function (e) {
 
 };
 var fontSizeStyle = document.createElement("style");
-fontSizeStyle.innerHTML = "body{font-size:" + PD.userSettings.bookFontSize + "px}";
+fontSizeStyle.innerHTML = "html{font-size:" + PD.userSettings.bookFontSize + "px}";
 document.head.appendChild(fontSizeStyle);
 var style = document.createElement("style");
 style.innerHTML = PD.direction.injectStyle;
