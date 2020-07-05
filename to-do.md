@@ -4,3 +4,4 @@
 | 实现Rendition | 好像还行 | 有空 | 根据spine里rendition决定页之间的缝隙 |
 | Text-to-speech | ? | ? | - |
 | 改进搜索 | Easy | 懒 | 平假/片假模糊；改进预览 |
+| 图片查看器 | Easy | 麻烦 | 弹窗放大看 |
