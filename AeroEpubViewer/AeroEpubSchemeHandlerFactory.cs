@@ -20,7 +20,7 @@ namespace AeroEpubViewer
         public const string SchemeName = "aeroepub";
         Assembly assembly = Assembly.GetExecutingAssembly();
 
-
+        string imagePageSizeAttribute;
         public IResourceHandler Create(IBrowser browser, IFrame frame, string schemeName, IRequest request)
         {
             var uri = new Uri(request.Url);
@@ -61,7 +61,14 @@ namespace AeroEpubViewer
                                 }
                                 if (uri.Query.Contains("page"))
                                 {
-                                    return ResourceHandler.FromString($"<html><head><link href=\"aeroepub://viewer/viewer-inject.css\" rel=\"stylesheet\" type=\"text/css\"/></head><body><img src={("aeroepub://book" + uri.AbsolutePath)}><script src=\"aeroepub://viewer/viewer-inject.js\"></script></body></html>");
+                                    if (imagePageSizeAttribute == null)
+                                    {
+                                        if (Program.epub.spine.pageProgressionDirection == "rtl") 
+                                        { imagePageSizeAttribute = "height=\"100%\""; }
+                                        else 
+                                        { imagePageSizeAttribute = "width=\"100%\""; }
+                                    }
+                                    return ResourceHandler.FromString($"<html><head><link href=\"aeroepub://viewer/viewer-inject.css\" rel=\"stylesheet\" type=\"text/css\"/></head><body><img {imagePageSizeAttribute} src={("aeroepub://book" + uri.AbsolutePath)}><script src=\"aeroepub://viewer/viewer-inject.js\"></script></body></html>");
                                 }
                             }
                             return ResourceHandler.FromByteArray(i.GetFile().GetBytes(), i.mediaType);
