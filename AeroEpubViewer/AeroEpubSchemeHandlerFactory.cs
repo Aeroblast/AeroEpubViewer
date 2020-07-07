@@ -38,25 +38,29 @@ namespace AeroEpubViewer
                         ManifestItem i = Program.epub.GetItem(epubItemPath);
                         if (i != null)
                         {
-                            if (i.mediaType== "application/xhtml+xml")
+                            if (i.mediaType == "application/xhtml+xml")
                             {
                                 string content = (i.GetFile() as TextEpubItemFile).text;
                                 content = HtmlHack.Hack(content);
                                 return ResourceHandler.FromString(content);
                             }
-                            if (i.mediaType== "text/css")
+                            if (i.mediaType == "text/css")
                             {
                                 //html里的其实也应该处理……
                                 string content = (i.GetFile() as TextEpubItemFile).text;
                                 content = CssHack.Hack(content);
                                 return ResourceHandler.FromString(content, null, true, i.mediaType);
                             }
-                            if (i.mediaType.StartsWith("image")) {
-                                if (uri.Query.Contains("warm")) {
+                            if (i.mediaType.StartsWith("image"))
+                            {
+                                if (uri.Query.Contains("warm"))
+                                {
+                                    if (i.mediaType == "image/webp") { return ResourceHandler.FromByteArray(i.GetFile().GetBytes(), i.mediaType); }
                                     var d = ImageHack.Warmer(i.GetFile().GetBytes());
                                     return ResourceHandler.FromByteArray(d, "image/bmp");
                                 }
-                                if (uri.Query.Contains("page")) {
+                                if (uri.Query.Contains("page"))
+                                {
                                     return ResourceHandler.FromString($"<html><head><link href=\"aeroepub://viewer/viewer-inject.css\" rel=\"stylesheet\" type=\"text/css\"/></head><body><img src={("aeroepub://book" + uri.AbsolutePath)}><script src=\"aeroepub://viewer/viewer-inject.js\"></script></body></html>");
                                 }
                             }
@@ -131,7 +135,7 @@ namespace AeroEpubViewer
                                 }
                                 return ResourceHandler.FromString("OK");
                             case "UserBookCss":
-                                return ResourceHandler.FromString(UserSettings.userBookCssContent,null,true,"text/css");
+                                return ResourceHandler.FromString(UserSettings.userBookCssContent, null, true, "text/css");
                             case "UserBookCssRtl":
                                 return ResourceHandler.FromString(UserSettings.userBookCssContent_rtl, null, true, "text/css");
                             case "UserBookCssLtr":

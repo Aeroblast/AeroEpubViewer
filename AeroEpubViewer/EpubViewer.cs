@@ -43,6 +43,14 @@ namespace AeroEpubViewer
                 chromium.Reload(true); chromium.LoadingStateChanged += SendDataWhenLoad;
                 ResizeManage.lastSize = Size;
             };
+            Resize += (e, arg) =>
+            {
+                if (WindowState == FormWindowState.Maximized)
+                {
+                    chromium.Reload(true); chromium.LoadingStateChanged += SendDataWhenLoad;
+                    ResizeManage.lastSize = Size;
+                }
+            };
             InitializeComponent();
             this.Text = string.Format("AeroEpubViewer - {0}", Program.epub.title);
         }
@@ -76,7 +84,7 @@ namespace AeroEpubViewer
                 if (!i.linear) continue;
                 initCmd += string.Format(",'{0}'", "aeroepub://book/" + i.ToString());
                 int l;
-                if (i.item.mediaType== "application/xhtml+xml")
+                if (i.item.mediaType == "application/xhtml+xml")
                 {
                     l = (i.item.GetFile() as TextEpubItemFile).text.Length;
                 }
