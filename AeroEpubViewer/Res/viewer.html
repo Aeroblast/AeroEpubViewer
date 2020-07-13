@@ -15,11 +15,13 @@
         #menu {
             position: fixed;
             width: 100%;
-            height: 0vh;
+            height: 10vh;
             left: 0;
-            top: 0;
+            top: -10vh;
             z-index: 20;
             overflow: hidden;
+            opacity: 0;
+            box-shadow: 0 0 1vh 0.5vh #808080;
         }
 
             #menu > div {
@@ -55,14 +57,16 @@
         #nav {
             position: fixed;
             height: 0vh;
+            max-width: 70vw;
             left: 0;
             top: 0;
             z-index: 10;
-            opacity:0;
+            opacity: 0;
             overflow: hidden;
             padding-left: 2vw;
             padding-right: 2vw;
-            padding-top:10vh;
+            padding-top: 0; /*10vh moved to animation, to prevent closed nav still block over other content*/
+            box-shadow: 0 0 1vh 0.5vh #808080;
         }
 
         li {
@@ -136,42 +140,55 @@
         }
 
         @keyframes navDisplay {
-            from {
+            0% {
                 height: 0vh;
                 overflow: hidden;
                 opacity: 0;
+                padding-top: 0;
             }
 
-            to {
+            1% {
+                opacity: 0;
+                padding-top: 10vh;
+            }
+
+            100% {
                 height: 89vh;
                 overflow: scroll;
                 opacity: 1;
+                padding-top: 10vh;
             }
         }
 
         @keyframes navHide {
 
-            from {
+            0% {
                 height: 89vh;
                 overflow: scroll;
                 opacity: 1;
+                padding-top: 10vh;
             }
 
-            to {
+            99% {
+                opacity: 0;
+                padding-top: 10vh;
+            }
+
+            100% {
                 height: 0vh;
                 overflow: hidden;
-                opacity: 0;
+                padding-top: 0;
             }
         }
 
         @keyframes menuDisplay {
             from {
-                height: 0vh;
+                top: -10vh;
                 opacity: 0;
             }
 
             to {
-                height: 10vh;
+                top: 0vh;
                 opacity: 1;
             }
         }
@@ -179,12 +196,12 @@
         @keyframes menuHide {
 
             from {
-                height: 10vh;
+                top: 0vh;
                 opacity: 1;
             }
 
             to {
-                height: 0vh;
+                top: -10vh;
                 opacity: 0;
             }
         }
@@ -354,6 +371,7 @@ transform-origin: 50vw; transform: rotate(180deg); \
 .scrollBarChapterName{margin-top:-1.5em;}\
 #measure_container{position:fixed;width:100%;height:1vh;left:0;bottom:6.5vh;}\
 #measure_container>div{position:fixed;height:1vh;width:1vh;bottom:6vh;border-radius:0.3vh;}\
+.scrollBarChapterName{box-shadow: -0.1em -0.1em 0.3em -0.1em #808080;}\
 ";
         direction_rtl.injectStyle = "body{height:100vh;min-width:66vh;}";
         var direction_default = new Object();
@@ -390,6 +408,7 @@ transform: rotate(90deg);\
 .scrollBarChapterName{margin-left:-10em;width:10em;white-space:normal}\
 #measure_container{position:fixed;width:1vw;height:100%;right:3vw;}\
 #measure_container>div{position:fixed;height:1vh;width:1vw;right:2.5vw;border-radius:1vw;}\
+ .scrollBarChapterName{box-shadow: -0.1em 0.1em 0.3em -0.1em #808080;}\
 ";
         direction_default.injectStyle = "body{width:100vw;padding-bottom:3vh;}";
 
@@ -617,7 +636,7 @@ transform: rotate(90deg);\
         document.Link = Link;
         function Link(url, _selector = null) {
             if (url.startsWith("http://") || url.startsWith("https://")) {
-                AppCall("aeroepub://app/External/"+encodeURIComponent(url));
+                AppCall("aeroepub://app/External/" + encodeURIComponent(url));
             }
             let fullurl = url;
             if (fullurl.indexOf("/../") > 0) {
@@ -665,7 +684,7 @@ transform: rotate(90deg);\
 
             page.scrolling = "no";
             page.frameBorder = "0";
-            page.src = urlList[urlIndex]+"?page";
+            page.src = urlList[urlIndex] + "?page";
             direction.SetPosStyle(page);
             page.onload = function () {
                 direction.AdjustFrameSize(page);
@@ -838,9 +857,11 @@ transform: rotate(90deg);\
 
         };
         document.MenuClose = function () {
-            document.menuOn = false;
-            menu.style.animation = "menuHide 0.5s ease 0s 1 ";
-            menu.style.animationFillMode = "forwards";
+            if (document.menuOn) {
+                document.menuOn = false;
+                menu.style.animation = "menuHide 0.5s ease 0s 1 ";
+                menu.style.animationFillMode = "forwards";
+            }
             if (document.navOn) { NavSwitch(); }
         };
         document.MenuOpen = function () {
