@@ -55,6 +55,7 @@ namespace AeroEpubViewer
                 }
             }
         }
+        //http://idpf.org/epub/30/spec/epub30-contentdocs.html#sec-xhtml-nav-def-model
         public static void Parse3()
         {
             if (Program.epub.toc.mediaType == "application/x-dtbncx+xml")
@@ -79,7 +80,8 @@ namespace AeroEpubViewer
                 }
             }
             //We have <nav>, but no epub:type is toc, so last try:
-            if (navs.Count > 0) {
+            if (navs.Count > 0)
+            {
                 var nav = navs[0] as XmlElement;
                 tocTree = new TocItem();
                 tocTree.children = new List<TocItem>();
@@ -99,6 +101,11 @@ namespace AeroEpubViewer
                         {
                             node.name = a.InnerText;
                             node.url = Util.ReferPath(tocPath, ((XmlElement)a).GetAttribute("href"));
+                            continue;
+                        }
+                        if (a.Name == "span" && node.name == "")
+                        {
+                            node.name = a.InnerText;
                             continue;
                         }
                         if (a.Name == "ol")
@@ -157,12 +164,15 @@ namespace AeroEpubViewer
         {
             foreach (TocItem i in p.children)
             {
-                string u = i.url.Split('#')[0];
-                int index = urls.IndexOf(u);
-                if (index >= 0)
+                if (i.url != null)
                 {
-                    if (plain[index] == null)
-                        plain[index] = intro + i.name;
+                    string u = i.url.Split('#')[0];
+                    int index = urls.IndexOf(u);
+                    if (index >= 0)
+                    {
+                        if (plain[index] == null)
+                            plain[index] = intro + i.name;
+                    }
                 }
                 if (i.children != null)
                     GetPlainStructHelper(urls, i, ref plain, intro + i.name + " > ");
