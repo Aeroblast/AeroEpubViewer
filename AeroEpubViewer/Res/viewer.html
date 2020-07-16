@@ -67,6 +67,7 @@
             padding-right: 2vw;
             padding-top: 0; /*10vh moved to animation, to prevent closed nav still block over other content*/
             box-shadow: 0 0 1vh 0.5vh #808080;
+            border-bottom-right-radius: 0.3em;
         }
 
         li {
@@ -149,14 +150,14 @@
 
             1% {
                 opacity: 0;
-                padding-top: 10vh;
+                padding-top: 11vh;
             }
 
             100% {
                 height: 89vh;
                 overflow: scroll;
                 opacity: 1;
-                padding-top: 10vh;
+                padding-top: 11vh;
             }
         }
 
@@ -166,12 +167,12 @@
                 height: 89vh;
                 overflow: scroll;
                 opacity: 1;
-                padding-top: 10vh;
+                padding-top: 11vh;
             }
 
             99% {
                 opacity: 0;
-                padding-top: 10vh;
+                padding-top: 11vh;
             }
 
             100% {
@@ -371,7 +372,7 @@ transform-origin: 50vw; transform: rotate(180deg); \
 .scrollBarChapterName{margin-top:-1.5em;}\
 #measure_container{position:fixed;width:100%;height:1vh;left:0;bottom:6.5vh;}\
 #measure_container>div{position:fixed;height:1vh;width:1vh;bottom:6vh;border-radius:0.3vh;}\
-.scrollBarChapterName{box-shadow: -0.1em -0.1em 0.3em -0.1em #808080;}\
+.scrollBarChapterName{box-shadow: -0.1em -0.1em 0.3em -0.1em #808080, 0.05em -0.1em 0.3em -0.1em #808080;width: auto;display: inline-block;padding-left:0 0.2em 0 0.2em;}\
 ";
         direction_rtl.injectStyle = "body{height:100vh;min-width:66vh;}";
         var direction_default = new Object();
