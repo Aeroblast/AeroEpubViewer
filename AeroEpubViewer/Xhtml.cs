@@ -14,6 +14,7 @@ namespace AeroEpubViewer
     {
         public static XmlDocument Load(string xhtml)
         {
+            xhtml = xhtml.Replace("<!DOCTYPE html>", "<!DOCTYPE html PUBLIC \" -//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">");
             XmlDocument d = new XmlDocument();
             using (var rdr = new XmlTextReader(new StringReader(xhtml)))
             {
