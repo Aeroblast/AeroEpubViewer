@@ -56,14 +56,23 @@ namespace AeroEpubViewer
                                 //Image warm color process
                                 if (uri.Query.Contains("warm"))
                                 {
-                                    var d = ImageHack.Warmer(i.GetFile().GetBytes());
-                                    if (d != null)
-                                        return ResourceHandler.FromByteArray(d, "image/bmp");
-                                    else
+                                    switch (i.mediaType)
                                     {
-                                        return ResourceHandler.FromByteArray(i.GetFile().GetBytes(), i.mediaType);
+                                        case "image/heic":
+                                        case "image/webp":
+                                            byte[] imageData = i.GetFile().GetBytes();
+                                            var decoded = ImageHack.TryDecode(imageData);
+                                            if (decoded != null)
+                                            {
+                                                return ResourceHandler.FromByteArray(ImageHack.Warmer(decoded), "image/bmp");
+                                            }
+                                            else//local decoder not found 
+                                            {
+                                                return ResourceHandler.FromByteArray(imageData, i.mediaType);
+                                            }
+                                        default:
+                                            return ResourceHandler.FromByteArray(ImageHack.Warmer(i.GetFile().GetBytes()), "image/bmp");
                                     }
-
                                 }
                                 //do not return image but  a html page 
                                 if (uri.Query.Contains("page"))

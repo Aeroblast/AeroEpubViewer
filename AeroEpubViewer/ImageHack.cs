@@ -38,9 +38,7 @@ namespace AeroEpubViewer
         public static byte[] Warmer(byte[] data)
         {
             if (!prepared) PrepareWarmer();
-            var decoded=TryDecode(data);
-            if (decoded == null) return null;
-            using (Bitmap b = new Bitmap(new MemoryStream(decoded)))
+            using (Bitmap b = new Bitmap(new MemoryStream(data)))
             using (Bitmap r = new Bitmap(b.Width, b.Height, PixelFormat.Format32bppArgb))
             using (Graphics g = Graphics.FromImage(r))
             {
@@ -60,6 +58,7 @@ namespace AeroEpubViewer
                 var encoder = new BmpBitmapEncoder();
                 encoder.Frames.Add(t.Frames[0]);
                 encoder.Save(output);
+              
                 return output.ToArray();
             }
             catch (NotSupportedException) {
