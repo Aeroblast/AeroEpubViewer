@@ -76,7 +76,8 @@ namespace AeroEpubViewer
                 if (!a.linear) continue;
                 currentHref = a.href;
                 var text = (a.item.GetFile() as TextEpubItemFile).text;
-                SearchDoc(text);
+                if (text != null)
+                    SearchDoc(text);
             }
             end = true;
         }

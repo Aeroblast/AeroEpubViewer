@@ -21,7 +21,9 @@ namespace AeroEpubViewer
             int i = 0;
             foreach (SpineItemref a in Program.epub.spine)
             {
-                var text = (a.item.GetFile() as TextEpubItemFile).text;
+                var item = a.item.GetFile() as TextEpubItemFile;
+                if (item == null) continue;
+                var text = item.text;
                 var xml = Xhtml.Load(text);
                 var rs = xml.GetElementsByTagName("img");
                 var rs2 = xml.GetElementsByTagName("image");//svg
