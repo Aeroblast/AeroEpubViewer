@@ -22,7 +22,7 @@ namespace AeroEpubViewer
         public EpubViewer()
         {
             chromium = new ChromiumWebBrowser("aeroepub://viewer/viewer.html");
-            chromium.BrowserSettings.WebSecurity = CefState.Disabled; ;
+            chromium.BrowserSettings.WebSecurity = CefState.Disabled; 
             Controls.Add(chromium);
             chromium.Dock = DockStyle.Fill;
             chromium.IsBrowserInitializedChanged += OnLoad;
