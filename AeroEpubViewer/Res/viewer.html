@@ -457,7 +457,7 @@ transform: rotate(90deg);\
                     case "PageDown": LongScroll(-0.8 * direction.GetWindowLength()); break;
                     case "PageUp": LongScroll(0.8 * direction.GetWindowLength()); break;
                     case "Home": DirectToIndex(GetCurrentChapterStartIndex()); break;
-                    case "End": DirectToIndex(GetNextChapterStartIndex()); Scroll(-direction.GetWindowLength()); break;
+                    case "End": DirectToIndex(GetNextChapterStartIndex()); break;
                     case "ArrowDown":
                     case "ArrowLeft":
                     case "ArrowRight":
@@ -978,10 +978,11 @@ transform: rotate(90deg);\
         }
         function GetNextChapterStartIndex() {
             let i = currentFrame.urlIndex + 1;
-            do {
+            while (i < contentChapterData.length - 1)
+            {
                 if (contentChapterData[i] != "") break;
                 i++;
-            } while (i < contentChapterData.length - 1);
+            }
             return i;
         }
         ///////menu
