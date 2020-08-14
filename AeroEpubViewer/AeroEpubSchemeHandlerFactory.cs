@@ -53,25 +53,52 @@ namespace AeroEpubViewer
                             }
                             if (i.mediaType.StartsWith("image"))
                             {
+                                //Image warm color process
                                 if (uri.Query.Contains("warm"))
                                 {
-                                    if (i.mediaType == "image/webp") { return ResourceHandler.FromByteArray(i.GetFile().GetBytes(), i.mediaType); }
                                     var d = ImageHack.Warmer(i.GetFile().GetBytes());
-                                    return ResourceHandler.FromByteArray(d, "image/bmp");
+                                    if (d != null)
+                                        return ResourceHandler.FromByteArray(d, "image/bmp");
+                                    else
+                                    {
+                                        return ResourceHandler.FromByteArray(i.GetFile().GetBytes(), i.mediaType);
+                                    }
+
                                 }
+                                //do not return image but  a html page 
                                 if (uri.Query.Contains("page"))
                                 {
                                     if (imagePageSizeAttribute == null)
                                     {
-                                        if (Program.epub.spine.pageProgressionDirection == "rtl") 
+                                        if (Program.epub.spine.pageProgressionDirection == "rtl")
                                         { imagePageSizeAttribute = "height=\"100%\""; }
-                                        else 
+                                        else
                                         { imagePageSizeAttribute = "width=\"100%\""; }
                                     }
                                     return ResourceHandler.FromString($"<html><head><link href=\"aeroepub://viewer/viewer-inject.css\" rel=\"stylesheet\" type=\"text/css\"/></head><body><img {imagePageSizeAttribute} src={("aeroepub://book" + uri.AbsolutePath)}><script src=\"aeroepub://viewer/viewer-inject.js\"></script></body></html>");
                                 }
+                                //normally return image data. Decode use system decoder for some format
+                                switch (i.mediaType)
+                                {
+                                    case "image/heic":
+                                        byte[] imageData = i.GetFile().GetBytes();
+                                        var decoded = ImageHack.TryDecode(imageData);
+                                        if (decoded != null)
+                                        {
+                                            return ResourceHandler.FromByteArray(decoded, "image/bmp");
+                                        }
+                                        else//local decoder not found 
+                                        {
+                                            return ResourceHandler.FromByteArray(imageData, i.mediaType);
+                                        }
+                                    default:
+                                        return ResourceHandler.FromByteArray(i.GetFile().GetBytes(), i.mediaType);
+
+                                }
+
                             }
                             return ResourceHandler.FromByteArray(i.GetFile().GetBytes(), i.mediaType);
+
                         }
                         else
                         {
