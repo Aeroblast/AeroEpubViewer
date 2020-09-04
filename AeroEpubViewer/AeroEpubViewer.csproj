@@ -118,7 +118,6 @@
     <Compile Include="UserSettings.cs" />
     <Compile Include="Utils\Log.cs" />
     <Compile Include="Utils\Util.cs" />
-    <Compile Include="Utils\UtilXML.cs" />
     <Compile Include="Xhtml.cs" />
     <EmbeddedResource Include="EpubViewer.resx">
       <DependentUpon>EpubViewer.cs</DependentUpon>

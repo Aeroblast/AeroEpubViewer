@@ -65,7 +65,7 @@ namespace AeroEpubViewer
                 }
                 if (n.NodeType == XmlNodeType.Element) elementCount++;
             }
-            throw new XMLException("Parent Node??");
+            throw new Exception("Parent Node??");
         }
 
         public string ToJSON()

@@ -5,6 +5,7 @@ using System.Collections;
 using System.IO.Compression;
 using System.Text.RegularExpressions;
 using System.Text;
+using System.Xml;
 namespace AeroEpubViewer.Epub
 {
     public class EpubFile
@@ -12,22 +13,37 @@ namespace AeroEpubViewer.Epub
         public string filename;
         public string path;
         public List<EpubItemFile> items;
-        TextEpubItemFile _OPF = null;
-        public TextEpubItemFile OPF
+        TextEpubItemFile _packageFile = null;
+        XmlDocument _packageDocument = null;
+        public TextEpubItemFile packageFile
         {
             get
             {
-                if (_OPF == null)
+                if (_packageFile == null)
                 {
                     TextEpubItemFile i = GetFile<TextEpubItemFile>("META-INF/container.xml");
+                    XmlDocument container = new XmlDocument();
+                    container.LoadXml(i.text);
                     if (i == null) { throw new EpubErrorException("Cannot find META-INF/container.xml"); }
-                    Regex reg = new Regex("<rootfile .*?>");
-                    XTag tag = XTag.FindTag("rootfile", i.text);
-                    string opf_path = tag.GetAttribute("full-path");
-                    _OPF = GetFile<TextEpubItemFile>(opf_path);
-                    if (_OPF == null) { throw new EpubErrorException("Cannot find opf file"); }
+                    var pathNode = container.GetElementsByTagName("rootfile");
+                    if (pathNode.Count == 0) throw new EpubErrorException("Cannot valid container.xml");
+                    string opf_path = (pathNode[0] as XmlElement).GetAttribute("full-path");
+                    _packageFile = GetFile<TextEpubItemFile>(opf_path);
+                    if (_packageFile == null) { throw new EpubErrorException("Cannot find opf file"); }
                 }
-                return _OPF;
+                return _packageFile;
+            }
+        }
+        XmlDocument packageDocument
+        {
+            get
+            {
+                if (_packageDocument == null)
+                {
+                    _packageDocument = new XmlDocument();
+                    _packageDocument.LoadXml(packageFile.text);
+                }
+                return _packageDocument;
             }
         }
 
@@ -41,16 +57,16 @@ namespace AeroEpubViewer.Epub
             public string value;
             public string id;
             public List<MetaRecord> refines = new List<MetaRecord>();
-            public MetaRecord(XELement e)
+            public MetaRecord(XmlElement e)
             {
-                name = e.tag.tagname;
-                value = e.innerXHTML;
-                id = e.tag.GetAttribute("id");
+                name = e.Name;
+                value = e.InnerText;
+                id = e.GetAttribute("id");
             }
             public MetaRecord() { }
-            public void AddIfExist(XELement e, string property_name)
+            public void AddIfExist(XmlElement e, string property_name)
             {
-                string t = e.tag.GetAttribute(property_name);
+                string t = e.GetAttribute(property_name);
                 if (t != "")
                 {
                     int pre = property_name.IndexOf(':');
@@ -97,8 +113,10 @@ namespace AeroEpubViewer.Epub
         public List<MetaRecord> meta;
         public string cover_img = "";
         ManifestItem _toc;
-        public ManifestItem toc {
-            get {
+        public ManifestItem toc
+        {
+            get
+            {
                 if (_version == null) ReadMeta();
                 return _toc;
             }
@@ -106,7 +124,7 @@ namespace AeroEpubViewer.Epub
 
         public void ReadMeta()
         {
-            var packge_tag = XTag.FindTag("package", OPF.text);
+            var packge_tag = packageDocument.GetElementsByTagName("package")[0] as XmlElement;
             idref = packge_tag.GetAttribute("unique-identifier");
             _version = packge_tag.GetAttribute("version");
             xml_lang = packge_tag.GetAttribute("xml:lang");//bookwalker
@@ -123,14 +141,15 @@ namespace AeroEpubViewer.Epub
             }
 
         }
-
         void ReadMeta2()
         {
-            XFragment f = XFragment.FindFragment("metadata", OPF.text);
-
-            foreach (var e in f.root.childs)
+            var f = packageDocument.GetElementsByTagName("metadata")[0] as XmlElement;
+            foreach (XmlNode node in f.ChildNodes)
             {
-                switch (e.tag.tagname)
+                if (node.NodeType != XmlNodeType.Element) continue;
+                var e = (XmlElement)node;
+                string n = e.Name;
+                switch (n)
                 {
                     case "dc:title":
                         {
@@ -178,8 +197,8 @@ namespace AeroEpubViewer.Epub
                     case "meta":
                         {
                             var t = new MetaRecord();
-                            t.name = e.tag.GetAttribute("name");
-                            t.value = e.tag.GetAttribute("content");
+                            t.name = e.GetAttribute("name");
+                            t.value = e.GetAttribute("content");
                             meta.Add(t);
                         }
                         break;
@@ -207,13 +226,15 @@ namespace AeroEpubViewer.Epub
         }
         void ReadMeta3()
         {
-            XFragment f = XFragment.FindFragment("metadata", OPF.text);
+            var f = packageDocument.GetElementsByTagName("metadata")[0] as XmlElement;
             List<MetaRecord> primary = new List<MetaRecord>();
-            foreach (var e in f.root.childs)
+            foreach (XmlNode node in f.ChildNodes)
             {
-                switch (e.tag.tagname)
+                if (node.NodeType != XmlNodeType.Element) continue;
+                var e = (XmlElement)node;
+                string n = e.Name;
+                switch (n)
                 {
-
                     case "dc:language":
                     case "dc:identifier":
                         {
@@ -223,23 +244,23 @@ namespace AeroEpubViewer.Epub
                         break;
                     case "meta":
                         {
-                            string name = e.tag.GetAttribute("name");
+                            string name = e.GetAttribute("name");
                             if (name != "")
                             {
                                 var t = new MetaRecord();
                                 t.name = name;
-                                t.value = e.tag.GetAttribute("content");
+                                t.value = e.GetAttribute("content");
                                 meta.Add(t);
                                 continue;
                             }
-                            string refines = e.tag.GetAttribute("refines");
+                            string refines = e.GetAttribute("refines");
                             if (refines != "")
                             {
                                 if (refines.StartsWith("#") && refines.Length > 1)
                                 {
                                     string id = refines.Substring(1);
                                     var t = new MetaRecord(e);
-                                    t.name = e.tag.GetAttribute("property");
+                                    t.name = e.GetAttribute("property");
                                     t.AddIfExist(e, "scheme");
                                     foreach (var r in primary)
                                     { //要是refine在primary前面我可不管……
@@ -252,7 +273,7 @@ namespace AeroEpubViewer.Epub
                                     continue;
                                 }
                             }
-                            string property = e.tag.GetAttribute("property");
+                            string property = e.GetAttribute("property");
                             if (property != "")
                             {
                                 var t = new MetaRecord(e);
@@ -321,12 +342,13 @@ namespace AeroEpubViewer.Epub
 
         void ReadSpine()
         {
-
-            XFragment f = XFragment.FindFragment("manifest", OPF.text);
+            var f = packageDocument.GetElementsByTagName("manifest");
             _manifest = new Dictionary<string, ManifestItem>();
-            foreach (var e in f.root.childs)
+            foreach (XmlNode node in f[0].ChildNodes)
             {
-                if (e.tag.tagname != "item") continue;
+                if (node.NodeType != XmlNodeType.Element) continue;
+                var e = (XmlElement)node;
+                if (e.Name != "item") continue;
                 var i = new ManifestItem(e, this);
                 _manifest.Add(i.id, i);
             }
@@ -334,14 +356,13 @@ namespace AeroEpubViewer.Epub
             {
                 if (a.Value.href[0] != '/')
                 {
-                    string dir = Path.GetDirectoryName(OPF.fullName);
+                    string dir = Path.GetDirectoryName(packageFile.fullName);
                     if (dir != "")
-                        a.Value.href = Path.GetDirectoryName(OPF.fullName) + "/" + a.Value.href;
+                        a.Value.href = Path.GetDirectoryName(packageFile.fullName) + "/" + a.Value.href;
                 }
             }
-
-            f = XFragment.FindFragment("spine", OPF.text);
-            _spine = new Spine(f, _manifest);
+            var f2 = packageDocument.GetElementsByTagName("spine")[0] as XmlElement;
+            _spine = new Spine(f2, _manifest);
         }
 
         public void DeleteEmpty()//只查一层……谁家epub也不会套几个文件夹
@@ -475,14 +496,13 @@ namespace AeroEpubViewer.Epub
         public string properties;
         //public string fallback, mediaOverlay;
         EpubFile belongTo;
-        public ManifestItem(XELement e, EpubFile belongTo)
+        public ManifestItem(XmlElement e, EpubFile belongTo)
         {
             this.belongTo = belongTo;
-            XTag tag = e.tag;
-            href = tag.GetAttribute("href");//Will be Add opf path in ReadSpine()
-            id = tag.GetAttribute("id");
-            mediaType = tag.GetAttribute("media-type");
-            properties = tag.GetAttribute("properties");
+            href = e.GetAttribute("href");//Will be Add opf path in ReadSpine()
+            id = e.GetAttribute("id");
+            mediaType = e.GetAttribute("media-type");
+            properties = e.GetAttribute("properties");
         }
         public EpubItemFile GetFile()
         {
@@ -496,18 +516,18 @@ namespace AeroEpubViewer.Epub
         public ManifestItem toc;//For EPUB2
         public string pageProgressionDirection;
         public string id;
-        public Spine(XFragment spine, Dictionary<string, ManifestItem> items)
+        public Spine(XmlElement spine, Dictionary<string, ManifestItem> items)
         {
-            string toc = spine.root.tag.GetAttribute("toc");
-            string id = spine.root.tag.GetAttribute("id");
+            string toc = spine.GetAttribute("toc");
+            string id = spine.GetAttribute("id");
             if (toc != "")
             {
                 this.toc = items[toc];
             }
-            pageProgressionDirection = spine.root.tag.GetAttribute("page-progression-direction");
-            foreach (var e in spine.root.childs)
+            pageProgressionDirection = spine.GetAttribute("page-progression-direction");
+            foreach (XmlElement e in spine.ChildNodes)
             {
-                if (e.tag.tagname != "itemref") continue;
+                if (e.Name != "itemref") continue;
                 this.items.Add(new SpineItemref(e, items));
             }
         }
@@ -533,12 +553,12 @@ namespace AeroEpubViewer.Epub
         public string properties;
         public string id;
         public bool linear = true;
-        public SpineItemref(XELement itemref, Dictionary<string, ManifestItem> items)
+        public SpineItemref(XmlElement itemref, Dictionary<string, ManifestItem> items)
         {
-            this.item = items[itemref.tag.GetAttribute("idref")];
-            properties = itemref.tag.GetAttribute("properties");
-            id = itemref.tag.GetAttribute("id");
-            if (itemref.tag.GetAttribute("linear") == "no") linear = false;
+            this.item = items[itemref.GetAttribute("idref")];
+            properties = itemref.GetAttribute("properties");
+            id = itemref.GetAttribute("id");
+            if (itemref.GetAttribute("linear") == "no") linear = false;
         }
         public string href { get { return item.href; } }
         public override string ToString()
