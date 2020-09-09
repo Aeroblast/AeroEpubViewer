@@ -525,8 +525,10 @@ namespace AeroEpubViewer.Epub
                 this.toc = items[toc];
             }
             pageProgressionDirection = spine.GetAttribute("page-progression-direction");
-            foreach (XmlElement e in spine.ChildNodes)
+            foreach (XmlNode node in spine.ChildNodes)
             {
+                if (node.NodeType != XmlNodeType.Element) continue;
+                var e = node as XmlElement;
                 if (e.Name != "itemref") continue;
                 this.items.Add(new SpineItemref(e, items));
             }
