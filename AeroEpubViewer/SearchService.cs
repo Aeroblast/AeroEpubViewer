@@ -71,11 +71,11 @@ namespace AeroEpubViewer
         public static void SearchWorker()
         {
             end = false;
-            foreach (SpineItemref a in Program.epub.spine)
+            foreach (Itemref a in Program.epub.spine)
             {
                 if (!a.linear) continue;
                 currentHref = a.href;
-                var text = (a.item.GetFile() as TextEpubItemFile).text;
+                var text = (a.item.GetFile() as TextEpubFileEntry).text;
                 if (text != null)
                     SearchDoc(text);
             }

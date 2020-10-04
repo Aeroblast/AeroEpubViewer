@@ -19,9 +19,9 @@ namespace AeroEpubViewer
             string content = new StreamReader(fs).ReadToEnd();
             StringBuilder r = new StringBuilder();
             int i = 0;
-            foreach (SpineItemref a in Program.epub.spine)
+            foreach (Itemref a in Program.epub.spine)
             {
-                var item = a.item.GetFile() as TextEpubItemFile;
+                var item = a.item.GetFile() as TextEpubFileEntry;
                 if (item == null) continue;
                 var text = item.text;
                 var xml = Xhtml.Load(text);

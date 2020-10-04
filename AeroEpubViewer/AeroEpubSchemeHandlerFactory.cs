@@ -35,19 +35,19 @@ namespace AeroEpubViewer
                         }
                         var epubItemPath = uri.AbsolutePath;
                         if (epubItemPath[0] == '/') epubItemPath = epubItemPath.Substring(1);
-                        ManifestItem i = Program.epub.GetItem(epubItemPath);
+                        Item i = Program.epub.GetItem(epubItemPath);
                         if (i != null)
                         {
                             if (i.mediaType == "application/xhtml+xml")
                             {
-                                string content = (i.GetFile() as TextEpubItemFile).text;
+                                string content = (i.GetFile() as TextEpubFileEntry).text;
                                 content = HtmlHack.Hack(content);
                                 return ResourceHandler.FromString(content);
                             }
                             if (i.mediaType == "text/css")
                             {
                                 //html里的其实也应该处理……
-                                string content = (i.GetFile() as TextEpubItemFile).text;
+                                string content = (i.GetFile() as TextEpubFileEntry).text;
                                 content = CssHack.Hack(content);
                                 return ResourceHandler.FromString(content, null, true, i.mediaType);
                             }

@@ -12,24 +12,24 @@ namespace AeroEpubViewer.Epub
     {
         public string filename;
         public string path;
-        public List<EpubItemFile> items;
-        TextEpubItemFile _packageFile = null;
+        public List<EpubFileEntry> items;
+        TextEpubFileEntry _packageFile = null;
         XmlDocument _packageDocument = null;
-        public TextEpubItemFile packageFile
+        public TextEpubFileEntry packageFile
         {
             get
             {
                 if (_packageFile == null)
                 {
-                    TextEpubItemFile i = GetFile<TextEpubItemFile>("META-INF/container.xml");
+                    TextEpubFileEntry i = GetFile<TextEpubFileEntry>("META-INF/container.xml");
                     XmlDocument container = new XmlDocument();
                     container.LoadXml(i.text);
                     if (i == null) { throw new EpubErrorException("Cannot find META-INF/container.xml"); }
                     var pathNode = container.GetElementsByTagName("rootfile");
                     if (pathNode.Count == 0) throw new EpubErrorException("Cannot valid container.xml");
                     string opf_path = (pathNode[0] as XmlElement).GetAttribute("full-path");
-                    _packageFile = GetFile<TextEpubItemFile>(opf_path);
-                    if (_packageFile == null) { throw new EpubErrorException("Cannot find opf file"); }
+                    _packageFile = GetFile<TextEpubFileEntry>(opf_path);
+                    if (_packageFile == null) { throw new EpubErrorException("Cannot find opf file: "+opf_path); }
                 }
                 return _packageFile;
             }
@@ -49,7 +49,6 @@ namespace AeroEpubViewer.Epub
 
         string idref;
         public MetaRecord uniqueIdentifier;
-
 
         public class MetaRecord
         {
@@ -112,8 +111,8 @@ namespace AeroEpubViewer.Epub
         public List<MetaRecord> others;
         public List<MetaRecord> meta;
         public string cover_img = "";
-        ManifestItem _toc;
-        public ManifestItem toc
+        Item _toc;
+        public Item toc
         {
             get
             {
@@ -139,7 +138,6 @@ namespace AeroEpubViewer.Epub
                 case "3.0": ReadMeta3(); break;
                 default: ReadMeta2(); break;
             }
-
         }
         void ReadMeta2()
         {
@@ -321,7 +319,7 @@ namespace AeroEpubViewer.Epub
             //if (dc_titles.Count == 0 || dc_identifier.Count == 0 || dc_language.Count == 0) { throw new EpubErrorException("Lack of some metadata."); }
         }
         Spine _spine;
-        Dictionary<string, ManifestItem> _manifest;
+        Dictionary<string, Item> _manifest;
         public Spine spine
         {
             get
@@ -330,7 +328,7 @@ namespace AeroEpubViewer.Epub
                 return _spine;
             }
         }
-        public Dictionary<string, ManifestItem> manifest
+        public Dictionary<string, Item> manifest
         {
             get
             {
@@ -343,13 +341,13 @@ namespace AeroEpubViewer.Epub
         void ReadSpine()
         {
             var f = packageDocument.GetElementsByTagName("manifest");
-            _manifest = new Dictionary<string, ManifestItem>();
+            _manifest = new Dictionary<string, Item>();
             foreach (XmlNode node in f[0].ChildNodes)
             {
                 if (node.NodeType != XmlNodeType.Element) continue;
                 var e = (XmlElement)node;
                 if (e.Name != "item") continue;
-                var i = new ManifestItem(e, this);
+                var i = new Item(e, this);
                 _manifest.Add(i.id, i);
             }
             foreach (var a in _manifest)
@@ -367,7 +365,7 @@ namespace AeroEpubViewer.Epub
 
         public void DeleteEmpty()//只查一层……谁家epub也不会套几个文件夹
         {
-            List<EpubItemFile> tobedelete = new List<EpubItemFile>();
+            List<EpubFileEntry> tobedelete = new List<EpubFileEntry>();
             foreach (var item in items)
             {
                 if (item.fullName.EndsWith("/"))
@@ -388,19 +386,19 @@ namespace AeroEpubViewer.Epub
             foreach (var a in tobedelete) items.Remove(a);
         }
 
-        public EpubItemFile GetFile(string fullName)
+        public EpubFileEntry GetFile(string fullName)
         {
             foreach (var i in items) if (i.fullName == fullName) return i;
             throw new EpubErrorException("Cannot find file by filename:" + fullName);
         }
-        public T GetFile<T>(string fullName) where T : EpubItemFile
+        public T GetFile<T>(string fullName) where T : EpubFileEntry
         {
-            EpubItemFile r = null;
+            EpubFileEntry r = null;
             foreach (var i in items) if (i.fullName == fullName) r = i;
             if (r == null || r.GetType() != typeof(T)) return null;
             return (T)r;
         }
-        public ManifestItem GetItem(string href)
+        public Item GetItem(string href)
         {
 
             foreach (var i in manifest) if (i.Value.href == href) return i.Value;
@@ -427,7 +425,7 @@ namespace AeroEpubViewer.Epub
         {
             this.path = path;
             filename = Path.GetFileNameWithoutExtension(path);
-            items = new List<EpubItemFile>();
+            items = new List<EpubFileEntry>();
             using (FileStream zipToOpen = new FileStream(path, FileMode.Open))
             {
                 using (ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Read))
@@ -442,7 +440,7 @@ namespace AeroEpubViewer.Epub
                             {
                                 string s = Util.Trim(r.ReadToEnd());
                                 if (s != "application/epub+zip") throw new EpubErrorException("The mimetype of epub should be 'application/epub+zip'. Current:" + s);
-                                var i = new MIMETypeItem();
+                                var i = new EpubMIMETypeEntry();
                                 items.Insert(0, i);
                             }
 
@@ -463,7 +461,7 @@ namespace AeroEpubViewer.Epub
                                     using (StreamReader r = new StreamReader(stm))
                                     {
                                         string s = r.ReadToEnd();
-                                        var i = new TextEpubItemFile(entry.FullName, s);
+                                        var i = new TextEpubFileEntry(entry.FullName, s);
                                         items.Add(i);
                                     }
                                     break;
@@ -475,7 +473,7 @@ namespace AeroEpubViewer.Epub
                                         if (entry.Length < int.MaxValue)
                                         {
                                             stm.Read(d, 0, (int)entry.Length);
-                                            var i = new EpubItemFile(entry.FullName, d);
+                                            var i = new EpubFileEntry(entry.FullName, d);
                                             items.Add(i);
                                         }
                                         else { throw new EpubErrorException("File size exceeds the limit."); }
@@ -486,17 +484,17 @@ namespace AeroEpubViewer.Epub
                 }
             }
             if (items.Count == 0) throw new EpubErrorException("Cannot find files in epub");
-            if (items[0].GetType() != typeof(MIMETypeItem)) throw new EpubErrorException("Cannot find mimetype in epub");
+            if (items[0].GetType() != typeof(EpubMIMETypeEntry)) throw new EpubErrorException("Cannot find mimetype in epub");
         }
     }
-    public class ManifestItem
+    public class Item
     {
         //http://idpf.org/epub/30/spec/epub30-publications.html#sec-item-elem
         public string href, id, mediaType;
         public string properties;
         //public string fallback, mediaOverlay;
         EpubFile belongTo;
-        public ManifestItem(XmlElement e, EpubFile belongTo)
+        public Item(XmlElement e, EpubFile belongTo)
         {
             this.belongTo = belongTo;
             href = e.GetAttribute("href");//Will be Add opf path in ReadSpine()
@@ -504,19 +502,19 @@ namespace AeroEpubViewer.Epub
             mediaType = e.GetAttribute("media-type");
             properties = e.GetAttribute("properties");
         }
-        public EpubItemFile GetFile()
+        public EpubFileEntry GetFile()
         {
             return belongTo.GetFile(Uri.UnescapeDataString(href));
         }
     }
-    public class Spine : IEnumerable
+    public class Spine : IEnumerable<Itemref>
     {
         //http://idpf.org/epub/30/spec/epub30-publications.html#sec-spine-elem
-        List<SpineItemref> items = new List<SpineItemref>();
-        public ManifestItem toc;//For EPUB2
+        List<Itemref> items = new List<Itemref>();
+        public Item toc;//For EPUB2
         public string pageProgressionDirection;
         public string id;
-        public Spine(XmlElement spine, Dictionary<string, ManifestItem> items)
+        public Spine(XmlElement spine, Dictionary<string, Item> items)
         {
             string toc = spine.GetAttribute("toc");
             string id = spine.GetAttribute("id");
@@ -530,11 +528,11 @@ namespace AeroEpubViewer.Epub
                 if (node.NodeType != XmlNodeType.Element) continue;
                 var e = node as XmlElement;
                 if (e.Name != "itemref") continue;
-                this.items.Add(new SpineItemref(e, items));
+                this.items.Add(new Itemref(e, items));
             }
         }
         public int Count { get { return items.Count; } }
-        public SpineItemref this[int index]
+        public Itemref this[int index]
         {
             get
             {
@@ -542,20 +540,27 @@ namespace AeroEpubViewer.Epub
             }
         }
 
-        public IEnumerator GetEnumerator()
+        public IEnumerator<Itemref> GetEnumerator()
+        {
+            return items.GetEnumerator();
+        }
+        IEnumerator IEnumerable.GetEnumerator() 
         {
             return items.GetEnumerator();
         }
 
     }
-    public class SpineItemref
+    /// <summary>
+    /// An itemref in  Spine that refers to item in Manifest. 
+    /// </summary>
+    public class Itemref
     {
         //http://idpf.org/epub/30/spec/epub30-publications.html#sec-itemref-elem
-        public ManifestItem item;
+        public Item item;
         public string properties;
         public string id;
         public bool linear = true;
-        public SpineItemref(XmlElement itemref, Dictionary<string, ManifestItem> items)
+        public Itemref(XmlElement itemref, Dictionary<string, Item> items)
         {
             this.item = items[itemref.GetAttribute("idref")];
             properties = itemref.GetAttribute("properties");
@@ -570,11 +575,11 @@ namespace AeroEpubViewer.Epub
     }
 
 
-    public class TextEpubItemFile : EpubItemFile
+    public class TextEpubFileEntry : EpubFileEntry
     {
         public string text;
 
-        public TextEpubItemFile(string fullName, string data)
+        public TextEpubFileEntry(string fullName, string data)
         {
             this.fullName = fullName;
             this.text = data;
@@ -594,12 +599,12 @@ namespace AeroEpubViewer.Epub
             return Encoding.UTF8.GetBytes(text);
         }
     }
-    public class EpubItemFile
+    public class EpubFileEntry
     {
         public string fullName;
         byte[] data;
-        public EpubItemFile() { }
-        public EpubItemFile(string fullName, byte[] data)
+        public EpubFileEntry() { }
+        public EpubFileEntry(string fullName, byte[] data)
         {
             this.fullName = fullName;
             this.data = data;
@@ -619,9 +624,9 @@ namespace AeroEpubViewer.Epub
             return data;
         }
     }
-    public class MIMETypeItem : EpubItemFile
+    public class EpubMIMETypeEntry : EpubFileEntry
     {
-        public MIMETypeItem() { fullName = "mimetype"; }
+        public EpubMIMETypeEntry() { fullName = "mimetype"; }
         public override void PutInto(ZipArchive zip)
         {
             var entry = zip.CreateEntry("mimetype", CompressionLevel.NoCompression);//没啥意义，还是Deflate，不是Store

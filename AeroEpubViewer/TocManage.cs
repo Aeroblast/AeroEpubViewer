@@ -20,7 +20,7 @@ namespace AeroEpubViewer
         static string tocPath;
         public static void Parse2()
         {
-            var f = Program.epub.toc.GetFile() as TextEpubItemFile;
+            var f = Program.epub.toc.GetFile() as TextEpubFileEntry;
             tocPath = f.fullName;
             XmlDocument xml = new XmlDocument();
             xml.LoadXml(f.text);
@@ -62,7 +62,7 @@ namespace AeroEpubViewer
             {
                 Parse2(); return;
             }
-            var f = Program.epub.toc.GetFile() as TextEpubItemFile;
+            var f = Program.epub.toc.GetFile() as TextEpubFileEntry;
 
             tocPath = f.fullName;
             XmlDocument xml = new XmlDocument();
@@ -122,7 +122,7 @@ namespace AeroEpubViewer
         public TocItem GetPosition(string path, DocPoint p)
         {
             int i = 0;
-            foreach (SpineItemref itemref in Program.epub.spine)
+            foreach (Itemref itemref in Program.epub.spine)
             {
                 if (itemref.href == path) { return GetPosition(i, p); }
                 i++;
@@ -142,7 +142,7 @@ namespace AeroEpubViewer
         {
             if (TocManage.tocTree == null) return null;
             List<string> urls = new List<string>();
-            foreach (SpineItemref i in Program.epub.spine)
+            foreach (Itemref i in Program.epub.spine)
             {
                 if (!i.linear) continue;
                 urls.Add(i.href);
@@ -234,14 +234,14 @@ namespace AeroEpubViewer
                 var path = spl[0];
                 var id = "";
                 if (spl.Length > 1) id = spl[1];
-                foreach (SpineItemref itemref in Program.epub.spine)
+                foreach (Itemref itemref in Program.epub.spine)
                 {
                     if (itemref.href == path)
                     {
                         docIndex = i;
                         if (id != "")
                         {
-                            var f = itemref.item.GetFile() as TextEpubItemFile;
+                            var f = itemref.item.GetFile() as TextEpubFileEntry;
                             var xml = Xhtml.Load(f.text);
                             var x = xml.SelectSingleNode($"//*[@id='{id}']");//Cannot use GetElementById because of DTD not always in  epub
                             if (x != null)

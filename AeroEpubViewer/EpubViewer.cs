@@ -83,14 +83,14 @@ namespace AeroEpubViewer
                 string userDataCmd = string.Format("LoadUserSettings({0});", UserSettings.GetJson());
                 string initCmd = "";
                 string lengthDataCmd = "";
-                foreach (SpineItemref i in Program.epub.spine)
+                foreach (Itemref i in Program.epub.spine)
                 {
                     if (!i.linear) continue;
                     initCmd += string.Format(",'{0}'", "aeroepub://book/" + i.ToString());
                     int l;
                     if (i.item.mediaType == "application/xhtml+xml")
                     {
-                        l = (i.item.GetFile() as TextEpubItemFile).text.Length;
+                        l = (i.item.GetFile() as TextEpubFileEntry).text.Length;
                     }
                     else if (i.item.mediaType.Contains("image")) { l = 10; }
                     else
@@ -111,7 +111,7 @@ namespace AeroEpubViewer
                     {
                         case "application/x-dtbncx+xml":
                             {
-                                string toc = (Program.epub.toc.GetFile() as TextEpubItemFile).text;
+                                string toc = (Program.epub.toc.GetFile() as TextEpubFileEntry).text;
                                 Match m = Regex.Match(toc, "<navMap>([\\s\\S]*?)</navMap>");
                                 if (m.Success)
                                 {
@@ -125,7 +125,7 @@ namespace AeroEpubViewer
                             break;
                         case "application/xhtml+xml":
                             {
-                                string toc = (Program.epub.toc.GetFile() as TextEpubItemFile).text;
+                                string toc = (Program.epub.toc.GetFile() as TextEpubFileEntry).text;
                                 toc = toc.Replace(" href=\"", " hraf=\"");
                                 Match m = Regex.Match(toc, "<body[\\s\\S]*?>([\\s\\S]*?)</body>");
                                 if (m.Success)
