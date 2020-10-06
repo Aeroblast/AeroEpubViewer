@@ -49,19 +49,23 @@ namespace AeroEpubViewer
                 return output.ToArray();
             }
         }
-        public static byte[] TryDecode(byte[] data) 
-        {
+       
+        public static byte[] TryDecode(byte[] data)
+        {//https://docs.microsoft.com/en-us/dotnet/framework/debug-trace-profile/contextswitchdeadlock-mda
             try
             {
-                MemoryStream output = new MemoryStream();
-                var t = BitmapDecoder.Create(new MemoryStream(data), BitmapCreateOptions.None, BitmapCacheOption.None);
-                var encoder = new BmpBitmapEncoder();
-                encoder.Frames.Add(t.Frames[0]);
-                encoder.Save(output);
-              
-                return output.ToArray();
+                using (MemoryStream output = new MemoryStream()) 
+                {
+                    var t = BitmapDecoder.Create(new MemoryStream(data), BitmapCreateOptions.None, BitmapCacheOption.None);
+                    var encoder = new BmpBitmapEncoder();
+                    encoder.Frames.Add(t.Frames[0]);
+                    encoder.Save(output);
+                    return output.ToArray();
+                }
             }
-            catch (NotSupportedException) {
+            catch (Exception)
+            {
+                Log.log("[Warn]Cannot decode image.");
                 return null;
             }
 
