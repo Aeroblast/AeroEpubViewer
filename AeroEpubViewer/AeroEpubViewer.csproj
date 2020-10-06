@@ -170,6 +170,19 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="icon.ico" />
+    <EmbeddedResource Include="Res\viewer_strings.js" />
+    <EmbeddedResource Include="Res\viewer_main.css" />
+    <EmbeddedResource Include="Res\viewer_control.js" />
+    <EmbeddedResource Include="Res\viewer_footnote.js" />
+    <EmbeddedResource Include="Res\viewer_function.js" />
+    <EmbeddedResource Include="Res\viewer_measure.js" />
+    <EmbeddedResource Include="Res\viewer_menu.js" />
+    <EmbeddedResource Include="Res\viewer_oncopy.js" />
+    <EmbeddedResource Include="Res\viewer_nav.js" />
+    <EmbeddedResource Include="Res\viewer_scrollbar.js" />
+    <EmbeddedResource Include="Res\viewer_settings.js" />
+    <EmbeddedResource Include="Res\viewer_utils.js" />
+    <EmbeddedResource Include="Res\viewer_sp_frame.js" />
     <EmbeddedResource Include="Res\image-quick-view.html" />
     <EmbeddedResource Include="Res\search-service.html" />
     <EmbeddedResource Include="Res\sp-page.js" />

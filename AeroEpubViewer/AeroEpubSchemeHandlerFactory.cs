@@ -120,12 +120,6 @@ namespace AeroEpubViewer
                     {
                         var filename = uri.AbsolutePath.Substring(1).Replace("/", ".");
                         Stream fs = assembly.GetManifestResourceStream("AeroEpubViewer.Res." + filename);
-                        if (filename.EndsWith("css"))
-                        {
-                            string content = new StreamReader(fs).ReadToEnd();
-                            content = CssHack.Hack(content);
-                            return ResourceHandler.FromString(content, null, true, "text/css");
-                        }
                         string mime = Util.GetMimeType(filename);
                         if (mime != null)
                             return ResourceHandler.FromStream(fs, mime);

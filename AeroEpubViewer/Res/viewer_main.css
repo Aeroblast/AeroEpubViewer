@@ -1,0 +1,295 @@
+﻿body {
+    overflow: hidden;
+}
+
+iframe {
+    position: fixed;
+    overflow: hidden;
+    z-index: 5;
+}
+
+#menu {
+    position: fixed;
+    width: 100%;
+    height: 10vh;
+    left: 0;
+    top: -10vh;
+    z-index: 20;
+    overflow: hidden;
+    opacity: 0;
+    box-shadow: 0 0 1vh 0.5vh #808080;
+}
+
+    #menu > div {
+        height: 10vh;
+        display: inline-block;
+        text-align: center;
+        line-height: 10vh;
+        border-right: solid 1px;
+        overflow: hidden;
+    }
+
+        #menu > div > div {
+            height: 6vh;
+            margin-top: 2vh;
+            margin-right: 2px;
+            display: inline-block;
+            text-align: center;
+            overflow: hidden;
+            line-height: 6vh;
+        }
+
+#navSwitch {
+    position: fixed;
+    height: 10vh;
+    width: 10vw;
+    left: 0;
+    top: 0;
+    background: transparent;
+    z-index: 21; /*over 'menu'*/
+    cursor: pointer;
+}
+
+#nav {
+    position: fixed;
+    height: 0vh;
+    max-width: 70vw;
+    left: 0;
+    top: 0;
+    z-index: 10;
+    opacity: 0;
+    overflow: hidden;
+    padding-left: 2vw;
+    padding-right: 2vw;
+    padding-top: 0; /*10vh moved to animation, to prevent closed nav still block over other content*/
+    box-shadow: 0 0 1vh 0.5vh #808080;
+    border-bottom-right-radius: 0.3em;
+}
+
+li {
+    margin-left: 0.5em;
+    padding: 0;
+    text-indent: 0;
+}
+
+#nav ol {
+    list-style: none;
+    margin-left: 0;
+    padding: 0;
+}
+
+nav {
+    margin-left: 0;
+    display: block;
+}
+
+
+#nav::-webkit-scrollbar {
+    display: none;
+}
+
+navLabel {
+    width: 100%;
+    height: 2em;
+    display: block;
+    left: 0;
+}
+
+content > navPoint > navLabel {
+    padding-left: 1em;
+}
+
+navLabel:hover, #nav a:hover {
+    background: #808080;
+    cursor: pointer;
+}
+
+.sp_frame_container {
+    display: none;
+}
+
+.sp_frame_close {
+    position: fixed;
+    z-index: 22;
+    width: 100%;
+    height: 5%;
+    top: 0;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.3);
+    text-align: center;
+    color: red;
+    font-weight: bold;
+}
+
+    .sp_frame_close:hover {
+        background: rgba(255, 255, 255, 0.8);
+    }
+
+.sp_frame {
+    border: none;
+    margin: 0;
+    z-index: 22;
+    left: 0;
+    position: fixed;
+    width: 100%;
+    height: 95%;
+    top: 5%;
+}
+
+@keyframes navDisplay {
+    0% {
+        height: 0vh;
+        overflow: hidden;
+        opacity: 0;
+        padding-top: 0;
+    }
+
+    1% {
+        opacity: 0;
+        padding-top: 11vh;
+    }
+
+    100% {
+        height: 89vh;
+        overflow: scroll;
+        opacity: 1;
+        padding-top: 11vh;
+    }
+}
+
+@keyframes navHide {
+
+    0% {
+        height: 89vh;
+        overflow: scroll;
+        opacity: 1;
+        padding-top: 11vh;
+    }
+
+    99% {
+        opacity: 0;
+        padding-top: 11vh;
+    }
+
+    100% {
+        height: 0vh;
+        overflow: hidden;
+        padding-top: 0;
+    }
+}
+
+@keyframes menuDisplay {
+    from {
+        top: -10vh;
+        opacity: 0;
+    }
+
+    to {
+        top: 0vh;
+        opacity: 1;
+    }
+}
+
+@keyframes menuHide {
+
+    from {
+        top: 0vh;
+        opacity: 1;
+    }
+
+    to {
+        top: -10vh;
+        opacity: 0;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.popupFootnote {
+    width: 40vw;
+    position: fixed;
+    z-index: 40;
+    border: solid 1px;
+    background: white;
+    min-height: 0;
+}
+
+#scrollBar_container {
+    position: fixed;
+    z-index: 21;
+    opacity: 0;
+}
+
+#scrollBar {
+    -webkit-appearance: none;
+    background: transparent;
+    z-index: 21;
+}
+
+    #scrollBar::-webkit-slider-runnable-track {
+        -webkit-appearance: none;
+        background: rgba(200,200,200,0.3);
+        border: none;
+        border-radius: 3px;
+    }
+
+    #scrollBar::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        background: rgba(200,200,200,1);
+        border: none;
+        border-radius: 3px;
+    }
+
+    #scrollBar:focus {
+        outline: none;
+    }
+
+.scrollBarChapterName {
+    z-index: 10;
+    white-space: nowrap;
+    overflow: visible;
+    border-radius: 3px;
+}
+
+.scrollBarChapterDisplay {
+    position: fixed;
+    z-index: -1;
+    margin: 0;
+    padding: 0;
+    background: rgba(200,200,200,0.3);
+}
+
+#context_menu {
+    position: fixed;
+    display: none;
+    width: 200px;
+    border: solid;
+    z-index: 40;
+    background: inherit;
+}
+
+    #context_menu > div {
+        cursor: pointer;
+    }
+
+#measure_container > div {
+    background: #d57474;
+}
