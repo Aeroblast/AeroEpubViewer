@@ -1,7 +1,5 @@
-document.PopupFootnote = PopupFootnote2;
-
 var popupFootnote = null;
-document.PopupFootnote = function (content, left, top, frame) {
+const PopupFootnote1 = function (content, left, top, frame) {
     if (popupFootnote != null) popupFootnote.parentNode.removeChild(popupFootnote);
     popupFootnote = document.createElement("div");
     popupFootnote.className = "popupFootnote";
@@ -23,7 +21,7 @@ document.PopupFootnote = function (content, left, top, frame) {
     popupFootnote.style.left = left + "px";
     popupFootnote.style.top = top + "px";
 }
-var PopupFootnote2 = function (content, left, top, frame) {
+const PopupFootnote2 = function (content, left, top, frame) {
     if (popupFootnote != null) popupFootnote.parentNode.removeChild(popupFootnote);
     popupFootnote = document.createElement("iframe");
     popupFootnote.className = "popupFootnote";
@@ -50,6 +48,9 @@ var PopupFootnote2 = function (content, left, top, frame) {
     menu.style.animation = "";
 
 }
+
+document.PopupFootnote = PopupFootnote2;
+
 document.TryCloseFootnote = function () {
     if (popupFootnote != null) {
         popupFootnote.parentNode.removeChild(popupFootnote);

@@ -4,7 +4,7 @@
     ["Search", "搜索", "検索"],//2
     ["Book Info", "书籍信息", "書籍情報"],//3
     ["Copy Image", "复制图片", "画像をコピー"],//4
-    ["Inspect Element", "检查元素", "検査"],//5
+    ["Inspect Element", "检查元素", "要素検査"],//5
 ];
 
 var stringLoadList = [
