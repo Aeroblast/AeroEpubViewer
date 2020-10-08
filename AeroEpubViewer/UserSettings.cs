@@ -18,6 +18,7 @@ namespace AeroEpubViewer
         //general
         public static string theme = "warm";
         public static string warmColor = "#ffe6a0";
+        public static string viewMode = "flow";
 
         //font
         public static int bookFontSize = 18;
@@ -76,6 +77,9 @@ namespace AeroEpubViewer
                                 case "WarmColor":
                                     warmColor = para[1];
                                     ImageHack.SetWarmColor(warmColor);
+                                    break;
+                                case "ViewMode":
+                                    viewMode = para[1];
                                     break;
                             }
                     }

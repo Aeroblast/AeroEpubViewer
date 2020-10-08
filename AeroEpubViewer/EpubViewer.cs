@@ -21,7 +21,10 @@ namespace AeroEpubViewer
 
         public EpubViewer()
         {
-            chromium = new ChromiumWebBrowser("aeroepub://viewer/viewer.html");
+            if (UserSettings.viewMode == "paged")
+                chromium = new ChromiumWebBrowser("aeroepub://viewer/viewer-paged.html");
+            else
+                chromium = new ChromiumWebBrowser("aeroepub://viewer/viewer.html");
             chromium.BrowserSettings.WebSecurity = CefState.Disabled;
             Controls.Add(chromium);
             chromium.Dock = DockStyle.Fill;
@@ -56,7 +59,7 @@ namespace AeroEpubViewer
         }
         private void OnLoad(Object sender, EventArgs e)
         {
-            //chromium.ShowDevTools();
+            chromium.ShowDevTools();
 
             refreshForm = new RefreshForm(() =>
             {
@@ -75,74 +78,74 @@ namespace AeroEpubViewer
             try
             {
 #endif
-                if (e.IsLoading == true) return;
-                if (Program.epub.spine.pageProgressionDirection == "rtl")
+            if (e.IsLoading == true) return;
+            if (Program.epub.spine.pageProgressionDirection == "rtl")
+            {
+                chromium.ExecuteScriptAsync("direction = direction_rtl;");
+            }
+            string userDataCmd = string.Format("LoadUserSettings({0});", UserSettings.GetJson());
+            string initCmd = "";
+            string lengthDataCmd = "";
+            foreach (Itemref i in Program.epub.spine)
+            {
+                if (!i.linear) continue;
+                initCmd += string.Format(",'{0}'", "aeroepub://book/" + i.ToString());
+                int l;
+                if (i.item.mediaType == "application/xhtml+xml")
                 {
-                    chromium.ExecuteScriptAsync("direction = direction_rtl;");
+                    l = (i.item.GetFile() as TextEpubFileEntry).text.Length;
                 }
-                string userDataCmd = string.Format("LoadUserSettings({0});", UserSettings.GetJson());
-                string initCmd = "";
-                string lengthDataCmd = "";
-                foreach (Itemref i in Program.epub.spine)
+                else if (i.item.mediaType.Contains("image")) { l = 10; }
+                else
                 {
-                    if (!i.linear) continue;
-                    initCmd += string.Format(",'{0}'", "aeroepub://book/" + i.ToString());
-                    int l;
-                    if (i.item.mediaType == "application/xhtml+xml")
-                    {
-                        l = (i.item.GetFile() as TextEpubFileEntry).text.Length;
-                    }
-                    else if (i.item.mediaType.Contains("image")) { l = 10; }
-                    else
-                    {
-                        throw new Exception("Cannot Handle type in spine:" + i.item.mediaType);
-                    }
-
-                    lengthDataCmd += "," + l;
+                    throw new Exception("Cannot Handle type in spine:" + i.item.mediaType);
                 }
-                if (lengthDataCmd.Length == 0) throw new Exception("Spine is empty.");
-                lengthDataCmd = $"LoadScrollBar([{ lengthDataCmd.Substring(1)}],{new TocManager().GetPlainStructJSON()});";
-                initCmd = string.Format("Init([{0}],{1},{2});", initCmd.Substring(1), ResizeManage.index, ResizeManage.percent);
-                chromium.ExecuteScriptAsync(userDataCmd + lengthDataCmd + initCmd);
 
-                if (Program.epub.toc != null)
+                lengthDataCmd += "," + l;
+            }
+            if (lengthDataCmd.Length == 0) throw new Exception("Spine is empty.");
+            lengthDataCmd = $"LoadScrollBar([{ lengthDataCmd.Substring(1)}],{new TocManager().GetPlainStructJSON()});";
+            initCmd = string.Format("Init([{0}],{1},{2});", initCmd.Substring(1), ResizeManage.index, ResizeManage.percent);
+            chromium.ExecuteScriptAsync(userDataCmd + lengthDataCmd + initCmd);
+
+            if (Program.epub.toc != null)
+            {
+                switch (Program.epub.toc.mediaType)
                 {
-                    switch (Program.epub.toc.mediaType)
-                    {
-                        case "application/x-dtbncx+xml":
+                    case "application/x-dtbncx+xml":
+                        {
+                            string toc = (Program.epub.toc.GetFile() as TextEpubFileEntry).text;
+                            Match m = Regex.Match(toc, "<navMap>([\\s\\S]*?)</navMap>");
+                            if (m.Success)
                             {
-                                string toc = (Program.epub.toc.GetFile() as TextEpubFileEntry).text;
-                                Match m = Regex.Match(toc, "<navMap>([\\s\\S]*?)</navMap>");
-                                if (m.Success)
-                                {
-                                    chromium.ExecuteScriptAsync("LoadTocNcx", m.Groups[1], Path.GetDirectoryName(Program.epub.toc.href));
-                                }
-                                else
-                                {
-                                    Log.log("[Error]at TOC loading:" + Program.epub.toc);
-                                }
+                                chromium.ExecuteScriptAsync("LoadTocNcx", m.Groups[1], Path.GetDirectoryName(Program.epub.toc.href));
                             }
-                            break;
-                        case "application/xhtml+xml":
+                            else
                             {
-                                string toc = (Program.epub.toc.GetFile() as TextEpubFileEntry).text;
-                                toc = toc.Replace(" href=\"", " hraf=\"");
-                                Match m = Regex.Match(toc, "<body[\\s\\S]*?>([\\s\\S]*?)</body>");
-                                if (m.Success)
-                                {
-                                    chromium.ExecuteScriptAsync("LoadTocNav", m.Groups[1], Path.GetDirectoryName(Program.epub.toc.href).Replace('\\', '/'));
-                                }
-                                else
-                                {
-                                    Log.log("[Error]at TOC loading:" + Program.epub.toc);
-                                }
+                                Log.log("[Error]at TOC loading:" + Program.epub.toc);
                             }
-                            break;
-
-                    }
+                        }
+                        break;
+                    case "application/xhtml+xml":
+                        {
+                            string toc = (Program.epub.toc.GetFile() as TextEpubFileEntry).text;
+                            toc = toc.Replace(" href=\"", " hraf=\"");
+                            Match m = Regex.Match(toc, "<body[\\s\\S]*?>([\\s\\S]*?)</body>");
+                            if (m.Success)
+                            {
+                                chromium.ExecuteScriptAsync("LoadTocNav", m.Groups[1], Path.GetDirectoryName(Program.epub.toc.href).Replace('\\', '/'));
+                            }
+                            else
+                            {
+                                Log.log("[Error]at TOC loading:" + Program.epub.toc);
+                            }
+                        }
+                        break;
 
                 }
-                chromium.LoadingStateChanged -= SendDataWhenLoad;
+
+            }
+            chromium.LoadingStateChanged -= SendDataWhenLoad;
 #if !DEBUG
             }
             catch (Exception exc)

@@ -170,6 +170,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="icon.ico" />
+    <EmbeddedResource Include="Res\viewer-paged.css" />
+    <EmbeddedResource Include="Res\viewer-paged.html" />
     <EmbeddedResource Include="Res\viewer_strings.js" />
     <EmbeddedResource Include="Res\viewer_main.css" />
     <EmbeddedResource Include="Res\viewer_control.js" />

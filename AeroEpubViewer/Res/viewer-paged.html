@@ -1,0 +1,250 @@
+﻿<html>
+<head>
+    <title>Viewer</title>
+    <link href="viewer_main.css" rel="stylesheet" type="text/css" />
+    <link href="viewer-paged.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+    <div id="screenTest" style="width:100vw;height:100vh;visibility:hidden;z-index:-99"></div>
+
+    <div id="navSwitch" onclick="NavSwitch()"></div>
+    <div id="menu">
+
+        <div id="navSwitchDummy" style="width:10vw;background:transparent;">TOC</div>
+        <div style="border-right:solid 1px;">
+            <div><input id="fontSizeInput" style="width:3em" type="number" />px</div>
+            <div onclick="ApplyFontSize(document.getElementById('fontSizeInput').value)" style="cursor:pointer;background:white;font-size:0.7em">字号生效</div>
+        </div>
+        <div><div style="cursor:pointer;" onclick="Inspector()"><span id="string_inspector">检查</span></div></div>
+        <div>
+            <div style="top:3vh;line-height:1.2em;">
+                Theme:　<br /><select id="themeSelect" onchange="SetTheme()">
+                    <option value="default" selected>Default</option>
+                    <option value="warm">Warm</option>
+                    <option value="dark">Dark</option>
+                </select>
+            </div>
+        </div>
+        <div><div style="cursor:pointer;" onclick="ImageQuickView()"><span id="string_viewillu">速览插图</span></div></div>
+        <div><div style="cursor:pointer;" onclick="BookInfo()"><span id="string_bookinfo">书籍信息</span></div></div>
+        <div><div style="cursor:pointer;" onclick="SearchService()"><span id="string_search">搜索</span></div></div>
+
+
+    </div>
+    <div id="sp_frame_general_container" class="sp_frame_container"><div class="sp_frame_close" onclick="document.CloseSpFrame()">Close</div><iframe id="sp_frame_general" class="sp_frame"></iframe></div>
+    <div id="sp_frame_search_container" class="sp_frame_container"><div class="sp_frame_close" onclick="document.CloseSpFrame()">Close</div><iframe id="sp_frame_search" class="sp_frame"></iframe></div>
+    <div id="nav" style=""></div>
+    <div id="mouseListener" style="position:fixed;z-index:1;width:100vw;height:100vh;left:0;top:0;"></div>
+    <div id="scrollBar_container" onmouseenter="ScrollBarMouseEnter(event)" onmouseleave="ScrollBarMouseLeave(event)" onmousemove="ScrollBarMouseMove(event)">
+        <div id="scrollBarChapterDisplay" class="scrollBarChapterDisplay"><div class="scrollBarChapterName"></div></div>
+    </div>
+    <div id="measure_container"><div></div><div></div></div>
+    <div id="context_menu"></div>
+
+    <script src="viewer_settings.js"></script>
+    <script src="viewer_control.js"></script>
+    <script src="viewer_footnote.js"></script>
+    <script src="viewer_function.js"></script>
+    <script src="viewer_menu.js"></script>
+    <script src="viewer_nav.js"></script>
+    <script src="viewer_oncopy.js"></script>
+    <script src="viewer_scrollbar.js"></script>
+    <script src="viewer_sp_frame.js"></script>
+    <script src="viewer_strings.js"></script>
+    <script src="viewer_utils.js"></script>
+    <script>
+        var direction_rtl = new Object();
+        direction_rtl.KeyToDirection = function (k) {
+            switch (k) {
+                case "ArrowLeft": return -1;
+                case "ArrowUp": return 1;
+                case "ArrowRight": return 1;
+                case "ArrowDown": return -1;
+            }
+            return 0;
+        }
+        direction_rtl.GetEventParallel = function (e) { return e.target.offsetWidth - e.x; }
+        direction_rtl.GetEventParallelPercent = function (e) { return (e.target.offsetWidth - e.x) / e.target.offsetWidth; }
+        direction_rtl.GetParallelLength = function (e) { return e.offsetWidth; }
+        direction_rtl.SetParallelLength = function (e, px) { e.style.width = px + "px"; }
+        direction_rtl.SetParallelPositivePos = function (e, px) { e.style.right = px + "px"; }
+
+        direction_rtl.style = "\
+                                                        #scrollBar{transform: rotate(180deg);}\
+";
+
+        var direction_default = new Object();
+        direction_default.KeyToDirection = function (k) {
+            switch (k) {
+                case "ArrowUp": return 1;
+                case "ArrowDown": return -1;
+                case "ArrowRight": return -1;
+                case "ArrowLeft": return 1;
+            }
+            return 0;
+        }
+        direction_default.GetEventParallel = function (e) { return e.x; }
+        direction_default.GetEventParallelPercent = function (e) { return e.x / e.target.offsetWidth; }
+        direction_default.GetParallelLength = function (e) { return e.offsetWidth; }
+        direction_default.SetParallelLength = function (e, px) { e.style.width = px + "px"; }
+        direction_default.SetParallelPositivePos = function (e, px) { e.style.left = px + "px"; }
+        direction_default.style = "\
+";
+
+        ScreenTest();
+        var paged = true;
+        var direction = direction_default;
+        var frameList = new Array();
+        var urlList;
+        var spreadCount = 1;
+        //////////Load/////////
+        function Init(_urlList, start = 0, posRate = 0, selector = "") {
+            let e = document.getElementById("screenTest");
+            if (e.offsetWidth / e.offsetHeight > 1.2) {
+                spreadCount = 2;
+                spreadStyle.innerHTML = "iframe.page{width:45vw;}";
+            }
+            document.direction = direction;
+            console.log("Init start=" + start + " posRate=" + posRate + " selector=" + selector);
+
+            directionStyle.innerHTML = direction.style;
+
+            urlList = _urlList;
+            let pageSpread = "left";
+            let page = CreateFrame(start, "rate", posRate, pageSpread, CheckLoad, selector);
+            frameList.push(page);
+        }
+
+        ///↓Core Function///
+        function CreateFrame(urlIndex, posType, posValue, pageSpread, check = null, selector = null) {
+            loading++;
+            console.log("Create Frame " + urlList[urlIndex] + " " + posType + ":" + posValue + " spread:" + pageSpread + " selector=" + selector);
+            let page = document.createElement("iframe");
+            if (spreadCount == 2) {
+                switch (pageSpread) {
+                    case "left": break;
+                    case "right": page.style.left = "52vw"; break;
+                    case "center": page.style.left = "27vw"; break;
+                    default: console.warn("Unknown 'pageSpread': " + pageSpread);
+                }
+            }
+            //private use
+            page.spread = pageSpread;
+            //page.num = pageNum;//0起步，负数倒数，onload后必须>=0
+            page.urlIndex = urlIndex;
+            page.style.visibility = "hidden";
+            page.className = "page";
+            page.scrolling = "no";
+            page.frameBorder = "0";
+            page.src = urlList[urlIndex] + "?page";
+            page.onload = function () {
+                let bodyComputedStyle = page.contentWindow.getComputedStyle(page.contentDocument.body, null);
+                let wm = bodyComputedStyle.getPropertyValue("writing-mode");
+                if (direction == direction_rtl && wm != "vertical-rl") {
+
+                }
+                let injectStyle = page.contentDocument.createElement("style");
+                injectStyle.innerHTML = "img{max-height:100vh;max-width:100vw;}";
+                let contentLength = page.contentDocument.body.scrollHeight;
+                let pageHeight = page.scrollHeight;
+                let preTotalPage = Math.ceil(contentLength / pageHeight - 0.1);
+                console.log("contentLength / pageHeight=" + contentLength / pageHeight);
+                injectStyle.innerHTML += "body{position:relative;height:100vh;width:" + preTotalPage + "00vw;column-count:" + preTotalPage + ";column-gap:0;}";
+                page.contentDocument.head.appendChild(injectStyle);
+                //To-do：检测分页结果正确性
+                //
+                let totalPage = preTotalPage;
+                let pageNum = 0;
+                if (posType == "page") {
+                    pageNum = posValue;
+                    if (pageNum < 0) pageNum = totalPage + pageNum;
+                }
+                if (posType == "rate") pageNum = Math.floor(posValue * preTotalPage);
+                injectStyle.innerHTML += "body{left:-" + pageNum + "00vw;}";
+                page.num = pageNum;
+                page.totalPage = totalPage;
+                loading--;
+                page.style.visibility = "visible";
+                if (check != null) check(page);
+                SetScrollBar();
+                page.onload = null;
+            }
+            document.body.appendChild(page);
+            return page;
+        }
+        var currentFrame = null;
+        function GetBookPos() {
+            return "/" + frameList[0].urlIndex + "/" + frameList[0].num + "/" + frameList[0].totalPage;
+        }
+        document.Scroll = Scroll;
+        function Scroll(d) {
+            if (loading) return;
+            if (d < 0) {//next
+                let last = frameList.pop();
+                if (spreadCount == 2) {
+                    document.body.removeChild(frameList.pop());
+                }
+                LoadNextPage(last, "left");
+
+                document.body.removeChild(last);
+
+            }
+            if (d > 0) {
+                let last = frameList.shift();
+                if (spreadCount == 2) {
+                    document.body.removeChild(frameList.shift());
+                }
+                LoadLastPage(last, "right");
+                document.body.removeChild(last);
+            }
+        }
+
+        var loading = 0;
+
+        var checking = false;
+        function CheckLoad(current) {
+            if (checking) return;
+            checking = true;
+            CheckForward(current);
+            CheckBackward(current);
+            checking = false;
+        }
+        function CheckBackward(current) {
+            if (spreadCount == 2 && current.spread == "right" && direction == direction_default) {
+                LoadLastPage(current, "left");
+            }
+        }
+        function CheckForward(current) {
+            if (spreadCount == 2 && current.spread == "left" && direction == direction_default) {
+                LoadNextPage(current, "right");
+            }
+        }
+        function LoadNextPage(current, spread) {
+            let pageNum = current.num + 1;
+            let docNum = current.urlIndex;
+            if (pageNum == current.totalPage) {
+                pageNum = 0;
+                docNum++;
+                if (docNum == urlList.length) {
+                    console.log("arrive end"); return;
+                }
+            }
+            frameList.push(CreateFrame(docNum, "page", pageNum, spread, CheckForward));
+        }
+        function LoadLastPage(current, spread) {
+            let pageNum = current.num - 1;
+            let docNum = current.urlIndex;
+            if (pageNum == -1) {
+                docNum--;
+                if (docNum == -1) {
+                    console.log("arrive start"); return;
+                }
+            }
+            frameList.push(CreateFrame(docNum, "page", pageNum, spread, CheckBackward));
+        }
+
+    </script>
+
+</body>
+
+</html>

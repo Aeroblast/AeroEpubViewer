@@ -38,12 +38,19 @@ function LoadScrollBar(arr, plain) {
 }
 function SetScrollBar() {
     let v = 0;
-    let i = 0;
-    for (; i < currentFrame.urlIndex; i++)
-        v += contentLengthData[i];
 
-    v += (-currentFrame.pos) * contentLengthData[i] / direction.GetParallelLength(currentFrame);//iÊÇurlIndex
-
+    if (paged) {
+        let i = 0;
+        for (; i < frameList[0].urlIndex; i++)
+            v += contentLengthData[i];
+        v += frameList[0].num / frameList[0].totalPage * contentLengthData[i];
+    }
+    else {
+        let i = 0;
+        for (; i < currentFrame.urlIndex; i++)
+            v += contentLengthData[i];
+        v += (-currentFrame.pos) * contentLengthData[i] / direction.GetParallelLength(currentFrame);//iÊÇurlIndex
+    }
     scrollBar.value = v;
 }
 var scrollBarFadeHandle = null;
