@@ -171,11 +171,11 @@ namespace AeroEpubViewer
                     if (index >= 0)
                     {
                         if (plain[index] == null)
-                            plain[index] = intro + i.name;
+                            plain[index] = intro + i.name.Replace("\"", "\\\"");
                     }
                 }
                 if (i.children != null)
-                    GetPlainStructHelper(urls, i, ref plain, intro + i.name + " > ");
+                    GetPlainStructHelper(urls, i, ref plain, intro + i.name.Replace("\"","\\\"") + " > ");
             }
         }
         DocPoint p;
