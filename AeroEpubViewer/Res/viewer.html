@@ -58,7 +58,7 @@
         direction_rtl.SetParallelLength = function (e, px) { e.style.width = px + "px"; }
         direction_rtl.GetElementPos = function (e, f) { return f.contentWindow.document.documentElement.scrollWidth - e.getBoundingClientRect().right; }
         direction_rtl.GetWindowLength = function () { return window.innerWidth; }
-        direction_rtl.AdjustFrameSize = function (f) { f.width = f.contentWindow.document.documentElement.scrollWidth + "px"; }
+        direction_rtl.AdjustFrameSize = function (f) { f.width = f.contentWindow.document.documentElement.scrollWidth + "px"; console.log(f.width); }
         direction_rtl.SetPosStyle = function (e) { e.style.right = e.pos + "px"; }
         direction_rtl.GetEventParallel = function (e) { return e.target.offsetWidth - e.x; }
         direction_rtl.GetEventParallelPercent = function (e) { return (e.target.offsetWidth - e.x) / e.target.offsetWidth; }
@@ -89,7 +89,7 @@ transform-origin: 50vw; transform: rotate(180deg); \
 #measure_container>div{position:fixed;height:1vh;width:1vh;bottom:6vh;border-radius:0.3vh;}\
 .scrollBarChapterName{box-shadow: -0.1em -0.1em 0.3em -0.1em #808080, 0.05em -0.1em 0.3em -0.1em #808080;width: auto;display: inline-block;padding-left:0 0.2em 0 0.2em;}\
 ";
-        direction_rtl.injectStyle = "body{height:100vh;min-width:66vh;}";
+        direction_rtl.injectStyle = "body{height:100vh;min-width:66vh;} img, svg {max-height:100%;max-width:66vh;}";
         var direction_default = new Object();
         direction_default.GetParallelLength = function (e) { return e.offsetHeight; }
         direction_default.SetParallelLength = function (e, px) { e.style.height = px + "px"; }
@@ -126,12 +126,13 @@ transform: rotate(90deg);\
 #measure_container>div{position:fixed;height:1vh;width:1vw;right:2.5vw;border-radius:1vw;}\
 .scrollBarChapterName{box-shadow: -0.1em 0.1em 0.3em -0.1em #808080;}\
 ";
-        direction_default.injectStyle = "body{width:100vw;padding-bottom:3vh;}";
+        direction_default.injectStyle = "body{width:100vw;padding-bottom:3vh;} img, svg {max-width:100%;max-height:150vw;}";
 
         ScreenTest();
         var direction = direction_default;
         var frameList = new Array();
         var urlList;
+        var paged = false;
         //////////Load/////////
         function Init(_urlList, start = 0, posRate = 0, selector = "") {
             document.direction = direction;

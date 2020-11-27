@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Xml;
-using AeroEpubViewer.Epub;
+using AeroEpub;
 namespace AeroEpubViewer
 {
     class SearchService

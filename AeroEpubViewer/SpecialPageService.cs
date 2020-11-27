@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Reflection;
 using System.IO;
 using System.Xml;
-using AeroEpubViewer.Epub;
+using AeroEpub;
 
 namespace AeroEpubViewer
 {
@@ -33,7 +33,7 @@ namespace AeroEpubViewer
                     string src = Util.ReferPath(a.href, n.Attributes["src"].Value);
                     DocPoint p = new DocPoint(n, 0);
                     var toc = tocm.GetPosition(i, p);
-                    string record = $"<div class='item' onclick=\"Direct('{a.href}','{p.selector}')\"><div><img src='aeroepub://book/{src}'></div><div>{toc.ToString()}</div></div>";
+                    string record = $"<div class='item' onclick=\"Direct('{a.href}','{p.selector}')\"><div><img src='aeroepub://domain/book/{src}'></div><div>{toc.ToString()}</div></div>";
                     r.Append(record);
                 }
                 foreach (XmlNode n in rs2)
@@ -41,7 +41,7 @@ namespace AeroEpubViewer
                     string src = Util.ReferPath(a.href, n.Attributes["xlink:href"].Value);
                     DocPoint p = new DocPoint(n, 0);
                     var toc = tocm.GetPosition(i, p);
-                    string record = $"<div class='item' onclick=\"Direct('{a.href}','{p.selector}')\"><div><img src='aeroepub://book/{src}'></div><div>{toc.ToString()}</div></div>";
+                    string record = $"<div class='item' onclick=\"Direct('{a.href}','{p.selector}')\"><div><img src='aeroepub://domain/book/{src}'></div><div>{toc.ToString()}</div></div>";
                     r.Append(record);
                 }
                 i++;
@@ -56,10 +56,10 @@ namespace AeroEpubViewer
             StringBuilder r = new StringBuilder();
             r.Append("<html><head><style>img{max-height:55vh;max-width:90vw}data-item{font-weight:bold;}table{max-width:95%;margin-left:4%;border:none;}</style></head><body>");
             r.Append("<h1>" + Program.epub.title + "</h1>");
-            if (Program.epub.cover_img != "") r.Append("<img src=\"aeroepub://book/" + Program.epub.cover_img + "\"/>");
+            if (Program.epub.cover_img != "") r.Append("<img src=\"aeroepub://domain/book/" + Program.epub.cover_img + "\"/>");
             r.Append("<table>");
             string creators = "";
-            foreach (var a in Program.epub.dc_creators)
+            foreach (var a in Program.epub.creatorRecords)
             {
                 string t = a.value;
                 var role = a.GetRefines("role");
@@ -72,7 +72,7 @@ namespace AeroEpubViewer
             }
             r.Append("<tr><td>Creator(s)</td><td><data-item>" + creators + "</data-item></td></tr>");
             string lang = "";
-            foreach (var a in Program.epub.dc_language)
+            foreach (var a in Program.epub.languageRecords)
             {
                 if (Dics.langcode.ContainsKey(a.value.ToLower()))
                 {
@@ -95,7 +95,7 @@ namespace AeroEpubViewer
                 }
             }
             r.Append("<tr><td>Language</td><td><data-item>" + lang + "</data-item></td></tr>");
-            foreach (var a in Program.epub.others)
+            foreach (var a in Program.epub.otherRecords)
             {
                 string name = a.name;
                 if (name.IndexOf(':') > 0) name = name.Substring(name.IndexOf(':') + 1);
@@ -125,7 +125,7 @@ namespace AeroEpubViewer
             }
             r.Append("<tr><td>File</td><td><data-item>" + Program.epub.path + "</data-item></td></tr>");
             r.Append("</table><p>Other metadata:</p><table>");
-            foreach (var a in Program.epub.dc_identifier)
+            foreach (var a in Program.epub.identifierRecords)
             {
                 string v = a.value;
                 var t = a.GetRefines("identifier-type");
@@ -139,7 +139,7 @@ namespace AeroEpubViewer
                 r.Append("<tr><td>" + a.name + "</td><td><data-item>" + a.value + "</data-item></td></tr>");
             }
             r.Append("</table>");
-            r.Append("<script src=\"aeroepub://viewer/sp-page.js\"></script>");
+            r.Append("<script src=\"aeroepub://domain/viewer/sp-page.js\"></script>");
             r.Append("</body>");
 
             return r.ToString();

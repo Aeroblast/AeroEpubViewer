@@ -39,7 +39,7 @@ var TryCloseContextMenu = function () {
     return false;
 }
 function CopyImage(url) {
-    AppCall("aeroepub://app/CopyImage/" + url.substring("aeroepub://book/".length));
+    AppCall("aeroepub://domain/app/CopyImage/" + url.substring("aeroepub://book/".length));
     TryCloseContextMenu();
 }
 function AppCall(url) {

@@ -1,6 +1,4 @@
 ﻿img, svg {
-    max-height: 100vh !important;
-    max-width: 100vw !important;
     object-fit: contain;
 }
 

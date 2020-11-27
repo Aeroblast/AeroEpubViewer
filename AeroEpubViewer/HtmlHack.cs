@@ -9,8 +9,8 @@ namespace AeroEpubViewer
 {
     class HtmlHack
     {
-        static string cssInject = "<link href=\"aeroepub://viewer/viewer-inject.css?random={0}\" rel=\"stylesheet\" type=\"text/css\"/>";
-        static string jsInject = "<script src=\"aeroepub://viewer/viewer-inject.js?random={0}\"></script>";
+        static string cssInject = "<link href=\"aeroepub://domain/viewer/viewer-inject.css?random={0}\" rel=\"stylesheet\" type=\"text/css\"/>";
+        static string jsInject = "<script src=\"aeroepub://domain/viewer/viewer-inject.js?random={0}\"></script>";
         static Regex regLink = new Regex("(<link +href=\".*?)(\".*?>)");
         //static Regex regHref = new Regex("(<.*? href=\".*?\")(.*?>)");
         static Regex regScript = new Regex("<script.*?/>");
@@ -28,14 +28,14 @@ namespace AeroEpubViewer
         }
         public static void LoadUser()
         {
-            if (UserSettings.userBookCssContent != null) cssInject += "<link href=\"aeroepub://app/UserBookCss\" rel=\"stylesheet\" type=\"text/css\"/>";
+            if (UserSettings.userBookCssContent != null) cssInject += "<link href=\"aeroepub://domain/app/UserBookCss\" rel=\"stylesheet\" type=\"text/css\"/>";
             if (Program.epub.spine.pageProgressionDirection == "rtl")
             {
-                if (UserSettings.userBookCssContent_rtl != null) cssInject += "<link href=\"aeroepub://app/UserBookCssRtl\" rel=\"stylesheet\" type=\"text/css\"/>";
+                if (UserSettings.userBookCssContent_rtl != null) cssInject += "<link href=\"aeroepub://domain/app/UserBookCssRtl\" rel=\"stylesheet\" type=\"text/css\"/>";
             }
             else
             {
-                if (UserSettings.userBookCssContent_ltr != null) cssInject += "<link href=\"aeroepub://app/UserBookCssLtr\" rel=\"stylesheet\" type=\"text/css\"/>";
+                if (UserSettings.userBookCssContent_ltr != null) cssInject += "<link href=\"aeroepub://domain/app/UserBookCssLtr\" rel=\"stylesheet\" type=\"text/css\"/>";
             }
         }
     }

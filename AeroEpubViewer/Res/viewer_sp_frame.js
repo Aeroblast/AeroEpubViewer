@@ -10,8 +10,8 @@ document.CloseSpFrame = function () {
 function ImageQuickView() {
     document.MenuClose();
     sp_frame_c.style.display = "block";
-    if (sp_frame.src != "aeroepub://app/ImageQuickView") {
-        sp_frame.src = "aeroepub://app/ImageQuickView";
+    if (sp_frame.src != "aeroepub://domain/app/ImageQuickView") {
+        sp_frame.src = "aeroepub://domain/app/ImageQuickView";
         sp_page_scroll = 0;
     }
     sp_frame.contentDocument.scrollingElement.scrollTop = sp_page_scroll;
@@ -20,7 +20,7 @@ function BookInfo() {
     document.MenuClose();
 
     sp_frame_c.style.display = "block";
-    sp_frame.src = "aeroepub://app/BookInfo"
+    sp_frame.src = "aeroepub://domain/app/BookInfo"
 }
 var search_frame_c = document.getElementById('sp_frame_search_container');
 var search_frame = document.getElementById('sp_frame_search');
@@ -32,7 +32,7 @@ function SearchService() {
     search_frame_c.style.display = "block";
     if (!search_page_init) {
         search_frame.onload = function () { search_frame.contentWindow.document.getElementById("search_input").focus(); }
-        search_frame.src = "aeroepub://viewer/search-service.html";
+        search_frame.src = "aeroepub://domain/viewer/search-service.html";
     } else {
         search_frame.contentWindow.document.getElementById("search_input").focus();
     }

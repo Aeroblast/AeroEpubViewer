@@ -6,13 +6,13 @@ using System.IO.Compression;
 using System.Text.RegularExpressions;
 using System.Text;
 using System.Xml;
-namespace AeroEpubViewer.Epub
+namespace AeroEpub
 {
     public class EpubFile
     {
         public string filename;
         public string path;
-        public List<EpubFileEntry> items;
+        public List<EpubFileEntry> entries;
         TextEpubFileEntry _packageFile = null;
         XmlDocument _packageDocument = null;
         public TextEpubFileEntry packageFile
@@ -29,7 +29,7 @@ namespace AeroEpubViewer.Epub
                     if (pathNode.Count == 0) throw new EpubErrorException("Cannot valid container.xml");
                     string opf_path = (pathNode[0] as XmlElement).GetAttribute("full-path");
                     _packageFile = GetFile<TextEpubFileEntry>(opf_path);
-                    if (_packageFile == null) { throw new EpubErrorException("Cannot find opf file: "+opf_path); }
+                    if (_packageFile == null) { throw new EpubErrorException("Cannot find opf file: " + opf_path); }
                 }
                 return _packageFile;
             }
@@ -89,26 +89,26 @@ namespace AeroEpubViewer.Epub
         }
         public string title
         {
-            get { if (dc_titles == null) ReadMeta(); return dc_titles[0].value; }
+            get { if (titleRecords == null) ReadMeta(); return titleRecords[0].value; }
         }
         public string language
         {
             get
             {
-                if (dc_language == null) ReadMeta();
-                if (dc_language.Count > 0)
-                    return dc_language[0].value;
+                if (languageRecords == null) ReadMeta();
+                if (languageRecords.Count > 0)
+                    return languageRecords[0].value;
                 else
                     return xml_lang;
             }
         }
 
         public string xml_lang;
-        public List<MetaRecord> dc_titles;
-        public List<MetaRecord> dc_creators;
-        public List<MetaRecord> dc_language;
-        public List<MetaRecord> dc_identifier;
-        public List<MetaRecord> others;
+        public List<MetaRecord> titleRecords;
+        public List<MetaRecord> creatorRecords;
+        public List<MetaRecord> languageRecords;
+        public List<MetaRecord> identifierRecords;
+        public List<MetaRecord> otherRecords;
         public List<MetaRecord> meta;
         public string cover_img = "";
         Item _toc;
@@ -127,11 +127,11 @@ namespace AeroEpubViewer.Epub
             idref = packge_tag.GetAttribute("unique-identifier");
             _version = packge_tag.GetAttribute("version");
             xml_lang = packge_tag.GetAttribute("xml:lang");//bookwalker
-            dc_titles = new List<MetaRecord>();
-            dc_creators = new List<MetaRecord>();
-            dc_language = new List<MetaRecord>();
-            dc_identifier = new List<MetaRecord>();
-            others = new List<MetaRecord>();
+            titleRecords = new List<MetaRecord>();
+            creatorRecords = new List<MetaRecord>();
+            languageRecords = new List<MetaRecord>();
+            identifierRecords = new List<MetaRecord>();
+            otherRecords = new List<MetaRecord>();
             meta = new List<MetaRecord>();
             switch (_version)
             {
@@ -153,7 +153,7 @@ namespace AeroEpubViewer.Epub
                         {
                             var t = new MetaRecord(e);
                             t.AddIfExist(e, "opf:file-as");
-                            dc_titles.Add(t);
+                            titleRecords.Add(t);
                         }
                         break;
                     case "dc:creator":
@@ -161,20 +161,20 @@ namespace AeroEpubViewer.Epub
                             var t = new MetaRecord(e);
                             t.AddIfExist(e, "opf:file-as");
                             t.AddIfExist(e, "opf:role");
-                            dc_creators.Add(t);
+                            creatorRecords.Add(t);
                         }
                         break;
                     case "dc:language":
                         {
                             var t = new MetaRecord(e);
-                            dc_language.Add(t);
+                            languageRecords.Add(t);
                         }
                         break;
                     case "dc:identifier":
                         {
                             var t = new MetaRecord(e);
                             t.AddIfExist(e, "opf:scheme");
-                            dc_identifier.Add(t);
+                            identifierRecords.Add(t);
                         }
                         break;
                     case "dc:contributor":
@@ -182,14 +182,14 @@ namespace AeroEpubViewer.Epub
                             var t = new MetaRecord(e);
                             t.AddIfExist(e, "opf:file-as");
                             t.AddIfExist(e, "opf:role");
-                            others.Add(t);
+                            otherRecords.Add(t);
                         }
                         break;
                     case "dc:date":
                         {
                             var t = new MetaRecord(e);
                             t.AddIfExist(e, "opf:event");
-                            others.Add(t);
+                            otherRecords.Add(t);
                         }
                         break;
                     case "meta":
@@ -203,7 +203,7 @@ namespace AeroEpubViewer.Epub
                     default:
                         {
                             var t = new MetaRecord(e);
-                            others.Add(t);
+                            otherRecords.Add(t);
                         }
                         break;
                 }
@@ -295,14 +295,14 @@ namespace AeroEpubViewer.Epub
             {
                 switch (a.name)
                 {
-                    case "dc:title": dc_titles.Add(a); break;
-                    case "dc:creator": dc_creators.Add(a); break;
-                    case "dc:identifier": dc_identifier.Add(a); break;
-                    case "dc:language": dc_language.Add(a); break;
-                    default: others.Add(a); break;
+                    case "dc:title": titleRecords.Add(a); break;
+                    case "dc:creator": creatorRecords.Add(a); break;
+                    case "dc:identifier": identifierRecords.Add(a); break;
+                    case "dc:language": languageRecords.Add(a); break;
+                    default: otherRecords.Add(a); break;
                 }
             }
-            foreach (var a in dc_identifier)
+            foreach (var a in identifierRecords)
             {
                 if (idref == a.id) { uniqueIdentifier = a; break; }
             }
@@ -366,12 +366,12 @@ namespace AeroEpubViewer.Epub
         public void DeleteEmpty()//只查一层……谁家epub也不会套几个文件夹
         {
             List<EpubFileEntry> tobedelete = new List<EpubFileEntry>();
-            foreach (var item in items)
+            foreach (var item in entries)
             {
                 if (item.fullName.EndsWith("/"))
                 {
                     bool refered = false;
-                    foreach (var item2 in items)
+                    foreach (var item2 in entries)
                     {
                         if (item2.fullName != item.fullName && item2.fullName.StartsWith(item.fullName))
                         {
@@ -383,18 +383,18 @@ namespace AeroEpubViewer.Epub
                 }
 
             }
-            foreach (var a in tobedelete) items.Remove(a);
+            foreach (var a in tobedelete) entries.Remove(a);
         }
 
         public EpubFileEntry GetFile(string fullName)
         {
-            foreach (var i in items) if (i.fullName == fullName) return i;
+            foreach (var i in entries) if (i.fullName == fullName) return i;
             throw new EpubErrorException("Cannot find file by filename:" + fullName);
         }
         public T GetFile<T>(string fullName) where T : EpubFileEntry
         {
             EpubFileEntry r = null;
-            foreach (var i in items) if (i.fullName == fullName) r = i;
+            foreach (var i in entries) if (i.fullName == fullName) r = i;
             if (r == null || r.GetType() != typeof(T)) return null;
             return (T)r;
         }
@@ -416,16 +416,21 @@ namespace AeroEpubViewer.Epub
 
                 using (ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Create))
                 {
-                    foreach (var item in items) { item.PutInto(archive); }
+                    foreach (var item in entries) { item.PutInto(archive); }
                 }
             }
             Log.log("[Info]Saved " + filepath);
+        }
+        public EpubFile()
+        {
+            entries = new List<EpubFileEntry>();
+            entries.Add(new EpubMIMETypeEntry());
         }
         public EpubFile(string path)
         {
             this.path = path;
             filename = Path.GetFileNameWithoutExtension(path);
-            items = new List<EpubFileEntry>();
+            entries = new List<EpubFileEntry>();
             using (FileStream zipToOpen = new FileStream(path, FileMode.Open))
             {
                 using (ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Read))
@@ -441,7 +446,7 @@ namespace AeroEpubViewer.Epub
                                 string s = Util.Trim(r.ReadToEnd());
                                 if (s != "application/epub+zip") throw new EpubErrorException("The mimetype of epub should be 'application/epub+zip'. Current:" + s);
                                 var i = new EpubMIMETypeEntry();
-                                items.Insert(0, i);
+                                entries.Insert(0, i);
                             }
 
                         }
@@ -462,7 +467,7 @@ namespace AeroEpubViewer.Epub
                                     {
                                         string s = r.ReadToEnd();
                                         var i = new TextEpubFileEntry(entry.FullName, s);
-                                        items.Add(i);
+                                        entries.Add(i);
                                     }
                                     break;
                                 default:
@@ -474,7 +479,7 @@ namespace AeroEpubViewer.Epub
                                         {
                                             stm.Read(d, 0, (int)entry.Length);
                                             var i = new EpubFileEntry(entry.FullName, d);
-                                            items.Add(i);
+                                            entries.Add(i);
                                         }
                                         else { throw new EpubErrorException("File size exceeds the limit."); }
                                     }
@@ -483,8 +488,8 @@ namespace AeroEpubViewer.Epub
                     }
                 }
             }
-            if (items.Count == 0) throw new EpubErrorException("Cannot find files in epub");
-            if (items[0].GetType() != typeof(EpubMIMETypeEntry)) throw new EpubErrorException("Cannot find mimetype in epub");
+            if (entries.Count == 0) throw new EpubErrorException("Cannot find files in epub");
+            if (entries[0].GetType() != typeof(EpubMIMETypeEntry)) throw new EpubErrorException("Cannot find mimetype in epub");
         }
     }
     public class Item
@@ -544,7 +549,7 @@ namespace AeroEpubViewer.Epub
         {
             return items.GetEnumerator();
         }
-        IEnumerator IEnumerable.GetEnumerator() 
+        IEnumerator IEnumerable.GetEnumerator()
         {
             return items.GetEnumerator();
         }
@@ -617,7 +622,6 @@ namespace AeroEpubViewer.Epub
             {
                 stream.Write(data, 0, data.Length);
             }
-
         }
         public virtual byte[] GetBytes()
         {
@@ -629,7 +633,7 @@ namespace AeroEpubViewer.Epub
         public EpubMIMETypeEntry() { fullName = "mimetype"; }
         public override void PutInto(ZipArchive zip)
         {
-            var entry = zip.CreateEntry("mimetype", CompressionLevel.NoCompression);//没啥意义，还是Deflate，不是Store
+            var entry = zip.CreateEntry("mimetype", CompressionLevel.NoCompression);
 
             using (StreamWriter writer = new StreamWriter(entry.Open()))
             {

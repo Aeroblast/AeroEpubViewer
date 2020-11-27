@@ -43,7 +43,7 @@
             search_result.innerHTML = "";
             let xhttp = null
             xhttp = new XMLHttpRequest();
-            xhttp.open("GET", "aeroepub://app/StartSearch/" + word, true);
+            xhttp.open("GET", "aeroepub://domain/app/StartSearch/" + word, true);
             console.log(word);
             xhttp.send();
             checker = setInterval(Check, 300);
@@ -53,7 +53,7 @@
             if (!returned) return;
             returned = false;
             let xhttp = new XMLHttpRequest();
-            xhttp.open("GET", "aeroepub://app/CheckSearchResult/" + search_result_data.length, true);
+            xhttp.open("GET", "aeroepub://domain/app/CheckSearchResult/" + search_result_data.length, true);
             xhttp.onload = function () {
                 let text = xhttp.responseText;
                 let r = JSON.parse(text);

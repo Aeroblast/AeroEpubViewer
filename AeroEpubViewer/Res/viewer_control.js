@@ -45,7 +45,7 @@ document.OnFrameTouchEnd = function () {
 var PrepareResize = function () {
     window.removeEventListener("resize", PrepareResize)
     var xhttp = new XMLHttpRequest();
-    xhttp.open("GET", "aeroepub://app/pos" + GetBookPos(), true);
+    xhttp.open("GET", "aeroepub://domain/app/pos" + GetBookPos(), true);
     xhttp.send();
 };
 window.addEventListener("resize", PrepareResize);

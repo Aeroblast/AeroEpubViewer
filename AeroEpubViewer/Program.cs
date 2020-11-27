@@ -7,7 +7,7 @@ using System.IO;
 using CefSharp;
 using CefSharp.Web;
 using CefSharp.WinForms;
-using AeroEpubViewer.Epub;
+using AeroEpub;
 namespace AeroEpubViewer
 {
     public static class Program

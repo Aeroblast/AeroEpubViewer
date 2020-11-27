@@ -12,7 +12,7 @@ using CefSharp;
 using CefSharp.WinForms;
 using CefSharp.Web;
 using CefSharp.Handler;
-using AeroEpubViewer.Epub;
+using AeroEpub;
 namespace AeroEpubViewer
 {
     public class EpubViewer : Form
@@ -22,9 +22,9 @@ namespace AeroEpubViewer
         public EpubViewer()
         {
             if (UserSettings.viewMode == "paged")
-                chromium = new ChromiumWebBrowser("aeroepub://viewer/viewer-paged.html");
+                chromium = new ChromiumWebBrowser("aeroepub://domain/viewer/viewer-paged.html");
             else
-                chromium = new ChromiumWebBrowser("aeroepub://viewer/viewer.html");
+                chromium = new ChromiumWebBrowser("aeroepub://domain/viewer/viewer.html");
             chromium.BrowserSettings.WebSecurity = CefState.Disabled;
             Controls.Add(chromium);
             chromium.Dock = DockStyle.Fill;
@@ -59,7 +59,7 @@ namespace AeroEpubViewer
         }
         private void OnLoad(Object sender, EventArgs e)
         {
-            chromium.ShowDevTools();
+            //chromium.ShowDevTools();
 
             refreshForm = new RefreshForm(() =>
             {
@@ -89,7 +89,7 @@ namespace AeroEpubViewer
             foreach (Itemref i in Program.epub.spine)
             {
                 if (!i.linear) continue;
-                initCmd += string.Format(",'{0}'", "aeroepub://book/" + i.ToString());
+                initCmd += string.Format(",'{0}'", "aeroepub://domain/book/" + i.ToString());
                 int l;
                 if (i.item.mediaType == "application/xhtml+xml")
                 {

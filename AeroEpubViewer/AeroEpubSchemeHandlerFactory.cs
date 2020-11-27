@@ -12,7 +12,7 @@ using CefSharp;
 using CefSharp.WinForms;
 using CefSharp.Web;
 using CefSharp.Handler;
-using AeroEpubViewer.Epub;
+using AeroEpub;
 namespace AeroEpubViewer
 {
     public class AeroEpubSchemeHandlerFactory : ISchemeHandlerFactory
@@ -25,7 +25,8 @@ namespace AeroEpubViewer
         {
             var uri = new Uri(request.Url);
             Log.log(request.Url);
-            switch (uri.Host)
+            var route = uri.AbsolutePath.Split('/')[1];
+            switch (route)
             {
                 case "book":
                     {
@@ -33,7 +34,7 @@ namespace AeroEpubViewer
                         {
                             return ResourceHandler.FromString("");
                         }
-                        var epubItemPath = uri.AbsolutePath;
+                        var epubItemPath = uri.AbsolutePath.Substring("/book/".Length);
                         if (epubItemPath[0] == '/') epubItemPath = epubItemPath.Substring(1);
                         Item i = Program.epub.GetItem(epubItemPath);
                         if (i != null)
@@ -118,7 +119,7 @@ namespace AeroEpubViewer
                     break;
                 case "viewer":
                     {
-                        var filename = uri.AbsolutePath.Substring(1).Replace("/", ".");
+                        var filename = uri.AbsolutePath.Substring("/viewer/".Length).Replace("/", ".");
                         Stream fs = assembly.GetManifestResourceStream("AeroEpubViewer.Res." + filename);
                         string mime = Util.GetMimeType(filename);
                         if (mime != null)
@@ -127,7 +128,7 @@ namespace AeroEpubViewer
                     } //break;
                 case "app":
                     {
-                        string[] args = uri.AbsolutePath.Substring(1).Split('/');
+                        string[] args = uri.AbsolutePath.Substring("/app/".Length).Split('/');
                         switch (args[0])
                         {
                             case "pos":
@@ -153,7 +154,7 @@ namespace AeroEpubViewer
                                 return ResourceHandler.FromString(SpecialPageService.BookInfo());
                             case "StartSearch":
                                 {
-                                    var t = uri.AbsolutePath.Substring(1);
+                                    var t = uri.AbsolutePath.Substring("/app/".Length);
                                     int i = t.IndexOf('/');
                                     var word = Uri.UnescapeDataString(t.Substring(i + 1));
                                     SearchService.Start(word);
@@ -164,7 +165,7 @@ namespace AeroEpubViewer
                                 return ResourceHandler.FromString(SearchService.GetResult(int.Parse(args[1])));
                             case "CopyImage":
                                 {
-                                    string path = uri.AbsolutePath.Substring("/CopyImage/".Length);
+                                    string path = uri.AbsolutePath.Substring("/app/CopyImage/".Length);
                                     var f = Program.epub.GetFile(path);
                                     using (var stm = new MemoryStream(f.GetBytes()))
                                     using (var img = System.Drawing.Image.FromStream(stm))

@@ -33,7 +33,7 @@ function LoadTocNav(data, path) {///will be called from C#
 document.Link = Link;
 function Link(url, _selector = null) {
     if (url.startsWith("http://") || url.startsWith("https://")) {
-        AppCall("aeroepub://app/External/" + encodeURIComponent(url));
+        AppCall("aeroepub://domain/app/External/" + encodeURIComponent(url));
     }
     let fullurl = url;
     if (fullurl.indexOf("/../") > 0) {
@@ -46,7 +46,7 @@ function Link(url, _selector = null) {
         fullurl = fullurl.substring(0, j) + fullurl.substring(i + 3);
     }
     if (fullurl.indexOf("aeroepub") != 0)
-        fullurl = "aeroepub://" + ("book/" + fullurl).replace("//", "/");
+        fullurl = "aeroepub://domain/" + ("book/" + fullurl).replace("//", "/");
     let split_temp = fullurl.split('#');
     let path = split_temp[0];
     let selector = null;
